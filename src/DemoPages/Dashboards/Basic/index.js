@@ -144,7 +144,8 @@ export default class AnalyticsDashboard1 extends Component {
                                                             <div className="widget-content-outer">
                                                                 <div className="widget-content-wrapper">
                                                                     <div className="widget-content-left mr-3">
-                                                                        <div className="widget-numbers fsize-3 text-muted">
+                                                                        <div
+                                                                            className="widget-numbers fsize-3 text-muted">
                                                                             63%
                                                                         </div>
                                                                     </div>
@@ -168,7 +169,8 @@ export default class AnalyticsDashboard1 extends Component {
                                                             <div className="widget-content-outer">
                                                                 <div className="widget-content-wrapper">
                                                                     <div className="widget-content-left mr-3">
-                                                                        <div className="widget-numbers fsize-3 text-muted">
+                                                                        <div
+                                                                            className="widget-numbers fsize-3 text-muted">
                                                                             32%
                                                                         </div>
                                                                     </div>
@@ -195,7 +197,8 @@ export default class AnalyticsDashboard1 extends Component {
                                                             <div className="widget-content-outer">
                                                                 <div className="widget-content-wrapper">
                                                                     <div className="widget-content-left mr-3">
-                                                                        <div className="widget-numbers fsize-3 text-muted">
+                                                                        <div
+                                                                            className="widget-numbers fsize-3 text-muted">
                                                                             71%
                                                                         </div>
                                                                     </div>
@@ -219,7 +222,8 @@ export default class AnalyticsDashboard1 extends Component {
                                                             <div className="widget-content-outer">
                                                                 <div className="widget-content-wrapper">
                                                                     <div className="widget-content-left mr-3">
-                                                                        <div className="widget-numbers fsize-3 text-muted">
+                                                                        <div
+                                                                            className="widget-numbers fsize-3 text-muted">
                                                                             41%
                                                                         </div>
                                                                     </div>
@@ -249,15 +253,19 @@ export default class AnalyticsDashboard1 extends Component {
                                                     </div>
                                                 </div>
                                                 <ResponsiveContainer height={187}>
-                                                    <AreaChart data={data} margin={{top: -45, right: 0, left: 0, bottom: 0}}>
+                                                    <AreaChart data={data}
+                                                               margin={{top: -45, right: 0, left: 0, bottom: 0}}>
                                                         <defs>
                                                             <linearGradient id="colorPv2" x1="0" y1="0" x2="0" y2="1">
-                                                                <stop offset="10%" stopColor="var(--warning)" stopOpacity={0.7}/>
-                                                                <stop offset="90%" stopColor="var(--warning)" stopOpacity={0}/>
+                                                                <stop offset="10%" stopColor="var(--warning)"
+                                                                      stopOpacity={0.7}/>
+                                                                <stop offset="90%" stopColor="var(--warning)"
+                                                                      stopOpacity={0}/>
                                                             </linearGradient>
                                                         </defs>
                                                         <Tooltip/>
-                                                        <Area type='monotoneX' dataKey='uv' stroke='var(--warning)' strokeWidth={2} fillOpacity={1}
+                                                        <Area type='monotoneX' dataKey='uv' stroke='var(--warning)'
+                                                              strokeWidth={2} fillOpacity={1}
                                                               fill="url(#colorPv2)"/>
                                                     </AreaChart>
                                                 </ResponsiveContainer>
@@ -268,16 +276,19 @@ export default class AnalyticsDashboard1 extends Component {
                                                 <ResponsiveContainer height={179}>
                                                     <ComposedChart data={data2}>
                                                         <CartesianGrid stroke="#ffffff"/>
-                                                        <Area type="monotone" dataKey="amt" fill="#f7ffd0" stroke="#85a200"/>
+                                                        <Area type="monotone" dataKey="amt" fill="#f7ffd0"
+                                                              stroke="#85a200"/>
                                                         <Bar dataKey="pv" barSize={16} fill="var(--primary)"/>
-                                                        <Line type="monotone" dataKey="uv" strokeWidth="3" stroke="var(--danger)"/>
+                                                        <Line type="monotone" dataKey="uv" strokeWidth="3"
+                                                              stroke="var(--danger)"/>
                                                     </ComposedChart>
                                                 </ResponsiveContainer>
                                                 <div className="widget-chart-content mt-3 mb-2">
                                                     <div className="widget-description mt-0 text-success">
                                                         <FontAwesomeIcon icon={faArrowUp}/>
                                                         <span className="pl-2 pr-2">37.2%</span>
-                                                        <span className="text-muted opacity-8">performance increase</span>
+                                                        <span
+                                                            className="text-muted opacity-8">performance increase</span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -288,7 +299,8 @@ export default class AnalyticsDashboard1 extends Component {
                                                             <div className="widget-content-outer">
                                                                 <div className="widget-content-wrapper">
                                                                     <div className="widget-content-left mr-3">
-                                                                        <div className="widget-numbers fsize-3 text-muted">
+                                                                        <div
+                                                                            className="widget-numbers fsize-3 text-muted">
                                                                             23%
                                                                         </div>
                                                                     </div>
@@ -312,7 +324,8 @@ export default class AnalyticsDashboard1 extends Component {
                                                             <div className="widget-content-outer">
                                                                 <div className="widget-content-wrapper">
                                                                     <div className="widget-content-left mr-3">
-                                                                        <div className="widget-numbers fsize-3 text-muted">
+                                                                        <div
+                                                                            className="widget-numbers fsize-3 text-muted">
                                                                             76%
                                                                         </div>
                                                                     </div>
@@ -339,7 +352,8 @@ export default class AnalyticsDashboard1 extends Component {
                                                             <div className="widget-content-outer">
                                                                 <div className="widget-content-wrapper">
                                                                     <div className="widget-content-left mr-3">
-                                                                        <div className="widget-numbers fsize-3 text-muted">
+                                                                        <div
+                                                                            className="widget-numbers fsize-3 text-muted">
                                                                             83%
                                                                         </div>
                                                                     </div>
@@ -363,7 +377,8 @@ export default class AnalyticsDashboard1 extends Component {
                                                             <div className="widget-content-outer">
                                                                 <div className="widget-content-wrapper">
                                                                     <div className="widget-content-left mr-3">
-                                                                        <div className="widget-numbers fsize-3 text-muted">
+                                                                        <div
+                                                                            className="widget-numbers fsize-3 text-muted">
                                                                             48%
                                                                         </div>
                                                                     </div>
@@ -439,7 +454,8 @@ export default class AnalyticsDashboard1 extends Component {
                                             <div className="widget-chart-wrapper chart-wrapper-relative">
                                                 <ResponsiveContainer height={100}>
                                                     <BarChart data={data}>
-                                                        <Bar dataKey='uv' fill='#81a4ff' stroke='#3f6ad8' strokeWidth={2}/>
+                                                        <Bar dataKey='uv' fill='#81a4ff' stroke='#3f6ad8'
+                                                             strokeWidth={2}/>
                                                     </BarChart>
                                                 </ResponsiveContainer>
                                             </div>
@@ -468,7 +484,8 @@ export default class AnalyticsDashboard1 extends Component {
                                         </div>
                                     </Col>
                                     <Col md="6">
-                                        <div className="card mb-3 bg-midnight-bloom widget-chart text-white card-border">
+                                        <div
+                                            className="card mb-3 bg-midnight-bloom widget-chart text-white card-border">
                                             <div className="icon-wrapper rounded">
                                                 <div className="icon-wrapper-bg bg-white opacity-10"/>
                                                 <i className="lnr-screen icon-gradient bg-warm-flame"/>
@@ -525,7 +542,8 @@ export default class AnalyticsDashboard1 extends Component {
                                                 <ResponsiveContainer width='100%' aspect={3.0 / 1.0}>
                                                     <LineChart data={data}
                                                                margin={{top: 0, right: 5, left: 5, bottom: 0}}>
-                                                        <Line type='monotone' dataKey='pv' stroke='#ffffff' strokeWidth={3}/>
+                                                        <Line type='monotone' dataKey='pv' stroke='#ffffff'
+                                                              strokeWidth={3}/>
                                                     </LineChart>
                                                 </ResponsiveContainer>
                                             </div>
@@ -576,7 +594,9 @@ export default class AnalyticsDashboard1 extends Component {
                                                 </div>
                                                 <div className="widget-content-right w-100">
                                                     <div className="progress-bar-xs progress">
-                                                        <div className="progress-bar bg-danger" role="progressbar" aria-valuenow="71" aria-valuemin="0" aria-valuemax="100" style={{ width: '71%' }}></div>
+                                                        <div className="progress-bar bg-danger" role="progressbar"
+                                                             aria-valuenow="71" aria-valuemin="0" aria-valuemax="100"
+                                                             style={{width: '71%'}}></div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -597,7 +617,9 @@ export default class AnalyticsDashboard1 extends Component {
                                                 </div>
                                                 <div className="widget-content-right w-100">
                                                     <div className="progress-bar-xs progress">
-                                                        <div className="progress-bar bg-success" role="progressbar" aria-valuenow="54" aria-valuemin="0" aria-valuemax="100" style={{ width: '54%' }}></div>
+                                                        <div className="progress-bar bg-success" role="progressbar"
+                                                             aria-valuenow="54" aria-valuemin="0" aria-valuemax="100"
+                                                             style={{width: '54%'}}></div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -618,7 +640,9 @@ export default class AnalyticsDashboard1 extends Component {
                                                 </div>
                                                 <div className="widget-content-right w-100">
                                                     <div className="progress-bar-xs progress">
-                                                        <div className="progress-bar bg-warning" role="progressbar" aria-valuenow="32" aria-valuemin="0" aria-valuemax="100" style={{ width: '32%' }}></div>
+                                                        <div className="progress-bar bg-warning" role="progressbar"
+                                                             aria-valuenow="32" aria-valuemin="0" aria-valuemax="100"
+                                                             style={{width: '32%'}}></div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -639,7 +663,9 @@ export default class AnalyticsDashboard1 extends Component {
                                                 </div>
                                                 <div className="widget-content-right w-100">
                                                     <div className="progress-bar-xs progress">
-                                                        <div className="progress-bar bg-info" role="progressbar" aria-valuenow="89" aria-valuemin="0" aria-valuemax="100" style={{ width: '89%' }}></div>
+                                                        <div className="progress-bar bg-info" role="progressbar"
+                                                             aria-valuenow="89" aria-valuemin="0" aria-valuemax="100"
+                                                             style={{width: '89%'}}></div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -663,7 +689,8 @@ export default class AnalyticsDashboard1 extends Component {
                                         </div>
                                     </div>
                                     <div className="table-responsive">
-                                        <table className="align-middle mb-0 table table-borderless table-striped table-hover">
+                                        <table
+                                            className="align-middle mb-0 table table-borderless table-striped table-hover">
                                             <thead>
                                             <tr>
                                                 <th className="text-center">#</th>
@@ -681,12 +708,15 @@ export default class AnalyticsDashboard1 extends Component {
                                                         <div className="widget-content-wrapper">
                                                             <div className="widget-content-left mr-3">
                                                                 <div className="widget-content-left">
-                                                                    <img width={40} className="rounded-circle" src={avatar4} alt="Avatar" />
+                                                                    <img width={40} className="rounded-circle"
+                                                                         src={avatar4} alt="Avatar"/>
                                                                 </div>
                                                             </div>
                                                             <div className="widget-content-left flex2">
                                                                 <div className="widget-heading">John Doe</div>
-                                                                <div className="widget-subheading opacity-7">Web Developer</div>
+                                                                <div className="widget-subheading opacity-7">Web
+                                                                    Developer
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -696,7 +726,8 @@ export default class AnalyticsDashboard1 extends Component {
                                                     <div className="badge badge-warning">Pending</div>
                                                 </td>
                                                 <td className="text-center">
-                                                    <button type="button" className="btn btn-primary btn-sm">Details</button>
+                                                    <button type="button" className="btn btn-primary btn-sm">Details
+                                                    </button>
                                                 </td>
                                             </tr>
                                             <tr>
@@ -706,12 +737,15 @@ export default class AnalyticsDashboard1 extends Component {
                                                         <div className="widget-content-wrapper">
                                                             <div className="widget-content-left mr-3">
                                                                 <div className="widget-content-left">
-                                                                    <img width={40} className="rounded-circle" src={avatar3} alt="Avatar" />
+                                                                    <img width={40} className="rounded-circle"
+                                                                         src={avatar3} alt="Avatar"/>
                                                                 </div>
                                                             </div>
                                                             <div className="widget-content-left flex2">
                                                                 <div className="widget-heading">Ruben Tillman</div>
-                                                                <div className="widget-subheading opacity-7">Etiam sit amet orci eget</div>
+                                                                <div className="widget-subheading opacity-7">Etiam sit
+                                                                    amet orci eget
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -721,7 +755,8 @@ export default class AnalyticsDashboard1 extends Component {
                                                     <div className="badge badge-success">Completed</div>
                                                 </td>
                                                 <td className="text-center">
-                                                    <button type="button" className="btn btn-primary btn-sm">Details</button>
+                                                    <button type="button" className="btn btn-primary btn-sm">Details
+                                                    </button>
                                                 </td>
                                             </tr>
                                             <tr>
@@ -731,12 +766,15 @@ export default class AnalyticsDashboard1 extends Component {
                                                         <div className="widget-content-wrapper">
                                                             <div className="widget-content-left mr-3">
                                                                 <div className="widget-content-left">
-                                                                    <img width={40} className="rounded-circle" src={avatar2} alt="Avatar" />
+                                                                    <img width={40} className="rounded-circle"
+                                                                         src={avatar2} alt="Avatar"/>
                                                                 </div>
                                                             </div>
                                                             <div className="widget-content-left flex2">
                                                                 <div className="widget-heading">Elliot Huber</div>
-                                                                <div className="widget-subheading opacity-7">Lorem ipsum dolor sic</div>
+                                                                <div className="widget-subheading opacity-7">Lorem ipsum
+                                                                    dolor sic
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -746,7 +784,8 @@ export default class AnalyticsDashboard1 extends Component {
                                                     <div className="badge badge-danger">In Progress</div>
                                                 </td>
                                                 <td className="text-center">
-                                                    <button type="button" className="btn btn-primary btn-sm">Details</button>
+                                                    <button type="button" className="btn btn-primary btn-sm">Details
+                                                    </button>
                                                 </td>
                                             </tr>
                                             <tr>
@@ -756,11 +795,14 @@ export default class AnalyticsDashboard1 extends Component {
                                                         <div className="widget-content-wrapper">
                                                             <div className="widget-content-left mr-3">
                                                                 <div className="widget-content-left">
-                                                                    <img width={40} className="rounded-circle" src={avatar1} alt="Avatar" /></div>
+                                                                    <img width={40} className="rounded-circle"
+                                                                         src={avatar1} alt="Avatar"/></div>
                                                             </div>
                                                             <div className="widget-content-left flex2">
                                                                 <div className="widget-heading">Vinnie Wagstaff</div>
-                                                                <div className="widget-subheading opacity-7">UI Designer</div>
+                                                                <div className="widget-subheading opacity-7">UI
+                                                                    Designer
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -770,14 +812,16 @@ export default class AnalyticsDashboard1 extends Component {
                                                     <div className="badge badge-info">On Hold</div>
                                                 </td>
                                                 <td className="text-center">
-                                                    <button type="button" className="btn btn-primary btn-sm">Details</button>
+                                                    <button type="button" className="btn btn-primary btn-sm">Details
+                                                    </button>
                                                 </td>
                                             </tr>
                                             </tbody>
                                         </table>
                                     </div>
                                     <div className="d-block text-center card-footer">
-                                        <button className="mr-2 btn-icon btn-icon-only btn btn-outline-danger"><i className="pe-7s-trash btn-icon-wrapper"> </i></button>
+                                        <button className="mr-2 btn-icon btn-icon-only btn btn-outline-danger"><i
+                                            className="pe-7s-trash btn-icon-wrapper"> </i></button>
                                         <button className="btn-wide btn btn-success">Save</button>
                                     </div>
                                 </Card>

@@ -7,9 +7,21 @@ import {css} from "@emotion/core";
 import PropagateLoader from "react-spinners/PropagateLoader";
 import SyncLoader from "react-spinners/SyncLoader";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faAngleDown} from "@fortawesome/free-solid-svg-icons";
+import {faAngleDown, faAngleUp, faArrowUp} from "@fortawesome/free-solid-svg-icons";
 import {Line, LineChart, ResponsiveContainer} from "recharts";
-import {Button, CardBody, Col, Progress, Row, Tooltip} from "reactstrap";
+import {
+    Button,
+    Card,
+    CardBody,
+    CardFooter,
+    CardHeader,
+    Col, Nav,
+    NavItem, NavLink,
+    Progress,
+    Row,
+    TabPane,
+    Tooltip
+} from "reactstrap";
 import {Address, Explorer, Transaction, ErgoBox} from "@coinbarn/ergo-ts";
 import ReactTooltip from 'react-tooltip';
 
@@ -31,6 +43,7 @@ export default class ActiveAuctions extends React.Component {
             this.setState({height: res})
         })
         getActiveAuctions().then(boxes => {
+            console.log(boxes)
             boxes.forEach(box => box.loader = false)
             this.setState({auctions: boxes, loading: false})
             this.setState({tooltip: true})
@@ -59,42 +72,103 @@ export default class ActiveAuctions extends React.Component {
             return <Col key={box.id} md="6">
                 <div className="card mb-3 widget-chart">
                     <div className="widget-chart-content">
-                            <ResponsiveContainer height={20}>
-                                <SyncLoader
+                        <ResponsiveContainer height={20}>
+                            <SyncLoader
                                 css={override}
                                 size={8}
                                 color={"#0b473e"}
                                 loading={box.loader}
                             />
-                            </ResponsiveContainer>
-                        {/*<div className="icon-wrapper rounded-circle">*/}
-
-                        {/*    <div className="icon-wrapper-bg bg-warning"/>*/}
-                        {/*    <i className="lnr-heart icon-gradient bg-premium-dark"> </i>*/}
-                        {/*</div>*/}
+                        </ResponsiveContainer>
 
                         <div className="widget-numbers">
                             {box.value / 1e9} ERG
                         </div>
-                        <div style={{display: 'flex', justifyContent: 'center'}} className="widget-subheading">
-                            <span data-tip={box.assets[0].tokenId}>{friendlyToken(box.assets[0])}</span>
-                            <i onClick={() => this.showIssuingTx(box)} data-tip='click to see issuing transaction'
-                                  style={{fontSize: '1.5rem', marginLeft: '5px'}}
-                                  className="pe-7s-help1 icon-gradient bg-night-sky"/>
+                        <div className="widget-chart-wrapper chart-wrapper-relative">
+                            <div style={{display: 'flex', justifyContent: 'center'}} className="widget-subheading m-1">
+                                <span data-tip={box.assets[0].tokenId}>{friendlyToken(box.assets[0])}</span>
+                                <i onClick={() => this.showIssuingTx(box)} data-tip='click to see issuing transaction'
+                                   style={{fontSize: '1.5rem', marginLeft: '5px'}}
+                                   className="pe-7s-help1 icon-gradient bg-night-sky"/>
 
+                            </div>
+                            <div style={{display: 'flex', justifyContent: 'center'}} className="widget-subheading m-1">
+                                <span data-tip={box.assets[0].tokenId}>{friendlyToken(box.assets[0])}</span>
+                                <i onClick={() => this.showIssuingTx(box)} data-tip='click to see issuing transaction'
+                                   style={{fontSize: '1.5rem', marginLeft: '5px'}}
+                                   className="pe-7s-help1 icon-gradient bg-night-sky"/>
+
+                            </div>
+                            <div style={{display: 'flex', justifyContent: 'center'}} className="widget-subheading m-1">
+                                <span data-tip={box.assets[0].tokenId}>{friendlyToken(box.assets[0])}</span>
+                                <i onClick={() => this.showIssuingTx(box)} data-tip='click to see issuing transaction'
+                                   style={{fontSize: '1.5rem', marginLeft: '5px'}}
+                                   className="pe-7s-help1 icon-gradient bg-night-sky"/>
+
+                            </div>
                         </div>
                         <ReactTooltip effect="solid" place="bottom"/>
-                        <div className="widget-description">
-                            Down by
-                            <span className="text-danger pl-1 pr-1">
-                                                <FontAwesomeIcon icon={faAngleDown}/>
-                                                <span className="pl-1">54.1%</span>
-                                            </span>
-                            from 30 days ago
+
+                        <div className="widget-chart-wrapper chart-wrapper-relative">
+                            <div style={{
+                                flex: 1,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                height: '50px',
+                                overflow: 'scroll'
+                            }}>
+                                <p className="text-primary">
+                                    This is a NFT containing word ergo in base16 - also is the first token auctioned on
+                                    top of Ergo
+                                </p>
+                            </div>
                         </div>
                     </div>
                     <div className="widget-chart-wrapper chart-wrapper-relative">
+                        <Button outline className="btn-outline-light m-2 border-0" color="primary">
+                            <i className="nav-link-icon lnr-pencil"> </i>
+                            <span>Place Bid</span>
+                        </Button>
+                        <Button outline className="btn-outline-light m-2 border-0" color="primary">
+                            <i className="nav-link-icon lnr-sync"> </i>
+                            <span>Refresh</span>
+                        </Button>
                     </div>
+                    <CardFooter>
+                        <Col md={6} className="widget-description">
+                            Up by
+                            <span className="text-success pl-1 pr-1">
+                                                <FontAwesomeIcon icon={faAngleUp}/>
+                                                <span className="pl-1">54.1%</span>
+                                            </span>
+                            since initial bid
+                        </Col>
+
+                        <Col md={6} className="justify-content-end ml-3">
+                            <div className="widget-content">
+                                <div className="widget-content-outer">
+                                    <div className="widget-content-wrapper">
+                                        <div className="widget-content-left mr-3">
+                                            <div className="widget-numbers fsize-2 text-muted">
+                                                233
+                                            </div>
+                                        </div>
+                                        <div className="widget-content-right">
+                                            <div className="text-muted opacity-6">
+                                                Blocks Remaining
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="widget-progress-wrapper">
+                                        <Progress className="progress-bar-xs progress-bar-animated-alt"
+                                                  value={50}/>
+                                    </div>
+                                </div>
+                            </div>
+                        </Col>
+
+                    </CardFooter>
+
                 </div>
             </Col>
         });
