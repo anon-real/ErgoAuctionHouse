@@ -1,21 +1,28 @@
-import React from "react";
-import {Slide, toast} from "react-toastify";
+import React from 'react';
+import { Slide, toast } from 'react-toastify';
 
-const explorerUrl = "https://explorer.ergoplatform.com/en/"
+const explorerUrl = 'https://explorer.ergoplatform.com/en/';
 
-export function friendlyToken(token) {
-    return token.amount + ' of ' + token.tokenId.slice(0, 13) + '...' + token.tokenId.slice(-13) + ' token';
+export function friendlyToken(token, quantity = true, length = 13) {
+    let res = '';
+    if (quantity) res = token.amount + ' of ';
+    res +=
+        token.tokenId.slice(0, length) +
+        '...' +
+        token.tokenId.slice(-length) +
+        ' token';
+    return res
 }
 
 export function friendlyAddress(addr) {
-    return addr.slice(0, 13) + '...' + addr.slice(-13)
+    return addr.slice(0, 13) + '...' + addr.slice(-13);
 }
 
 export function getTxUrl(txId) {
-    return explorerUrl + "transactions/" + txId
+    return explorerUrl + 'transactions/' + txId;
 }
 export function getAddrUrl(addr) {
-    return explorerUrl + "addresses/" + addr
+    return explorerUrl + 'addresses/' + addr;
 }
 
 export function showMsg(message, isError = false) {
@@ -24,6 +31,10 @@ export function showMsg(message, isError = false) {
         closeButton: true,
         autoClose: 5000,
         position: 'top-right',
-        type: (isError ? 'error' : 'default')
-    })
+        type: isError ? 'error' : 'default',
+    });
+}
+
+export function isWalletSaved() {
+    return sessionStorage.getItem('wallet') !== null;
 }
