@@ -4,7 +4,6 @@ import {
     currentHeight,
     getActiveAuctions,
     getTokenTx,
-    test,
 } from '../../../auction/explorer';
 import {
     friendlyAddress,
@@ -13,6 +12,7 @@ import {
     getTxUrl,
     isWalletSaved,
     showMsg,
+    showStickyNotif,
 } from '../../../auction/helpers';
 import { css } from '@emotion/core';
 import PropagateLoader from 'react-spinners/PropagateLoader';
@@ -53,6 +53,7 @@ import { getAssets } from '../../../auction/nodeWallet';
 import number from 'd3-scale/src/number';
 import FormControl from 'react-bootstrap/lib/FormControl';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
+import MyBidsModal from "./myBids";
 
 const override = css`
     display: block;
@@ -62,7 +63,6 @@ const override = css`
 export default class ActiveAuctions extends React.Component {
     constructor(props) {
         super(props);
-        console.log('fuckkkkkkkkkkkkkkk')
         this.state = {
             lastUpdated: 0,
             tokenId: '',
@@ -73,6 +73,7 @@ export default class ActiveAuctions extends React.Component {
             auctions: [],
             tooltip: false,
             currentHeight: 0,
+            myBids: false,
         };
         this.refreshInfo = this.refreshInfo.bind(this);
         this.toggleModal = this.toggleModal.bind(this);
@@ -81,6 +82,26 @@ export default class ActiveAuctions extends React.Component {
         this.canStartAuction = this.canStartAuction.bind(this);
         this.toggleBidModal = this.toggleBidModal.bind(this);
         this.updateAssets = this.updateAssets.bind(this);
+        this.closeMyBids = this.closeMyBids.bind(this);
+    }
+
+    componentDidMount() {
+        console.log(this.state);
+        currentHeight().then((res) => {
+            this.setState({ height: res });
+        });
+        this.refreshInfo(true);
+        this.refreshTimer = setInterval(this.refreshInfo, 5000);
+    }
+
+    componentWillUnmount() {
+        if (this.refreshTimer !== undefined) {
+            clearInterval(this.refreshTimer);
+        }
+    }
+
+    closeMyBids() {
+        this.setState(this.setState({myBids: false}))
     }
 
     openAuction() {
@@ -172,21 +193,6 @@ export default class ActiveAuctions extends React.Component {
         }
     }
 
-    componentDidMount() {
-        console.log(this.state);
-        currentHeight().then((res) => {
-            this.setState({ height: res });
-        });
-        this.refreshInfo(true);
-        // this.refreshTimer = setInterval(this.refreshInfo, 5000);
-    }
-
-    componentWillUnmount() {
-        if (this.refreshTimer !== undefined) {
-            clearInterval(this.refreshTimer);
-        }
-    }
-
     refreshInfo(force = false) {
         if (!force) {
             this.setState({ lastUpdated: this.state.lastUpdated + 5 });
@@ -257,7 +263,6 @@ export default class ActiveAuctions extends React.Component {
                                     loading={box.loader}
                                 />
                             </ResponsiveContainer>
-                            {test(322945)}
 
                             <div className="widget-numbers">
                                 {box.value / 1e9} ERG
@@ -348,6 +353,10 @@ export default class ActiveAuctions extends React.Component {
                         </div>
                         <div className="widget-chart-wrapper chart-wrapper-relative">
                             <Button
+                                onClick={() => {
+                                    this.setState({myBids: true, currentBox: box})
+                                    this.setState({ currentBox: box })
+                                }}
                                 outline
                                 className="btn-outline-light m-2 border-0"
                                 color="primary"
@@ -413,77 +422,98 @@ export default class ActiveAuctions extends React.Component {
         });
         return (
             <Fragment>
-                {this.state.currentBox !== undefined && <Modal
-                    isOpen={this.state.bidModal}
-                    toggle={this.toggleBidModal}
-                    className={this.props.className}
-                >
-                    <ModalHeader toggle={this.toggle}>
-                <span className="fsize-1 text-muted">
-                    New bid for {friendlyToken(this.state.currentBox.assets[0], false, 5)}
-                </span>
-                    </ModalHeader>
-                    <ModalBody>
-                        <Container>
-                            <Row>
-                                <SyncLoader
-                                    css={override}
-                                    size={8}
-                                    color={'#0b473e'}
-                                    loading={this.state.modalLoading}
-                                />
-                            </Row>
-
-                            <FormGroup>
-                                <InputGroup>
-                                    <Input
-                                        type="number"
-                                        value={this.state.bidAmount}
-                                        invalid={
-                                            this.state.bidAmount <
-                                            (this.state.currentBox.value + this.state.currentBox.minStep) / 1e9
-                                        }
-                                        onChange={(event) =>
-                                            this.setState({
-                                                bidAmount: event.target.value,
-                                            })
-                                        }
-                                        id="bidAmount"
+                <MyBidsModal closeMyBids={this.closeMyBids} isOpen={this.state.myBids} box={this.state.currentBox}/>
+                {this.state.currentBox !== undefined && (
+                    <Modal
+                        isOpen={this.state.bidModal}
+                        toggle={this.toggleBidModal}
+                        className={this.props.className}
+                    >
+                        <ModalHeader toggle={this.toggle}>
+                            <span className="fsize-1 text-muted">
+                                New bid for{' '}
+                                {friendlyToken(
+                                    this.state.currentBox.assets[0],
+                                    false,
+                                    5
+                                )}
+                            </span>
+                        </ModalHeader>
+                        <ModalBody>
+                            <Container>
+                                <Row>
+                                    <SyncLoader
+                                        css={override}
+                                        size={8}
+                                        color={'#0b473e'}
+                                        loading={this.state.modalLoading}
                                     />
-                                    <InputGroupAddon addonType="append">
-                                        <InputGroupText>ERG</InputGroupText>
-                                    </InputGroupAddon>
-                                    <FormFeedback invalid>
-                                        Minimum bid value for this auction is{' '}
-                                        {(this.state.currentBox.value + this.state.currentBox.minStep) / 1e9} ERG
-                                    </FormFeedback>
-                                </InputGroup>
-                                <FormText>Specify your bid amount.</FormText>
-                            </FormGroup>
-                        </Container>
-                    </ModalBody>
-                    <ModalFooter>
-                        <Button
-                            className="ml mr-2 btn-transition"
-                            color="secondary"
-                            onClick={this.toggleBidModal}
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            className="mr-2 btn-transition"
-                            color="secondary"
-                            disabled={
-                                this.state.bidAmount < (this.state.currentBox.value + this.state.currentBox.minStep) / 1e9
-                            }
-                            // onClick={() =>
-                            //
-                            // }
-                        >
-                            Place Bid
-                        </Button>
-                    </ModalFooter>
-                </Modal>}
+                                </Row>
+
+                                <FormGroup>
+                                    <InputGroup>
+                                        <Input
+                                            type="number"
+                                            value={this.state.bidAmount}
+                                            invalid={
+                                                this.state.bidAmount <
+                                                (this.state.currentBox.value +
+                                                    this.state.currentBox
+                                                        .minStep) /
+                                                    1e9
+                                            }
+                                            onChange={(event) =>
+                                                this.setState({
+                                                    bidAmount:
+                                                        event.target.value,
+                                                })
+                                            }
+                                            id="bidAmount"
+                                        />
+                                        <InputGroupAddon addonType="append">
+                                            <InputGroupText>ERG</InputGroupText>
+                                        </InputGroupAddon>
+                                        <FormFeedback invalid>
+                                            Minimum bid value for this auction
+                                            is{' '}
+                                            {(this.state.currentBox.value +
+                                                this.state.currentBox.minStep) /
+                                                1e9}{' '}
+                                            ERG
+                                        </FormFeedback>
+                                    </InputGroup>
+                                    <FormText>
+                                        Specify your bid amount.
+                                    </FormText>
+                                </FormGroup>
+                            </Container>
+                        </ModalBody>
+                        <ModalFooter>
+                            <Button
+                                className="ml mr-2 btn-transition"
+                                color="secondary"
+                                onClick={this.toggleBidModal}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                className="mr-2 btn-transition"
+                                color="secondary"
+                                disabled={
+                                    this.state.bidAmount <
+                                    (this.state.currentBox.value +
+                                        this.state.currentBox.minStep) /
+                                        1e9
+                                }
+                                // onClick={() =>
+                                //
+                                // }
+                            >
+                                Place Bid
+                            </Button>
+                        </ModalFooter>
+                    </Modal>
+                )}
 
                 <Modal
                     size="lg"
@@ -513,24 +543,25 @@ export default class ActiveAuctions extends React.Component {
                                         onChange={(event) => {
                                             this.setState({
                                                 tokenId: event.target.value,
-                                                tokenQuantity: this.state.assets[
-                                                    event.target.value
-                                                    ],
+                                                tokenQuantity: this.state
+                                                    .assets[event.target.value],
                                             });
                                         }}
                                         type="select"
                                         id="tokenId"
                                         invalid={this.state.tokenId === ''}
                                     >
-                                        {Object.keys(this.state.assets).map((id) => {
-                                            return <option>{id}</option>;
-                                        })}
+                                        {Object.keys(this.state.assets).map(
+                                            (id) => {
+                                                return <option>{id}</option>;
+                                            }
+                                        )}
                                     </Input>
                                     <FormFeedback invalid>
                                         No token to select from.
                                     </FormFeedback>
                                     <FormText>
-                                        These tokens are loaded from your wallet
+                                        These tokens are loaded from your wallet.
                                     </FormText>
                                 </FormGroup>
                                 <div className="divider" />
@@ -546,25 +577,33 @@ export default class ActiveAuctions extends React.Component {
                                                 step="1"
                                                 value={this.state.tokenQuantity}
                                                 onChange={(event) => {
-                                                    let cur = event.target.value;
+                                                    let cur =
+                                                        event.target.value;
                                                     this.setState({
-                                                        tokenQuantity: parseInt(cur),
+                                                        tokenQuantity: parseInt(
+                                                            cur
+                                                        ),
                                                     });
                                                 }}
                                                 id="tokenQuantity"
                                                 invalid={
                                                     this.state.assets[
                                                         this.state.tokenId
-                                                        ] < this.state.tokenQuantity
+                                                    ] < this.state.tokenQuantity
                                                 }
                                             />
                                             <FormFeedback invalid>
-                                                More than balance, selected token's
-                                                balance is{' '}
-                                                {this.state.assets[this.state.tokenId]}
+                                                More than balance, selected
+                                                token's balance is{' '}
+                                                {
+                                                    this.state.assets[
+                                                        this.state.tokenId
+                                                    ]
+                                                }
                                             </FormFeedback>
                                             <FormText>
-                                                Specify token quantity to be auctioned.
+                                                Specify token quantity to be
+                                                auctioned.
                                             </FormText>
                                         </FormGroup>
                                     </Col>
@@ -575,30 +614,39 @@ export default class ActiveAuctions extends React.Component {
                                                 <Input
                                                     min={0.1}
                                                     type="number"
-                                                    value={this.state.initialBid}
+                                                    value={
+                                                        this.state.initialBid
+                                                    }
                                                     onChange={(event) => {
                                                         let val = number(
                                                             event.target.value
                                                         );
-                                                        if (!isNaN(val) && val < 0) {
+                                                        if (
+                                                            !isNaN(val) &&
+                                                            val < 0
+                                                        ) {
                                                             this.setState({
                                                                 initialBid: 0.1,
                                                             });
                                                         } else {
                                                             this.setState({
                                                                 initialBid:
-                                                                event.target.value,
+                                                                    event.target
+                                                                        .value,
                                                             });
                                                         }
                                                     }}
                                                     id="bid"
                                                 />
                                                 <InputGroupAddon addonType="append">
-                                                    <InputGroupText>ERG</InputGroupText>
+                                                    <InputGroupText>
+                                                        ERG
+                                                    </InputGroupText>
                                                 </InputGroupAddon>
                                             </InputGroup>
                                             <FormText>
-                                                Specify initial bid of the auction.
+                                                Specify initial bid of the
+                                                auction.
                                             </FormText>
                                         </FormGroup>
                                     </Col>
@@ -613,22 +661,27 @@ export default class ActiveAuctions extends React.Component {
                                             <InputGroup>
                                                 <Input
                                                     type="number"
-                                                    value={this.state.auctionStep}
+                                                    value={
+                                                        this.state.auctionStep
+                                                    }
                                                     onChange={(event) =>
                                                         this.setState({
                                                             auctionStep:
-                                                            event.target.value,
+                                                                event.target
+                                                                    .value,
                                                         })
                                                     }
                                                     id="auctionStep"
                                                 />
                                                 <InputGroupAddon addonType="append">
-                                                    <InputGroupText>ERG</InputGroupText>
+                                                    <InputGroupText>
+                                                        ERG
+                                                    </InputGroupText>
                                                 </InputGroupAddon>
                                             </InputGroup>
                                             <FormText>
-                                                The bidder must increase the bid by at
-                                                least this value.
+                                                The bidder must increase the bid
+                                                by at least this value.
                                             </FormText>
                                         </FormGroup>
                                     </Col>
@@ -640,11 +693,15 @@ export default class ActiveAuctions extends React.Component {
                                             <InputGroup>
                                                 <Input
                                                     type="number"
-                                                    value={this.state.auctionDuration}
+                                                    value={
+                                                        this.state
+                                                            .auctionDuration
+                                                    }
                                                     onChange={(event) =>
                                                         this.setState({
                                                             auctionDuration:
-                                                            event.target.value,
+                                                                event.target
+                                                                    .value,
                                                         })
                                                     }
                                                     id="duration"
@@ -656,9 +713,10 @@ export default class ActiveAuctions extends React.Component {
                                                 </InputGroupAddon>
                                             </InputGroup>
                                             <FormText>
-                                                Auction will last for this number of
-                                                blocks. For example set to 720 for your
-                                                auction to last ~1 day.
+                                                Auction will last for this
+                                                number of blocks. For example
+                                                set to 720 for your auction to
+                                                last ~1 day.
                                             </FormText>
                                         </FormGroup>
                                     </Col>
@@ -668,7 +726,8 @@ export default class ActiveAuctions extends React.Component {
                                     <Label for="description">Description</Label>
                                     <Input
                                         invalid={
-                                            this.state.description !== undefined &&
+                                            this.state.description !==
+                                                undefined &&
                                             this.state.description.length > 150
                                         }
                                         value={this.state.description}
