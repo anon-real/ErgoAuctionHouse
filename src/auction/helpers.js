@@ -1,5 +1,5 @@
 import React from 'react';
-import { Slide, toast } from 'react-toastify';
+import {Bounce, Flip, Slide, toast, Zoom} from 'react-toastify';
 
 const explorerUrl = 'https://explorer.ergoplatform.com/en/';
 
@@ -31,6 +31,17 @@ export function showMsg(message, isError = false) {
         closeButton: true,
         autoClose: 5000,
         position: 'top-right',
+        type: isError ? 'error' : 'default',
+    });
+}
+
+export function showStickyNotif(message, isError = false) {
+    toast(message, {
+        transition: Flip,
+        closeButton: true,
+        autoClose: false,
+        closeOnClick: false,
+        position: 'top-center',
         type: isError ? 'error' : 'default',
     });
 }

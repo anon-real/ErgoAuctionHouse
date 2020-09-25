@@ -2,7 +2,8 @@ import {post, get} from './rest';
 
 function getUrl(url) {
     if (!url.startsWith('http')) url = 'http://' + url;
-    if (url.endsWith('/')) url = url.slice(0, url.length - 2);
+    if (url.endsWith('/')) url = url.slice(0, url.length - 1);
+    console.log(url)
     return url;
 }
 
