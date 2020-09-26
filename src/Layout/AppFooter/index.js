@@ -1,4 +1,6 @@
 import React, {Fragment} from 'react';
+import ergo from "../../assets/images/symbol_bold__1080px__black.svg";
+import github from "../../assets/images/GitHub-Mark.png";
 
 class AppFooter extends React.Component {
     render() {
@@ -8,33 +10,26 @@ class AppFooter extends React.Component {
             <Fragment>
                 <div className="app-footer">
                     <div className="app-footer__inner">
-                        <div className="app-footer-left">
-                            <ul className="nav">
-                                <li className="nav-item">
-                                    <a href="javascript:void(0);" className="nav-link">
-                                        Footer Link 1
-                                    </a>
-                                </li>
-                                <li className="nav-item">
-                                    <a href="javascript:void(0);" className="nav-link">
-                                        Footer Link 2
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
                         <div className="app-footer-right">
                             <ul className="nav">
                                 <li className="nav-item">
-                                    <a href="javascript:void(0);" className="nav-link">
-                                        Footer Link 3
+                                    <a target='_blank' href="https://ergoplatform.org/en/" className="nav-link">
+                                        <img
+                                            className='mr-2'
+                                            style={{ height: '20px', width: '20px' }}
+                                            src={ergo}
+                                        />
+                                        Ergo Platform
                                     </a>
                                 </li>
                                 <li className="nav-item">
-                                    <a href="javascript:void(0);" className="nav-link">
-                                        <div className="badge badge-success mr-1 ml-0">
-                                            <small>NEW</small>
-                                        </div>
-                                        Footer Link 4
+                                    <a target='_blank' href="https://github.com/anon-real" className="nav-link">
+                                        <img
+                                            className='mr-2'
+                                            style={{ height: '20px', width: '20px' }}
+                                            src={github}
+                                        />
+                                        Github
                                     </a>
                                 </li>
                             </ul>

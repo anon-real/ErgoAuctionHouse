@@ -5,21 +5,13 @@ import Hamburger from 'react-hamburgers';
 
 import cx from 'classnames';
 
-import {
-    faEllipsisV,
-
-} from '@fortawesome/free-solid-svg-icons';
+import {faEllipsisV,} from '@fortawesome/free-solid-svg-icons';
 
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 
-import {
-    Button
-} from 'reactstrap';
+import {Button} from 'reactstrap';
 
-import {
-    setEnableMobileMenu,
-    setEnableMobileMenuSmall,
-} from '../../reducers/ThemeOptions';
+import {setEnableMobileMenu, setEnableMobileMenuSmall,} from '../../reducers/ThemeOptions';
 
 class AppMobileMenu extends React.Component {
     constructor(props) {

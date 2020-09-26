@@ -1,5 +1,5 @@
 import React from 'react';
-import {Bounce, Flip, Slide, toast, Zoom} from 'react-toastify';
+import {Flip, Slide, toast} from 'react-toastify';
 
 const explorerUrl = 'https://explorer.ergoplatform.com/en/';
 

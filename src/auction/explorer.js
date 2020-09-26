@@ -1,11 +1,4 @@
-import {
-    Address,
-    Explorer,
-    Transaction,
-    ErgoBox,
-    Serializer,
-} from '@coinbarn/ergo-ts';
-import axios, { AxiosInstance, AxiosPromise, AxiosResponse } from 'axios';
+import {Address, Explorer,} from '@coinbarn/ergo-ts';
 
 const explorer = Explorer.mainnet;
 const auctionAddress =
