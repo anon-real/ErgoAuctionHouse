@@ -7970,7 +7970,7 @@ button,
   transition: width .2s; }
   .app-header__logo .logo-src {
     height: 40px;
-    width: 40px;
+    width: 150px;
     background: url("~assets/utils/images/logo-inverse.png"); }
 
 .app-header__menu,
@@ -8051,7 +8051,7 @@ button,
 .app-header.header-text-light .search-wrapper .input-holder .search-icon span::before {
   background: rgba(255, 255, 255, 0.8); }
 .app-header.header-text-light .app-header__logo .logo-src {
-  background: url("~assets/utils/images/logo.png"); }
+  }
 .app-header.header-text-light .app-header__mobile-menu .hamburger-inner,
 .app-header.header-text-light .app-header__mobile-menu .hamburger-inner::before,
 .app-header.header-text-light .app-header__mobile-menu .hamburger-inner::after {
@@ -8280,7 +8280,7 @@ button,
   .app-sidebar.sidebar-text-light .ps__rail-y:hover .ps__thumb-y {
     background: rgba(255, 255, 255, 0.2); }
   .app-sidebar.sidebar-text-light .app-header__logo .logo-src {
-    background: url("~assets/utils/images/logo.png"); }
+     }
   .app-sidebar.sidebar-text-light .app-header__logo .hamburger-inner,
   .app-sidebar.sidebar-text-light .app-header__logo .hamburger-inner::before,
   .app-sidebar.sidebar-text-light .app-header__logo .hamburger-inner::after {
