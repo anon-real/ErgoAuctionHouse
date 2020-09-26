@@ -10,6 +10,8 @@ import {
     setEnableMobileMenu,
     setEnableMobileMenuSmall,
 } from '../../reducers/ThemeOptions';
+import nodeWallet from "../../assets/images/symbol_bold__1080px__white.png";
+import {Button} from "reactstrap";
 
 class HeaderLogo extends React.Component {
     constructor(props) {
@@ -47,7 +49,14 @@ class HeaderLogo extends React.Component {
         return (
             <Fragment>
                 <div className="app-header__logo">
-                    <div className="logo-src"/>
+                    <div  className='logo-src'>
+                        {/*<div className="logo-src"/>*/}
+                        <img
+                            style={{ height: '40px', width: '40px' }}
+                            src={nodeWallet}
+                        />
+                        <strong className="ml-2 text-white">Ergo Auction</strong>
+                    </div>
                     <div className="header__pane ml-auto">
                         <div onClick={this.toggleEnableClosedSidebar}>
                             <Hamburger

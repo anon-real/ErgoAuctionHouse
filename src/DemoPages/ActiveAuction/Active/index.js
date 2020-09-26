@@ -218,8 +218,7 @@ export default class ActiveAuctions extends React.Component {
                         '9hyV1owHpWKuWUnd3cTbTTptCzRfWQFhA9Bs8dSKNcNWicmc6gz';
                     box.loader = false;
                 });
-                this.setState({ auctions: boxes, loading: false });
-                this.setState({ tooltip: true });
+                this.setState({ auctions: boxes, loading: false, tooltip: true });
             })
             .finally(() => {
                 this.setState({ loading: false });
