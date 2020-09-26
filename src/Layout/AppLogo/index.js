@@ -5,13 +5,8 @@ import Hamburger from 'react-hamburgers';
 
 import AppMobileMenu from '../AppMobileMenu';
 
-import {
-    setEnableClosedSidebar,
-    setEnableMobileMenu,
-    setEnableMobileMenuSmall,
-} from '../../reducers/ThemeOptions';
+import {setEnableClosedSidebar, setEnableMobileMenu, setEnableMobileMenuSmall,} from '../../reducers/ThemeOptions';
 import nodeWallet from "../../assets/images/symbol_bold__1080px__white.png";
-import {Button} from "reactstrap";
 
 class HeaderLogo extends React.Component {
     constructor(props) {
@@ -49,14 +44,14 @@ class HeaderLogo extends React.Component {
         return (
             <Fragment>
                 <div className="app-header__logo">
-                    <div  className='logo-src'>
+                    <a href='/' style={{ textDecoration: 'none'}} className='logo-src'>
                         {/*<div className="logo-src"/>*/}
                         <img
                             style={{ height: '40px', width: '40px' }}
                             src={nodeWallet}
                         />
                         <strong className="ml-2 text-white">Ergo Auction</strong>
-                    </div>
+                    </a>
                     <div className="header__pane ml-auto">
                         <div onClick={this.toggleEnableClosedSidebar}>
                             <Hamburger

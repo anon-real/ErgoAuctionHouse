@@ -1,8 +1,8 @@
 import React from 'react';
 import yoroiWallet from '../../../assets/images/yoroi-logo-shape-blue.inline.svg';
 import nodeWallet from '../../../assets/images/symbol_bold__1080px__black.svg';
-import { getAddress, getInfo } from '../../../auction/nodeWallet';
-import { showMsg } from '../../../auction/helpers';
+import {getAddress, getInfo} from '../../../auction/nodeWallet';
+import {showMsg} from '../../../auction/helpers';
 
 import {
     Button,
@@ -19,7 +19,7 @@ import {
 } from 'reactstrap';
 import classnames from 'classnames';
 import SyncLoader from 'react-spinners/SyncLoader';
-import { css } from '@emotion/core';
+import {css} from '@emotion/core';
 
 const override = css`
     display: block;

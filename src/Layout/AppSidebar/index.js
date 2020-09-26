@@ -9,9 +9,7 @@ import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import PerfectScrollbar from 'react-perfect-scrollbar';
 import HeaderLogo from '../AppLogo';
 
-import {
-    setEnableMobileMenu
-} from '../../reducers/ThemeOptions';
+import {setEnableMobileMenu} from '../../reducers/ThemeOptions';
 
 class AppSidebar extends Component {
 

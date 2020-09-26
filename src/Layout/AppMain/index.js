@@ -1,167 +1,87 @@
-import {BrowserRouter as Router, Route, Redirect} from 'react-router-dom';
-import React, {Suspense, lazy, Fragment} from 'react';
-import AuctionHistory from "../../DemoPages/AuctionHistory";
-import ActiveAuction from "../../DemoPages/ActiveAuction";
+import { Redirect, Route } from 'react-router-dom';
+import React, { Fragment, Suspense } from 'react';
+import AuctionHistory from '../../AuctionPages/AuctionHistory';
+import ActiveAuction from '../../AuctionPages/ActiveAuction';
 
-import {
-    ToastContainer,
-} from 'react-toastify';
-
-const Dashboards = lazy(() => import('../../DemoPages/Dashboards'));
-
-const Widgets = lazy(() => import('../../DemoPages/Widgets'));
-const Elements = lazy(() => import('../../DemoPages/Elements'));
-const Components = lazy(() => import('../../DemoPages/Components'));
-const Charts = lazy(() => import('../../DemoPages/Charts'));
-const Forms = lazy(() => import('../../DemoPages/Forms'));
-const Tables = lazy(() => import('../../DemoPages/Tables'));
+import { ToastContainer } from 'react-toastify';
+import Homepage from "../../Home";
+import AboutPage from "../../About";
 
 const AppMain = () => {
-
     return (
         <Fragment>
-
             {/* ActiveAuction */}
-
-            <Suspense fallback={
-                <div className="loader-container">
-                    <div className="loader-container-inner">
-                        <h6 className="mt-5">
-                            Please wait while we load all the Components examples
-                            <small>Because this is a demonstration we load at once all the Components examples. This wouldn't happen in a real live app!</small>
-                        </h6>
+            <Suspense
+                fallback={
+                    <div className="loader-container">
+                        <div className="loader-container-inner">
+                            <h6 className="mt-5">
+                                Please wait while we load all the Components
+                                examples
+                            </h6>
+                        </div>
                     </div>
-                </div>
-            }>
-                <Route path="/auction/active" component={ActiveAuction}/>
+                }
+            >
+                <Route path="/auction/active" component={ActiveAuction} />
             </Suspense>
 
             {/* AuctionHistory */}
-
-            <Suspense fallback={
-                <div className="loader-container">
-                    <div className="loader-container-inner">
-                        <h6 className="mt-5">
-                            Please wait while we load all the Components examples
-                            <small>Because this is a demonstration we load at once all the Components examples. This wouldn't happen in a real live app!</small>
-                        </h6>
+            <Suspense
+                fallback={
+                    <div className="loader-container">
+                        <div className="loader-container-inner">
+                            <h6 className="mt-5">
+                                Please wait while we load all the Components
+                                examples
+                            </h6>
+                        </div>
                     </div>
-                </div>
-            }>
-                <Route path="/auction/history" component={AuctionHistory}/>
+                }
+            >
+                <Route path="/auction/history" component={AuctionHistory} />
             </Suspense>
 
-            {/* Components */}
-
-            <Suspense fallback={
-                <div className="loader-container">
-                    <div className="loader-container-inner">
-                        <h6 className="mt-5">
-                            Please wait while we load all the Components examples
-                            <small>Because this is a demonstration we load at once all the Components examples. This wouldn't happen in a real live app!</small>
-                        </h6>
+            {/* Homepage */}
+            <Suspense
+                fallback={
+                    <div className="loader-container">
+                        <div className="loader-container-inner">
+                            <h6 className="mt-5">
+                                Please wait while we load all the Components
+                                examples
+                            </h6>
+                        </div>
                     </div>
-                </div>
-            }>
-                <Route path="/components" component={Components}/>
+                }
+            >
+                <Route path="/home" component={Homepage} />
             </Suspense>
 
-            {/* Forms */}
-
-            <Suspense fallback={
-                <div className="loader-container">
-                    <div className="loader-container-inner">
-                        <h6 className="mt-5">
-                            Please wait while we load all the Forms examples
-                            <small>Because this is a demonstration we load at once all the Forms examples. This wouldn't happen in a real live app!</small>
-                        </h6>
+            {/* Homepage */}
+            <Suspense
+                fallback={
+                    <div className="loader-container">
+                        <div className="loader-container-inner">
+                            <h6 className="mt-5">
+                                Please wait while we load all the Components
+                                examples
+                            </h6>
+                        </div>
                     </div>
-                </div>
-            }>
-                <Route path="/forms" component={Forms}/>
+                }
+            >
+                <Route path="/about" component={AboutPage} />
             </Suspense>
 
-            {/* Charts */}
-
-            <Suspense fallback={
-                <div className="loader-container">
-                    <div className="loader-container-inner">
-                        <h6 className="mt-3">
-                            Please wait while we load all the Charts examples
-                            <small>Because this is a demonstration we load at once all the Charts examples. This wouldn't happen in a real live app!</small>
-                        </h6>
-                    </div>
-                </div>
-            }>
-                <Route path="/charts" component={Charts}/>
-            </Suspense>
-
-            {/* Tables */}
-
-            <Suspense fallback={
-                <div className="loader-container">
-                    <div className="loader-container-inner">
-                        <h6 className="mt-5">
-                            Please wait while we load all the Tables examples
-                            <small>Because this is a demonstration we load at once all the Tables examples. This wouldn't happen in a real live app!</small>
-                        </h6>
-                    </div>
-                </div>
-            }>
-                <Route path="/tables" component={Tables}/>
-            </Suspense>
-
-            {/* Elements */}
-
-            <Suspense fallback={
-                <div className="loader-container">
-                    <div className="loader-container-inner">
-                        <h6 className="mt-3">
-                            Please wait while we load all the Elements examples
-                            <small>Because this is a demonstration we load at once all the Elements examples. This wouldn't happen in a real live app!</small>
-                        </h6>
-                    </div>
-                </div>
-            }>
-                <Route path="/elements" component={Elements}/>
-            </Suspense>
-
-            {/* Dashboard Widgets */}
-
-            <Suspense fallback={
-                <div className="loader-container">
-                    <div className="loader-container-inner">
-                        <h6 className="mt-3">
-                            Please wait while we load all the Dashboard Widgets examples
-                            <small>Because this is a demonstration we load at once all the Dashboard Widgets examples. This wouldn't happen in a real live app!</small>
-                        </h6>
-                    </div>
-                </div>
-            }>
-                <Route path="/widgets" component={Widgets}/>
-            </Suspense>
-
-            {/* Dashboards */}
-
-            <Suspense fallback={
-                <div className="loader-container">
-                    <div className="loader-container-inner">
-                        <h6 className="mt-3">
-                            Please wait while we load all the Dashboards examples
-                            <small>Because this is a demonstration, we load at once all the Dashboards examples. This wouldn't happen in a real live app!</small>
-                        </h6>
-                    </div>
-                </div>
-            }>
-                <Route path="/dashboards" component={Dashboards}/>
-            </Suspense>
-
-            <Route exact path="/" render={() => (
-                <Redirect to="/auction/active"/>
-            )}/>
-            <ToastContainer/>
+            <Route
+                exact
+                path="/"
+                render={() => <Redirect to="/auction/active" />}
+            />
+            <ToastContainer />
         </Fragment>
-    )
+    );
 };
 
 export default AppMain;

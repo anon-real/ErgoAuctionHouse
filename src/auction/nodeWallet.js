@@ -1,4 +1,4 @@
-import {post, get} from './rest';
+import {get, post} from './rest';
 
 function getUrl(url) {
     if (!url.startsWith('http')) url = 'http://' + url;

@@ -6,8 +6,6 @@ import {connect} from 'react-redux';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 
 import HeaderLogo from '../AppLogo';
-import SearchBox from "./Components/SearchBox";
-import {Button, CardBody} from "reactstrap";
 import WalletModal from "./Components/WalletModal";
 
 class Header extends React.Component {
