@@ -1,8 +1,13 @@
-import {Address, Explorer,} from '@coinbarn/ergo-ts';
+import { Address, Explorer, Transaction } from '@coinbarn/ergo-ts';
+import { Serializer } from '@coinbarn/ergo-ts/dist/serializer';
+import { encodeLong } from './serializer';
+import { friendlyToken, getMyBids, setMyBids, showStickyMsg } from './helpers';
 
 const explorer = Explorer.mainnet;
-const auctionAddress =
+export const auctionAddress =
     'PLHeEg8w7y5tNkJkcKhK9bd4qvubZ4xFMDjrHPTvFxoj4WA86rp6kHzj5XgrpWQJgxnaQ3N6phdoHwoqxGUpT4fnee5BtbTcic6K7FWaNFAWEBc4co1KcanGBVJNKT42qxdygppgN2jpcSfBY3CSVQ78YrfPmaqZUBs1M8Yahb2XLbEPAsRYwJsfwTQUB2qumzv5kxEppHVmdtqqKwcryQSvyqEsvgLDPpG7YdiXVmhDeLdoacMKEtw3gEkV4Y4RcEhhS4SWooyrtfZibqgfYAfPfEjVmCiZwtwnzTVPFLjWnmHdPabWiQ9ku63WxzSrCKqKVF6npPV';
+export const trueAddress = '4MQyML64GnzMxZgm';
+export const auctionFee = 2000000;
 
 async function getRequest(url) {
     return explorer.apiClient({
@@ -14,11 +19,6 @@ async function getRequest(url) {
 export function currentHeight() {
     return explorer.getCurrentHeight();
 }
-
-export function getTokenInfo(token) {
-    return explorer.getTokenInfo(token);
-}
-
 export function getActiveAuctions() {
     return explorer
         .getUnspentOutputs(new Address(auctionAddress))
@@ -33,44 +33,67 @@ export function getActiveAuctions() {
         });
 }
 
-export async function getTokenTx(tokenId) {
-    const { data } = await getRequest(`/transactions/boxes/${tokenId}`);
-    return await data.spentTransactionId;
+export async function getSpendingTx(boxId) {
+    const data = getRequest(`/transactions/boxes/${boxId}`);
+    return data
+        .then((res) => res.data)
+        .then((res) => res.spentTransactionId)
+        .catch((_) => null);
 }
 
-export async function handlePendingBids() {
-    localStorage.removeItem('pendingBids')
-    let bids = localStorage.getItem('pendingBids');
-    if (bids === null) {
-        localStorage.setItem(
-            'pendingBids',
-            JSON.stringify([
-                {
-                    txId: '5331e2ba3dbf63a76627bbb4ffa4ed22b1d816f1df2f90da5e1a968a298fc418',
-                },
-            ])
-        );
-    }
-    bids = localStorage.getItem('pendingBids');
+export function handlePendingBids() {
+    let bids = getMyBids().filter((bid) => bid.status === 'pending mining');
     if (bids !== null) {
-        bids = JSON.parse(bids);
-        let newPendingBids = [];
         let res = bids.map((bid) => {
-            let data = getRequest(`/transactions/${bid.txId}`);
-            return data.then((res) => res.data)
-                .then(res => res.summary)
-                .then(res => {
-                    if (res.confirmationsCount > 0) return bid
-                    else return -1
-                })
-                .catch(res => 0)
+            return getSpendingTx(bid.boxId).then((res) => {
+                if (res !== null) {
+                    if (res === bid.txId) {
+                        bid.status = 'complete';
+                        let msg = `Your bid for ${friendlyToken(
+                            bid.token,
+                            false,
+                            5
+                        )} has successfully been placed.`;
+                        if (bid.isFirst)
+                            msg = `Your auction for ${friendlyToken(
+                                bid.token,
+                                false,
+                                5
+                            )} successfully started.`;
+                        showStickyMsg(msg);
+                    } else {
+                        bid.status = 'rejected';
+                        let msg = `Your bid for ${friendlyToken(
+                            bid.token,
+                            false,
+                            5
+                        )} is rejected. Potentially because a bid is placed for this auction before yours. You can try again.`;
+                        if (bid.isFirst)
+                            msg = `Your auction for ${friendlyToken(
+                                bid.token,
+                                false,
+                                5
+                            )} is rejected! Somehow the transaction responsible for creating the auction is invalid.`;
+                        showStickyMsg(msg, true);
+                    }
+                } else {
+                    try {
+                        explorer.broadcastTx(Transaction.formObject(bid.tx));
+                    } catch (_) {}
+                }
+                return bid;
+            });
         });
-        // console.log(await Promise.all(res));
+        Promise.all(res).then((res) => {
+            let curBids = getMyBids();
+            res = res.concat(
+                curBids.filter((bid) => !bids.find((x) => x.txId === bid.txId))
+            );
+            setMyBids(res);
+        });
     }
 }
 
-export function test() {
-    handlePendingBids().then((res) => {
-        // console.log(res);
-    });
+export function sendTx(tx) {
+    explorer.broadcastTx(tx);
 }

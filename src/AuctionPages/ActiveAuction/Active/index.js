@@ -1,8 +1,17 @@
-import React, {Fragment} from 'react';
+import React, { Fragment } from 'react';
 
-import {currentHeight, getActiveAuctions,} from '../../../auction/explorer';
-import {isWalletSaved, showMsg,} from '../../../auction/helpers';
-import {css} from '@emotion/core';
+import {
+    auctionFee,
+    currentHeight,
+    getActiveAuctions,
+    test,
+} from '../../../auction/explorer';
+import {
+    getWalletAddress,
+    isWalletSaved,
+    showMsg,
+} from '../../../auction/helpers';
+import { css } from '@emotion/core';
 import PropagateLoader from 'react-spinners/PropagateLoader';
 import SyncLoader from 'react-spinners/SyncLoader';
 import {
@@ -26,9 +35,12 @@ import {
 } from 'reactstrap';
 import cx from 'classnames';
 import TitleComponent2 from '../../../Layout/AppMain/PageTitleExamples/Variation2';
-import {getAssets} from '../../../auction/nodeWallet';
+import {auctionTxRequest, getAssets, withdrawFinishedAuctions} from '../../../auction/nodeWallet';
 import number from 'd3-scale/src/number';
-import ActiveBox from "./activeBox";
+import ActiveBox from './activeBox';
+import { decodeString, encodeStr } from '../../../auction/serializer';
+import { Serializer } from '@coinbarn/ergo-ts/dist/serializer';
+import { Address } from '@coinbarn/ergo-ts/dist/models/address';
 
 const override = css`
     display: block;
@@ -74,7 +86,7 @@ export default class ActiveAuctions extends React.Component {
     }
 
     closeMyBids() {
-        this.setState(this.setState({myBids: false}))
+        this.setState(this.setState({ myBids: false }));
     }
 
     openAuction() {
@@ -90,13 +102,40 @@ export default class ActiveAuctions extends React.Component {
 
     canStartAuction() {
         return (
+            !this.state.modalLoading &&
             this.state.tokenId !== undefined &&
             this.state.tokenId.length > 0 &&
             this.state.initialBid > 0 &&
             this.state.auctionDuration > 0 &&
-            this.state.auctionStep >= 0 &&
+            this.state.auctionStep > 0 &&
             this.state.tokenQuantity > 0
         );
+    }
+
+    startAuction() {
+        if (this.state.initialBid * 1e9 + auctionFee > this.state.ergBalance) {
+            showMsg(`Not enough balance to initiate auction with ${this.state.initialBid} ERG.`, true)
+            return
+        }
+        let description = this.state.description
+        if (!description) description = ''
+        this.setState({modalLoading: true})
+        let res = auctionTxRequest(
+            this.state.initialBid * 1e9,
+            getWalletAddress(),
+            this.state.tokenId,
+            this.state.tokenQuantity,
+            Math.max(this.state.auctionStep * 1e9, 1e8),
+            parseInt(this.state.height),
+            parseInt(this.state.height) + parseInt(this.state.auctionDuration),
+            description
+        );
+        res.then(data => {
+            showMsg('Auction transaction was generated successfully. If you keep the app open, you will be notified about any status!')
+            this.toggleModal()
+        }).catch(nodeRes => {
+            showMsg('Could not generate auction transaction. Potentially your wallet is locked.', true)
+        }).finally( _ => this.setState({modalLoading: false}))
     }
 
     updateAssets() {
@@ -118,21 +157,26 @@ export default class ActiveAuctions extends React.Component {
         if (this.state.modal) {
             this.setState({ modalLoading: false, assets: {} });
         } else {
-            this.updateAssets().then(() => {
-                let assets = this.state.assets;
-                if (Object.keys(assets).length === 0)
-                    showMsg('Your wallet contains no tokens to auction!', true);
-                else
-                    this.setState({
-                        tokenId: Object.keys(assets)[0],
-                        tokenQuantity: Object.values(assets)[0],
-                    });
-            }).catch(() => {
-                showMsg(
-                    'Error getting assets from wallet. Check your wallet accessibility.',
-                    true
-                );
-            });
+            this.updateAssets()
+                .then(() => {
+                    let assets = this.state.assets;
+                    if (Object.keys(assets).length === 0)
+                        showMsg(
+                            'Your wallet contains no tokens to auction!',
+                            true
+                        );
+                    else
+                        this.setState({
+                            tokenId: Object.keys(assets)[0],
+                            tokenQuantity: Object.values(assets)[0],
+                        });
+                })
+                .catch(() => {
+                    showMsg(
+                        'Error getting assets from wallet. Check your wallet accessibility.',
+                        true
+                    );
+                });
         }
     }
 
@@ -150,7 +194,7 @@ export default class ActiveAuctions extends React.Component {
                 boxes.forEach((box) => {
                     box.description =
                         'This is a NFT containing word ergo in base16 - also is the first token auctioned on top of Ergo';
-                    box.remBlock = 233;
+                    box.remBlock = 145;
                     box.doneBlock = 50;
                     box.finalBlock = 32000;
                     box.increase = 57;
@@ -161,7 +205,12 @@ export default class ActiveAuctions extends React.Component {
                         '9hyV1owHpWKuWUnd3cTbTTptCzRfWQFhA9Bs8dSKNcNWicmc6gz';
                     box.loader = false;
                 });
-                this.setState({ auctions: boxes, loading: false, tooltip: true });
+                this.setState({
+                    auctions: boxes,
+                    loading: false,
+                    tooltip: true,
+                });
+                withdrawFinishedAuctions(boxes)
             })
             .finally(() => {
                 this.setState({ loading: false });
@@ -176,7 +225,7 @@ export default class ActiveAuctions extends React.Component {
 
     render() {
         const listItems = this.state.auctions.map((box) => {
-            return (<ActiveBox box={box}/>);
+            return <ActiveBox box={box} />;
         });
         return (
             <Fragment>
@@ -223,10 +272,11 @@ export default class ActiveAuctions extends React.Component {
                                         )}
                                     </Input>
                                     <FormFeedback invalid>
-                                        No token to select from.
+                                        No tokens to select from.
                                     </FormFeedback>
                                     <FormText>
-                                        These tokens are loaded from your wallet.
+                                        These tokens are loaded from your
+                                        wallet.
                                     </FormText>
                                 </FormGroup>
                                 <div className="divider" />
@@ -428,9 +478,7 @@ export default class ActiveAuctions extends React.Component {
                             className="mr-2 btn-transition"
                             color="secondary"
                             disabled={!this.canStartAuction()}
-                            // onClick={() =>
-                            //
-                            // }
+                            onClick={() => this.startAuction()}
                         >
                             Create Auction
                         </Button>

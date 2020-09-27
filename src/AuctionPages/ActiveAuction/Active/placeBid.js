@@ -15,9 +15,11 @@ import {
     ModalHeader,
     Row
 } from "reactstrap";
-import {friendlyToken} from "../../../auction/helpers";
+import {friendlyToken, getWalletAddress, showMsg} from "../../../auction/helpers";
 import SyncLoader from "react-spinners/SyncLoader";
 import {css} from "@emotion/core";
+import {auctionTxRequest, bidTxRequest, getAssets} from "../../../auction/nodeWallet";
+import {auctionFee} from "../../../auction/explorer";
 
 const override = css`
     display: block;
@@ -31,6 +33,42 @@ export default class PlaceBidModal extends React.Component {
             modalLoading: false,
             bidAmount: (props.box.value + props.box.minStep) / 1e9,
         }
+        this.updateAssets = this.updateAssets.bind(this)
+        this.placeBid = this.placeBid.bind(this)
+    }
+
+    updateAssets() {
+        this.setState({ modalLoading: true });
+        return getAssets()
+            .then((res) => {
+                this.setState({ ergBalance: res.balance });
+            })
+            .catch(_ => {
+                showMsg('Could not get balance from wallet!', true)
+            })
+            .finally(() => {
+                this.setState({ modalLoading: false });
+            });
+    }
+
+    componentWillReceiveProps(nextProps, nextContext) {
+        if (nextProps.isOpen === true && this.props.isOpen === false)
+            this.updateAssets()
+    }
+
+    placeBid() {
+        if (this.state.bidAmount * 1e9 + auctionFee > this.state.ergBalance) {
+            showMsg(`Not enough balance to place ${this.state.bidAmount} ERG bid.`, true)
+            return
+        }
+        this.setState({modalLoading: true})
+        let res = bidTxRequest(this.props.box, this.state.bidAmount * 1e9)
+        res.then(_ => {
+            showMsg('Your bid transaction was generated successfully. If you keep the app open, you will be notified about any status!')
+            this.props.close()
+        }).catch(nodeRes => {
+            showMsg('Could not generate bid transaction. Potentially your wallet is locked.', true)
+        }).finally( _ => this.setState({modalLoading: false}))
     }
 
     render() {
@@ -108,14 +146,10 @@ export default class PlaceBidModal extends React.Component {
                     className="mr-2 btn-transition"
                     color="secondary"
                     disabled={
-                        this.state.bidAmount <
-                        (this.props.box.value +
-                            this.props.box.minStep) /
-                        1e9
+                        this.state.bidAmount < (this.props.box.value + this.props.box.minStep) / 1e9 ||
+                            this.state.modalLoading
                     }
-                    // onClick={() =>
-                    //
-                    // }
+                    onClick={this.placeBid}
                 >
                     Place Bid
                 </Button>

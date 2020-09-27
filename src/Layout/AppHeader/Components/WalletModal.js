@@ -182,13 +182,12 @@ class WalletModal extends React.Component {
                                 <Form>
                                     <p>
                                         This information will be saved locally
-                                        in session storage of the browser
+                                        in the session storage of your browser
                                         securely and will be used only with your
-                                        approval to place bids.
+                                        approval to place bids and start auctions.
                                     </p>
                                     <p>
-                                        This information will never be sent to
-                                        the server and will be removed when you
+                                        This information will be removed when you
                                         close the application.
                                     </p>
                                     <FormGroup>

@@ -35,7 +35,7 @@ export function showMsg(message, isError = false) {
     });
 }
 
-export function showStickyNotif(message, isError = false) {
+export function showStickyMsg(message, isError = false) {
     toast(message, {
         transition: Flip,
         closeButton: true,
@@ -48,4 +48,24 @@ export function showStickyNotif(message, isError = false) {
 
 export function isWalletSaved() {
     return sessionStorage.getItem('wallet') !== null;
+}
+
+export function getWalletAddress() {
+    return JSON.parse(sessionStorage.getItem('wallet')).address
+}
+
+export function getMyBids() {
+    let bids = JSON.parse(localStorage.getItem('bids'));
+    if (bids === null) bids = []
+    return bids
+}
+
+export function setMyBids(bids) {
+    localStorage.setItem('bids', JSON.stringify(bids));
+}
+
+export function addBid(bid) {
+    let bids = getMyBids()
+    bids.unshift(bid)
+    setMyBids(bids)
 }
