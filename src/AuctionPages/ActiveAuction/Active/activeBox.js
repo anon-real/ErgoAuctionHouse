@@ -7,7 +7,7 @@ import ReactTooltip from 'react-tooltip';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faAngleUp} from '@fortawesome/free-solid-svg-icons';
 import {css} from '@emotion/core';
-import {getTokenTx} from '../../../auction/explorer';
+import {getSpendingTx} from '../../../auction/explorer';
 import PlaceBidModal from "./placeBid";
 import MyBidsModal from "./myBids";
 
@@ -34,6 +34,11 @@ export default class ActiveBox extends React.Component {
                 'In order to place bids, you have to configure the wallet first.',
                 true
             );
+        } else if (this.state.box.remBlock <= 0) {
+            showMsg(
+                'This auction is finished! It is pending for withdrawal; If you configure your wallet, the app can use it to withdraw finished auctions.',
+                true
+            );
         } else {
             this.setState({ bidModal: !this.state.bidModal });
         }
@@ -46,7 +51,7 @@ export default class ActiveBox extends React.Component {
     showIssuingTx(box) {
         box.loader = true;
         this.forceUpdate();
-        getTokenTx(box.assets[0].tokenId)
+        getSpendingTx(box.assets[0].tokenId)
             .then((res) => {
                 window.open(getTxUrl(res), '_blank');
             })
@@ -191,7 +196,7 @@ export default class ActiveBox extends React.Component {
                                 <FontAwesomeIcon icon={faAngleUp} />
                                 <span className="pl-1">{box.increase}%</span>
                             </span>
-                            since initial bid
+                            since the initial bid
                         </Col>
 
                         <Col md={6} className="justify-content-end ml-3">

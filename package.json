@@ -73,6 +73,7 @@
         "react-chartjs-2": "^2.7.4",
         "react-dev-utils": "^4.2.3",
         "react-dom": "^16.7.0",
+        "react-faq-component": "^1.0.8",
         "react-getscreen": "^1.1.3",
         "react-google-maps": "^9.4.5",
         "react-hamburgers": "^1.0.0",

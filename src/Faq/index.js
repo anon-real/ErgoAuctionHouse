@@ -5,16 +5,16 @@ import {Route} from 'react-router-dom';
 import AppHeader from '../Layout/AppHeader/';
 import AppSidebar from '../Layout/AppSidebar/';
 import AppFooter from '../Layout/AppFooter/';
-import About from "./About";
+import Faqs from "./Faq";
 
-const AboutPage = ({match}) => (
+const FaqPage = ({match}) => (
     <Fragment>
         <AppHeader/>
         <div className="app-main">
             <AppSidebar/>
             <div className="app-main__outer">
                 <div className="app-main__inner">
-                    <Route path={`${match.url}`} component={About}/>
+                    <Route path={`${match.url}`} component={Faqs}/>
                 </div>
                 <AppFooter/>
             </div>
@@ -22,4 +22,4 @@ const AboutPage = ({match}) => (
     </Fragment>
 );
 
-export default AboutPage;
+export default FaqPage;

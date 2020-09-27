@@ -5,7 +5,7 @@ import ActiveAuction from '../../AuctionPages/ActiveAuction';
 
 import { ToastContainer } from 'react-toastify';
 import Homepage from "../../Home";
-import AboutPage from "../../About";
+import FaqPage from "../../Faq";
 
 const AppMain = () => {
     return (
@@ -71,7 +71,7 @@ const AppMain = () => {
                     </div>
                 }
             >
-                <Route path="/about" component={AboutPage} />
+                <Route path="/faq" component={FaqPage} />
             </Suspense>
 
             <Route

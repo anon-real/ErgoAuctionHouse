@@ -1,6 +1,6 @@
 import React from 'react';
-import {Button, Container, Modal, ModalBody, ModalHeader} from 'reactstrap';
-import {friendlyToken, getTxUrl} from '../../../auction/helpers';
+import { Button, Container, Modal, ModalBody, ModalHeader } from 'reactstrap';
+import { friendlyToken, getMyBids, getTxUrl } from '../../../auction/helpers';
 
 const statusToBadge = {
     'pending mining': 'info',
@@ -17,7 +17,7 @@ function BidTable() {
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
-                    height: '100px'
+                    height: '100px',
                 }}
             >
                 You have no bids for this auction
@@ -84,38 +84,14 @@ export default class MyBidsModal extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            curBids: [
-                {
-                    amount: 1000000000,
-                    txId:
-                        '7fc145c59be002e4a91068ad9dc4dfa8ef928d26f1ea549649139d3b849d4189',
-                    status: 'pending mining',
-                },
-                {
-                    amount: 2300000000,
-                    txId:
-                        '4dc2a37e456fdbd11269e9b3e532d6126390d757f3146633793e0183aa31fc68',
-                    status: 'rejected',
-                },
-                {
-                    amount: 134200000000,
-                    txId:
-                        '7973f35b6232e36e184f03cdd3afcd5512a5bf03d32f462ff95bc172e5266c45',
-                    status: 'complete',
-                },
-                {
-                    amount: 10000000,
-                    txId:
-                        '7973f35b6232e36e184f03cdd3afcd5512a5bf03d32f462ff95bc172e5266c45',
-                    status: 'complete',
-                },
-            ],
+            curBids: [],
         };
-        BidTable = BidTable.bind(this)
+        BidTable = BidTable.bind(this);
     }
 
     componentWillReceiveProps(nextProps, nextContext) {
-        // TODO update bids from storage here if differ
+        if (nextProps.isOpen)
+            this.setState({ curBids: getMyBids().filter(bid => bid.token.tokenId === this.props.box.assets[0].tokenId) });
     }
 
     render() {
@@ -126,15 +102,16 @@ export default class MyBidsModal extends React.Component {
                 toggle={this.props.close}
                 className={this.props.className}
             >
-                <ModalHeader toggle={() => this.props.close}>
+                <ModalHeader toggle={this.props.close}>
                     <span className="fsize-1 text-muted">
                         Bids for{' '}
-                        {friendlyToken(this.props.box.assets[0], false, 5)}
+                        {friendlyToken(this.props.box.assets[0], false, 5)}.
+                        Statuses will get updated automatically.
                     </span>
                 </ModalHeader>
                 <ModalBody>
                     <Container>
-                        <BidTable/>
+                        <BidTable />
                     </Container>
                 </ModalBody>
             </Modal>

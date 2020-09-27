@@ -3,7 +3,7 @@ import React from "react";
 export const HistoryNav = [
     {
         icon: 'pe-7s-wristwatch',
-        label: 'Auction About',
+        label: 'Auction History',
         to: '#/auction/history',
     },
 ];
@@ -26,8 +26,8 @@ export const Home = [
 
 export const About = [
     {
-        icon: 'pe-7s-attention',
-        label: 'About',
-        to: '#/about',
+        icon: 'pe-7s-help1',
+        label: 'FAQ',
+        to: '#/faq',
     },
 ];
