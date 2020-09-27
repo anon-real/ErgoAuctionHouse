@@ -201,7 +201,7 @@ export async function bidTxRequest(box, amount) {
                 sendTx(tx);
                 let bid = {
                     token: box.assets[0],
-                    boxId: box.boxId,
+                    boxId: box.id,
                     txId: tx.id,
                     tx: res,
                     status: 'pending mining',
@@ -235,9 +235,10 @@ export function withdrawFinishedAuctions(boxes) {
             }
 
             return generateTx(request).then((res) => {
+                console.log(res)
                 let tx = Transaction.formObject(res);
                 sendTx(tx);
-            });
+            }).catch(res => console.log(res));
         })
     })
 }

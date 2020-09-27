@@ -1,15 +1,22 @@
 import React from 'react';
-import {Button, CardFooter, Col, Progress} from 'reactstrap';
-import {friendlyAddress, friendlyToken, getAddrUrl, getTxUrl, isWalletSaved, showMsg,} from '../../../auction/helpers';
-import {ResponsiveContainer} from 'recharts';
+import { Button, CardFooter, Col, Progress } from 'reactstrap';
+import {
+    friendlyAddress,
+    friendlyToken,
+    getAddrUrl,
+    getTxUrl,
+    isWalletSaved,
+    showMsg,
+} from '../../../auction/helpers';
+import { ResponsiveContainer } from 'recharts';
 import SyncLoader from 'react-spinners/SyncLoader';
 import ReactTooltip from 'react-tooltip';
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faAngleUp} from '@fortawesome/free-solid-svg-icons';
-import {css} from '@emotion/core';
-import {getSpendingTx} from '../../../auction/explorer';
-import PlaceBidModal from "./placeBid";
-import MyBidsModal from "./myBids";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faAngleUp } from '@fortawesome/free-solid-svg-icons';
+import { css } from '@emotion/core';
+import { getSpendingTx } from '../../../auction/explorer';
+import PlaceBidModal from './placeBid';
+import MyBidsModal from './myBids';
 
 const override = css`
     display: block;
@@ -19,7 +26,7 @@ const override = css`
 export default class ActiveBox extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { box: props.box, bidModal: false, myBidsModal: false };
+        this.state = { bidModal: false, myBidsModal: false };
         this.openBid = this.openBid.bind(this);
         this.openMyBids = this.openMyBids.bind(this);
     }
@@ -34,7 +41,7 @@ export default class ActiveBox extends React.Component {
                 'In order to place bids, you have to configure the wallet first.',
                 true
             );
-        } else if (this.state.box.remBlock <= 0) {
+        } else if (this.props.box.remBlock <= 0) {
             showMsg(
                 'This auction is finished! It is pending for withdrawal; If you configure your wallet, the app can use it to withdraw finished auctions.',
                 true
@@ -65,16 +72,20 @@ export default class ActiveBox extends React.Component {
         window.open(getAddrUrl(addr), '_blank');
     }
 
-    componentWillReceiveProps(nextProps, nextContext) {
-        this.setState({ box: nextProps.box });
-    }
-
     render() {
-        let box = this.state.box;
+        let box = this.props.box;
         return (
             <Col key={box.id} md="6">
-                <PlaceBidModal isOpen={this.state.bidModal} box={this.state.box} close={this.openBid}/>
-                <MyBidsModal isOpen={this.state.myBidsModal} box={this.state.box} close={this.openMyBids}/>
+                <PlaceBidModal
+                    isOpen={this.state.bidModal}
+                    box={this.props.box}
+                    close={this.openBid}
+                />
+                <MyBidsModal
+                    isOpen={this.state.myBidsModal}
+                    box={this.props.box}
+                    close={this.openMyBids}
+                />
                 <div className="card mb-3 widget-chart">
                     <div className="widget-chart-content">
                         <ResponsiveContainer height={20}>
@@ -82,12 +93,12 @@ export default class ActiveBox extends React.Component {
                                 css={override}
                                 size={8}
                                 color={'#0b473e'}
-                                loading={box.loader}
+                                loading={this.props.box.loader}
                             />
                         </ResponsiveContainer>
 
                         <div className="widget-numbers">
-                            {box.value / 1e9} ERG
+                            {this.props.box.value / 1e9} ERG
                         </div>
                         <div className="widget-chart-wrapper chart-wrapper-relative justify justify-content-lg-start">
                             <div
@@ -97,11 +108,15 @@ export default class ActiveBox extends React.Component {
                                 }}
                                 className="widget-subheading m-1"
                             >
-                                <span data-tip={box.assets[0].tokenId}>
-                                    {friendlyToken(box.assets[0])}
+                                <span
+                                    data-tip={this.props.box.assets[0].tokenId}
+                                >
+                                    {friendlyToken(this.props.box.assets[0])}
                                 </span>
                                 <i
-                                    onClick={() => this.showIssuingTx(box)}
+                                    onClick={() =>
+                                        this.showIssuingTx(this.props.box)
+                                    }
                                     data-tip="see issuing transaction"
                                     style={{
                                         fontSize: '1.5rem',
@@ -117,11 +132,14 @@ export default class ActiveBox extends React.Component {
                                 }}
                                 className="widget-subheading m-1"
                             >
-                                <span data-tip={box.seller}>
-                                    Seller {friendlyAddress(box.seller)}
+                                <span data-tip={this.props.box.seller}>
+                                    Seller{' '}
+                                    {friendlyAddress(this.props.box.seller)}
                                 </span>
                                 <i
-                                    onClick={() => this.showAddress(box.seller)}
+                                    onClick={() =>
+                                        this.showAddress(this.props.box.seller)
+                                    }
                                     data-tip="see seller's address"
                                     style={{
                                         fontSize: '1.5rem',
@@ -137,11 +155,14 @@ export default class ActiveBox extends React.Component {
                                 }}
                                 className="widget-subheading m-1"
                             >
-                                <span data-tip={box.bidder}>
-                                    Bidder {friendlyAddress(box.bidder)}
+                                <span data-tip={this.props.box.bidder}>
+                                    Bidder{' '}
+                                    {friendlyAddress(this.props.box.bidder)}
                                 </span>
                                 <i
-                                    onClick={() => this.showAddress(box.bidder)}
+                                    onClick={() =>
+                                        this.showAddress(this.props.box.bidder)
+                                    }
                                     data-tip="see current bidder's address"
                                     style={{
                                         fontSize: '1.5rem',
@@ -164,7 +185,7 @@ export default class ActiveBox extends React.Component {
                                 }}
                             >
                                 <p className="text-primary">
-                                    {box.description}
+                                    {this.props.box.description}
                                 </p>
                             </div>
                         </div>
@@ -194,7 +215,9 @@ export default class ActiveBox extends React.Component {
                             Up by
                             <span className="text-success pl-1 pr-1">
                                 <FontAwesomeIcon icon={faAngleUp} />
-                                <span className="pl-1">{box.increase}%</span>
+                                <span className="pl-1">
+                                    {this.props.box.increase}%
+                                </span>
                             </span>
                             since the initial bid
                         </Col>
@@ -205,7 +228,7 @@ export default class ActiveBox extends React.Component {
                                     <div className="widget-content-wrapper">
                                         <div className="widget-content-left mr-3">
                                             <div className="widget-numbers fsize-2 text-muted">
-                                                {box.remBlock}
+                                                {this.props.box.remBlock}
                                             </div>
                                         </div>
                                         <div className="widget-content-right">
@@ -217,7 +240,7 @@ export default class ActiveBox extends React.Component {
                                     <div className="widget-progress-wrapper">
                                         <Progress
                                             className="progress-bar-xs progress-bar-animated-alt"
-                                            value={box.doneBlock}
+                                            value={this.props.box.doneBlock}
                                         />
                                     </div>
                                 </div>

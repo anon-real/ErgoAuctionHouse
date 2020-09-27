@@ -41,6 +41,7 @@ import ActiveBox from './activeBox';
 import { decodeString, encodeStr } from '../../../auction/serializer';
 import { Serializer } from '@coinbarn/ergo-ts/dist/serializer';
 import { Address } from '@coinbarn/ergo-ts/dist/models/address';
+import {parse} from "@fortawesome/fontawesome-svg-core";
 
 const override = css`
     display: block;
@@ -186,35 +187,37 @@ export default class ActiveAuctions extends React.Component {
             if (this.state.lastUpdated < 40) return;
         }
         this.setState({ lastUpdated: 0 });
-        currentHeight().then((height) =>
-            this.setState({ currentHeight: height })
-        );
-        getActiveAuctions()
-            .then((boxes) => {
-                boxes.forEach((box) => {
-                    box.description =
-                        'This is a NFT containing word ergo in base16 - also is the first token auctioned on top of Ergo';
-                    box.remBlock = 145;
-                    box.doneBlock = 50;
-                    box.finalBlock = 32000;
-                    box.increase = 57;
-                    box.minStep = 1000000000;
-                    box.seller =
-                        '9gAKeRu1W4Dh6adWXnnYmfqjCTnxnSMtym2LPPMPErCkusCd6F3';
-                    box.bidder =
-                        '9hyV1owHpWKuWUnd3cTbTTptCzRfWQFhA9Bs8dSKNcNWicmc6gz';
-                    box.loader = false;
+        currentHeight().then((height) => {
+                this.setState({ currentHeight: height })
+
+            getActiveAuctions()
+                .then((boxes) => {
+                    boxes.forEach((box) => {
+                        let info = Serializer.stringFromHex(decodeString(box.additionalRegisters.R9))
+                        info = info.split(',').map(num => parseInt(num))
+                        box.description = Serializer.stringFromHex(decodeString(box.additionalRegisters.R7))
+                        box.remBlock = Math.max(info[3] - height, 0);
+                        box.doneBlock = ((height - info[2]) / (info[3] - info[2])) * 100;
+                        box.finalBlock = info[3];
+                        box.increase = ((box.value - info[0]) / info[0]) * 100;
+                        box.minStep = info[1];
+                        box.seller = Address.fromErgoTree(decodeString(box.additionalRegisters.R4)).address;
+                        box.bidder = Address.fromErgoTree(decodeString(box.additionalRegisters.R8)).address;
+                        box.loader = false;
+                    });
+                    this.setState({
+                        auctions: boxes,
+                        loading: false,
+                        tooltip: true,
+                    });
+                    withdrawFinishedAuctions(boxes)
+                })
+                .finally(() => {
+                    this.setState({ loading: false });
                 });
-                this.setState({
-                    auctions: boxes,
-                    loading: false,
-                    tooltip: true,
-                });
-                withdrawFinishedAuctions(boxes)
-            })
-            .finally(() => {
-                this.setState({ loading: false });
-            });
+        }).catch(_ => {
+            showMsg('Error connecting to the explorer.', true)
+        })
     }
 
     toggle() {

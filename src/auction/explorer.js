@@ -5,7 +5,7 @@ import { friendlyToken, getMyBids, setMyBids, showStickyMsg } from './helpers';
 
 const explorer = Explorer.mainnet;
 export const auctionAddress =
-    'PLHeEg8w7y5tNkJkcKhK9bd4qvubZ4xFMDjrHPTvFxoj4WA86rp6kHzj5XgrpWQJgxnaQ3N6phdoHwoqxGUpT4fnee5BtbTcic6K7FWaNFAWEBc4co1KcanGBVJNKT42qxdygppgN2jpcSfBY3CSVQ78YrfPmaqZUBs1M8Yahb2XLbEPAsRYwJsfwTQUB2qumzv5kxEppHVmdtqqKwcryQSvyqEsvgLDPpG7YdiXVmhDeLdoacMKEtw3gEkV4Y4RcEhhS4SWooyrtfZibqgfYAfPfEjVmCiZwtwnzTVPFLjWnmHdPabWiQ9ku63WxzSrCKqKVF6npPV';
+    '29VEf3kTBhxWuLWcAWBeqxgGxmtgKsjzJQDXCBPUw4mvKjKMrDFYKq5BJcuZ7KrdtJiyn6fTsmaij6eiHkozJfRqryMQTWMrYVKpMKGX3Hmwn7j6c7FyUJbmZJL1PPRbrEoXrq7MfXWT2wtVfijsofD9weuRfuSU1WTyWhSoSMZVsX5hpwWtcoedTX6eczvx3gz9p8HZJkDpz6qM3VgjdiDsDiE8ZQayaBXfbcoszFmVcHuC7AHv6SHSfozbgGZiu1rehuQ4WoVaU8PqyEo9NCjZxJt6M1mABgRatME11GuwDmJvcDZn7nqU8HeD5Cme39zzuJsdm';
 export const trueAddress = '4MQyML64GnzMxZgm';
 export const auctionFee = 2000000;
 
@@ -27,7 +27,7 @@ export function getActiveAuctions() {
             boxes.sort((a, b) => {
                 if (a.assets[0].tokenId > b.assets[0].tokenId) return 1;
                 else if (a.assets[0].tokenId < b.assets[0].tokenId) return -1;
-                else return 0;
+                else return a.assets[0].amount - b.assets[0].amount;
             });
             return boxes;
         });
