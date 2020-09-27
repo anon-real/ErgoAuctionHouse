@@ -4,7 +4,7 @@ Decentralized auction on top of [ERGO](https://ergoplatform.org/en/).
 ## Running
 ```bash
 npm install
-npm start run
+npm run start
 ```
 
 ## Docker Quick Start
