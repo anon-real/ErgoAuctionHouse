@@ -128,7 +128,7 @@ export default class ActiveAuctions extends React.Component {
             this.state.tokenQuantity,
             Math.max(this.state.auctionStep * 1e9, 1e8),
             parseInt(this.state.height),
-            parseInt(this.state.height) + parseInt(this.state.auctionDuration),
+            parseInt(this.state.height) + parseInt(this.state.auctionDuration) + 4, // +4 to take into account the time it takes to be mined
             description
         );
         res.then(data => {
@@ -216,7 +216,8 @@ export default class ActiveAuctions extends React.Component {
                     this.setState({ loading: false });
                 });
         }).catch(_ => {
-            showMsg('Error connecting to the explorer.', true)
+            showMsg('Error connecting to the explorer. Will try again...', false, true)
+            setTimeout(() => this.refreshInfo(true), 4000)
         })
     }
 

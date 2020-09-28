@@ -66,10 +66,6 @@ class WalletModal extends React.Component {
         }
     }
 
-    walletOk() {
-        return sessionStorage.getItem('wallet') != null;
-    }
-
     saveWallet() {
         this.setState({
             processing: true,
@@ -78,6 +74,10 @@ class WalletModal extends React.Component {
             .then((res) => {
                 getAddress(this.state.nodeUrl, this.state.apiKey)
                     .then((res) => {
+                        if (res.error !== undefined) {
+                            showMsg('Could not get wallet address. Your wallet is locked potentially.', true);
+                            return
+                        }
                         showMsg('Successfully saved the wallet.');
                         sessionStorage.setItem(
                             'wallet',
