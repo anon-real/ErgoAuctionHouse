@@ -23,7 +23,7 @@ class AppFooter extends React.Component {
                                     </a>
                                 </li>
                                 <li className="nav-item">
-                                    <a target='_blank' href="https://github.com/anon-real" className="nav-link">
+                                    <a target='_blank' href="https://github.com/anon-real/ErgoAuction" className="nav-link">
                                         <img
                                             className='mr-2'
                                             style={{ height: '20px', width: '20px' }}
