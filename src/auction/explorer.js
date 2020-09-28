@@ -45,9 +45,11 @@ export function handlePendingBids() {
     let bids = getMyBids().filter((bid) => bid.status === 'pending mining');
     if (bids !== null) {
         let res = bids.map((bid) => {
-            return getSpendingTx(bid.boxId).then((res) => {
-                if (res !== null) {
-                    if (res === bid.txId) {
+            let txs = bid.tx.inputs.map(inp => inp.boxId).map(id => getSpendingTx(id))
+            return Promise.all(txs).then(res => {
+                if (res.filter(txId => txId !== null).length > 0) {
+                    bid.tx = null
+                    if (res[0] === bid.txId) {
                         bid.status = 'complete';
                         let msg = `Your bid for ${friendlyToken(
                             bid.token,
@@ -82,6 +84,8 @@ export function handlePendingBids() {
                     } catch (_) {}
                 }
                 return bid;
+            })
+            return getSpendingTx(bid.boxId).then((res) => {
             });
         });
         Promise.all(res).then((res) => {

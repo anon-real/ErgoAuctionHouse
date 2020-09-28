@@ -25,13 +25,16 @@ export function getAddrUrl(addr) {
     return explorerUrl + 'addresses/' + addr;
 }
 
-export function showMsg(message, isError = false) {
+export function showMsg(message, isError = false, isWarning = false) {
+    let status = 'default'
+    if (isError) status = 'error'
+    if (isWarning) status = 'warning'
     toast(message, {
         transition: Slide,
         closeButton: true,
         autoClose: 5000,
         position: 'top-right',
-        type: isError ? 'error' : 'default',
+        type: status,
     });
 }
 
