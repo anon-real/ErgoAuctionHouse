@@ -7971,7 +7971,7 @@ button,
   .app-header__logo .logo-src {
     height: 40px;
     width: 150px;
-    background: url("~assets/utils/images/logo-inverse.png"); }
+    }
 
 .app-header__menu,
 .app-header__mobile-menu {
@@ -8102,7 +8102,7 @@ button,
 .app-header.header-text-dark .search-wrapper .input-holder .search-icon span::before {
   background: rgba(0, 0, 0, 0.8); }
 .app-header.header-text-dark .app-header__logo .logo-src {
-  background: url("~assets/utils/images/logo-inverse.png"); }
+   }
 
 .app-sidebar {
   width: 280px;
