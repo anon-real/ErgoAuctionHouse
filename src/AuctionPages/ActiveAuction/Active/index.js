@@ -3,7 +3,7 @@ import React, { Fragment } from 'react';
 import {
     auctionFee,
     currentHeight,
-    getActiveAuctions,
+    getActiveAuctions, getAuctionHistory,
     test,
 } from '../../../auction/explorer';
 import {
@@ -251,11 +251,13 @@ export default class ActiveAuctions extends React.Component {
                     });
             })
             .catch((_) => {
-                showMsg(
-                    'Error connecting to the explorer. Will try again...',
-                    false,
-                    true
-                );
+                if (force) {
+                    showMsg(
+                        'Error connecting to the explorer. Will try again...',
+                        false,
+                        true
+                    );
+                }
                 setTimeout(() => this.refreshInfo(true), 4000);
             });
     }

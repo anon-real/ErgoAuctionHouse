@@ -1,5 +1,5 @@
 import { get, post } from './rest';
-import { auctionAddress, auctionFee, sendTx } from './explorer';
+import {auctionAddress, auctionFee, sendTx, trueAddress} from './explorer';
 import { Address, Transaction } from '@coinbarn/ergo-ts';
 import { encodeLong, encodeStr } from './serializer';
 import {addBid, getMyBids, getWalletAddress, isWalletSaved} from './helpers';
@@ -60,7 +60,7 @@ export async function unspentBoxes(
     let req = {
         requests: [
             {
-                address: '4MQyML64GnzMxZgm',
+                address: trueAddress,
                 value: amount,
             },
         ],
