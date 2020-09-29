@@ -35,13 +35,17 @@ import {
 } from 'reactstrap';
 import cx from 'classnames';
 import TitleComponent2 from '../../../Layout/AppMain/PageTitleExamples/Variation2';
-import {auctionTxRequest, getAssets, withdrawFinishedAuctions} from '../../../auction/nodeWallet';
+import {
+    auctionTxRequest,
+    getAssets,
+    withdrawFinishedAuctions,
+} from '../../../auction/nodeWallet';
 import number from 'd3-scale/src/number';
 import ActiveBox from './activeBox';
 import { decodeString, encodeStr } from '../../../auction/serializer';
 import { Serializer } from '@coinbarn/ergo-ts/dist/serializer';
 import { Address } from '@coinbarn/ergo-ts/dist/models/address';
-import {parse} from "@fortawesome/fontawesome-svg-core";
+import { parse } from '@fortawesome/fontawesome-svg-core';
 
 const override = css`
     display: block;
@@ -115,28 +119,46 @@ export default class ActiveAuctions extends React.Component {
 
     startAuction() {
         if (this.state.initialBid * 1e9 + auctionFee > this.state.ergBalance) {
-            showMsg(`Not enough balance to initiate auction with ${this.state.initialBid} ERG.`, true)
-            return
+            showMsg(
+                `Not enough balance to initiate auction with ${this.state.initialBid} ERG.`,
+                true
+            );
+            return;
         }
-        let description = this.state.description
-        if (!description) description = ''
-        this.setState({modalLoading: true})
-        let res = auctionTxRequest(
-            this.state.initialBid * 1e9,
-            getWalletAddress(),
-            this.state.tokenId,
-            this.state.tokenQuantity,
-            Math.max(this.state.auctionStep * 1e9, 1e8),
-            parseInt(this.state.height),
-            parseInt(this.state.height) + parseInt(this.state.auctionDuration) + 4, // +4 to take into account the time it takes to be mined
-            description
-        );
-        res.then(data => {
-            showMsg('Auction transaction was generated successfully. If you keep the app open, you will be notified about any status!')
-            this.toggleModal()
-        }).catch(nodeRes => {
-            showMsg('Could not generate auction transaction. Potentially your wallet is locked.', true)
-        }).finally( _ => this.setState({modalLoading: false}))
+        currentHeight()
+            .then((height) => {
+                let description = this.state.description;
+                if (!description) description = '';
+                this.setState({ modalLoading: true });
+                let res = auctionTxRequest(
+                    this.state.initialBid * 1e9,
+                    getWalletAddress(),
+                    this.state.tokenId,
+                    this.state.tokenQuantity,
+                    Math.max(this.state.auctionStep * 1e9, 1e8),
+                    height,
+                    height + parseInt(this.state.auctionDuration) + 5, // +5 to take into account the time it takes to be mined
+                    description
+                );
+                res.then((data) => {
+                    showMsg(
+                        'Auction transaction was generated successfully. If you keep the app open, you will be notified about any status!'
+                    );
+                    this.toggleModal();
+                })
+                    .catch((nodeRes) => {
+                        showMsg(
+                            'Could not generate auction transaction. Potentially your wallet is locked.',
+                            true
+                        );
+                    })
+                    .finally((_) => this.setState({ modalLoading: false }));
+            })
+            .catch(
+                (_) =>
+                    showMsg('Could not get height from the explorer, try again!'),
+                true
+            );
     }
 
     updateAssets() {
@@ -187,38 +209,55 @@ export default class ActiveAuctions extends React.Component {
             if (this.state.lastUpdated < 40) return;
         }
         this.setState({ lastUpdated: 0 });
-        currentHeight().then((height) => {
-                this.setState({ currentHeight: height })
+        currentHeight()
+            .then((height) => {
+                this.setState({ currentHeight: height });
 
-            getActiveAuctions()
-                .then((boxes) => {
-                    boxes.forEach((box) => {
-                        let info = Serializer.stringFromHex(decodeString(box.additionalRegisters.R9))
-                        info = info.split(',').map(num => parseInt(num))
-                        box.description = Serializer.stringFromHex(decodeString(box.additionalRegisters.R7))
-                        box.remBlock = Math.max(info[3] - height, 0);
-                        box.doneBlock = ((height - info[2]) / (info[3] - info[2])) * 100;
-                        box.finalBlock = info[3];
-                        box.increase = ((box.value - info[0]) / info[0]) * 100;
-                        box.minStep = info[1];
-                        box.seller = Address.fromErgoTree(decodeString(box.additionalRegisters.R4)).address;
-                        box.bidder = Address.fromErgoTree(decodeString(box.additionalRegisters.R8)).address;
-                        box.loader = false;
+                getActiveAuctions()
+                    .then((boxes) => {
+                        boxes.forEach((box) => {
+                            let info = Serializer.stringFromHex(
+                                decodeString(box.additionalRegisters.R9)
+                            );
+                            info = info.split(',').map((num) => parseInt(num));
+                            box.description = Serializer.stringFromHex(
+                                decodeString(box.additionalRegisters.R7)
+                            );
+                            box.remBlock = Math.max(info[3] - height, 0);
+                            box.doneBlock =
+                                ((height - info[2]) / (info[3] - info[2])) *
+                                100;
+                            box.finalBlock = info[3];
+                            box.increase =
+                                ((box.value - info[0]) / info[0]) * 100;
+                            box.minStep = info[1];
+                            box.seller = Address.fromErgoTree(
+                                decodeString(box.additionalRegisters.R4)
+                            ).address;
+                            box.bidder = Address.fromErgoTree(
+                                decodeString(box.additionalRegisters.R8)
+                            ).address;
+                            box.loader = false;
+                        });
+                        this.setState({
+                            auctions: boxes,
+                            loading: false,
+                            tooltip: true,
+                        });
+                        withdrawFinishedAuctions(boxes);
+                    })
+                    .finally(() => {
+                        this.setState({ loading: false });
                     });
-                    this.setState({
-                        auctions: boxes,
-                        loading: false,
-                        tooltip: true,
-                    });
-                    withdrawFinishedAuctions(boxes)
-                })
-                .finally(() => {
-                    this.setState({ loading: false });
-                });
-        }).catch(_ => {
-            showMsg('Error connecting to the explorer. Will try again...', false, true)
-            setTimeout(() => this.refreshInfo(true), 4000)
-        })
+            })
+            .catch((_) => {
+                showMsg(
+                    'Error connecting to the explorer. Will try again...',
+                    false,
+                    true
+                );
+                setTimeout(() => this.refreshInfo(true), 4000);
+            });
     }
 
     toggle() {

@@ -121,7 +121,7 @@
     "webpack-dev-server": "3.11.0"
   },
   "scripts": {
-    "start": "cross-env NODE_PATH=./src node scripts/start.js",
+    "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "cross-env NODE_PATH=./src node scripts/test.js --env=jsdom",
     "predeploy": "npm run build",
