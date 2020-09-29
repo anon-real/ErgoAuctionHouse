@@ -7,6 +7,7 @@ const statusToBadge = {
     rejected: 'warning',
     complete: 'primary',
     'current active bid': 'success',
+    'winner': 'success',
 };
 
 export default class MyBidsModal extends React.Component {
@@ -83,7 +84,7 @@ export default class MyBidsModal extends React.Component {
                                                 bid.amount ===
                                                     this.props.box.value &&
                                                 bid.status === 'complete'
-                                                    ? 'current active bid'
+                                                    ? this.props.highText
                                                     : bid.status;
                                             return (
                                                 <tr>

@@ -246,6 +246,7 @@ export default class ActiveAuctions extends React.Component {
                         });
                         withdrawFinishedAuctions(boxes);
                     })
+                    .catch(_ => console.log('failed to decode box'))
                     .finally(() => {
                         this.setState({ loading: false });
                     });
