@@ -85,6 +85,7 @@ export default class ActiveBox extends React.Component {
                     isOpen={this.state.myBidsModal}
                     box={this.props.box}
                     close={this.openMyBids}
+                    highText='current active bid'
                 />
                 <div className="card mb-3 widget-chart">
                     <div className="widget-chart-content">

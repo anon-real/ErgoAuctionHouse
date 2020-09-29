@@ -15,6 +15,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleUp } from '@fortawesome/free-solid-svg-icons';
 import { css } from '@emotion/core';
 import { getSpendingTx } from '../../../auction/explorer';
+import MyBidsModal from "../../ActiveAuction/Active/myBids";
 
 const override = css`
     display: block;
@@ -22,17 +23,29 @@ const override = css`
 `;
 
 export default class HistoryBox extends React.Component {
+    constructor() {
+        super();
+        this.state = {
+            myBidsModal: false,
+        };
+        this.openMyBids = this.openMyBids.bind(this)
+    }
+
     showIssuingTx(box) {
         box.loader = true;
         this.forceUpdate();
         getSpendingTx(box.assets[0].tokenId)
             .then((res) => {
-                this.showTx(res)
+                this.showTx(res);
             })
             .finally(() => {
                 box.loader = false;
                 this.forceUpdate();
             });
+    }
+
+    openMyBids() {
+        this.setState({ myBidsModal: !this.state.myBidsModal });
     }
 
     showTx(txId) {
@@ -46,8 +59,14 @@ export default class HistoryBox extends React.Component {
     render() {
         return (
             <Col key={this.props.box.id} md="6">
+                <MyBidsModal
+                    isOpen={this.state.myBidsModal}
+                    box={this.props.box}
+                    close={this.openMyBids}
+                    highText='winner'
+                />
                 <div className="card mb-3 widget-chart">
-                        <div className="widget-chart-content">
+                    <div className="widget-chart-content">
                         <ResponsiveContainer height={20}>
                             <SyncLoader
                                 css={override}
@@ -151,6 +170,15 @@ export default class HistoryBox extends React.Component {
                         </div>
                     </div>
                     <div className="widget-chart-wrapper chart-wrapper-relative">
+                        <Button
+                            onClick={() => this.openMyBids()}
+                            outline
+                            className="btn-outline-light m-2 border-0"
+                            color="primary"
+                        >
+                            <i className="nav-link-icon lnr-layers"> </i>
+                            <span>My Bids</span>
+                        </Button>
                         <Button
                             onClick={() => this.showTx(this.props.box.finalTx)}
                             outline
