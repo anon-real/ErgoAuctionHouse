@@ -541,7 +541,7 @@ export default class ActiveAuctions extends React.Component {
                                 <i className="pe-7s-volume2 icon-gradient bg-night-fade" />
                             </div>
                             <div>
-                                Active Actions
+                                Active Auctions
                                 <div
                                     className={cx('page-title-subheading', {
                                         'd-none': false,
