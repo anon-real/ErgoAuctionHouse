@@ -8,5 +8,6 @@ npm run start
 ```
 
 ## Docker Quick Start
-TODO
-
+```bash
+docker run -p 80:80 anonreal/ergoauction
+```
