@@ -142,7 +142,7 @@ export default class HistoryBox extends React.Component {
                                     onClick={() =>
                                         this.showAddress(this.props.box.bidder)
                                     }
-                                    data-tip="see current bidder's address"
+                                    data-tip="see winner's address"
                                     style={{
                                         fontSize: '1.5rem',
                                         marginLeft: '5px',
