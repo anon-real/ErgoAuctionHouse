@@ -22,7 +22,7 @@ export function encodeStr(reg, applyHex = false) {
 }
 
 export function decodeString(encoded) {
-    for (let i = 0; i < encoded.length; i++) {
+    for (let i = 0; i <= encoded.length; i++) {
         if (encodeStr(encoded.slice(i), false) === encoded) {
             return encoded.slice(i)
         }
