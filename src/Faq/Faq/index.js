@@ -13,12 +13,12 @@ const data = {
             title: 'How can I trust Ergo Auction with my wallet info?',
             content:
                 'Ergo Auction is open source and serverless. ' +
-                ' You wallet info will be saved in the session storage of your browser securely and will be removed as soon as you close the app.',
+                ' Your wallet info will be saved in the session storage of your browser securely and will be removed as soon as you close the app.',
         },
         {
             title: 'When is my wallet info used?',
             content:
-                'Your wallet info will be used only when you confirm starting and auction or placing a bid on an existing one.',
+                'Your wallet info will be used only when you confirm starting an auction or placing a bid on an existing one.',
         },
         {
             title: 'What happens to my ERG when I place a bid?',
