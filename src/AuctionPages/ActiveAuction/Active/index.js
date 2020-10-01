@@ -229,7 +229,7 @@ export default class ActiveAuctions extends React.Component {
                                 100;
                             box.finalBlock = info[3];
                             box.increase =
-                                ((box.value - info[0]) / info[0]) * 100;
+                                (((box.value - info[0]) / info[0]) * 100).toFixed(1);
                             box.minStep = info[1];
                             box.seller = Address.fromErgoTree(
                                 decodeString(box.additionalRegisters.R4)
