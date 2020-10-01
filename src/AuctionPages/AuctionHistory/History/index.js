@@ -37,14 +37,15 @@ export default class AuctionsHistory extends React.Component {
         this.loadMore();
     }
 
-    loadMore(show=false) {
+    loadMore(show = false) {
         if (this.state.still) {
             this.setState({ loading: true });
             getAuctionHistory(pagination, this.state.offset)
                 .then((res) => {
                     if (res.length < pagination) {
                         this.setState({ still: false });
-                        if (show) showMsg('Complete auction history is loaded.');
+                        if (show)
+                            showMsg('Complete auction history is loaded.');
                     }
                     let boxes = res
                         .filter((tx) => tx.outputs[0].ergoTree !== auctionTree)
@@ -62,8 +63,9 @@ export default class AuctionsHistory extends React.Component {
                                 box.description = Serializer.stringFromHex(
                                     decodeString(box.additionalRegisters.R7)
                                 );
-                                box.increase =
-                                    ((box.value - info[0]) / info[0]) * 100;
+                                box.increase = (
+                                    ((box.value - info[0]) / info[0]) * 100
+                                ).toFixed(1);
                                 box.minStep = info[1];
                                 box.seller = Address.fromErgoTree(
                                     decodeString(box.additionalRegisters.R4)
