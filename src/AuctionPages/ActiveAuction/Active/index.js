@@ -258,7 +258,8 @@ export default class ActiveAuctions extends React.Component {
                         true
                     );
                 }
-                setTimeout(() => this.refreshInfo(true), 4000);
+                if (!force) setTimeout(() => this.refreshInfo(true), 4000);
+                else setTimeout(() => this.refreshInfo(true), 20000);
             });
     }
 
