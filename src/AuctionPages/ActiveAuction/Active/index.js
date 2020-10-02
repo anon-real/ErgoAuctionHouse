@@ -76,7 +76,6 @@ export default class ActiveAuctions extends React.Component {
     }
 
     componentDidMount() {
-        console.log(this.state);
         currentHeight().then((res) => {
             this.setState({ height: res });
         });
@@ -246,7 +245,7 @@ export default class ActiveAuctions extends React.Component {
                         });
                         withdrawFinishedAuctions(boxes);
                     })
-                    .catch(_ => console.log('failed to decode box'))
+                    .catch(_ => console.log('failed to get boxes from explorer!'))
                     .finally(() => {
                         this.setState({ loading: false });
                     });
