@@ -3,7 +3,7 @@ import React, { Fragment } from 'react';
 import {
     auctionFee,
     currentHeight,
-    getActiveAuctions, getAuctionHistory,
+    getActiveAuctions,
     test,
 } from '../../../auction/explorer';
 import {
@@ -155,7 +155,9 @@ export default class ActiveAuctions extends React.Component {
             })
             .catch(
                 (_) =>
-                    showMsg('Could not get height from the explorer, try again!'),
+                    showMsg(
+                        'Could not get height from the explorer, try again!'
+                    ),
                 true
             );
     }
@@ -227,8 +229,10 @@ export default class ActiveAuctions extends React.Component {
                                 ((height - info[2]) / (info[3] - info[2])) *
                                 100;
                             box.finalBlock = info[3];
-                            box.increase =
-                                (((box.value - info[0]) / info[0]) * 100).toFixed(1);
+                            box.increase = (
+                                ((box.value - info[0]) / info[0]) *
+                                100
+                            ).toFixed(1);
                             box.minStep = info[1];
                             box.seller = Address.fromErgoTree(
                                 decodeString(box.additionalRegisters.R4)
@@ -245,7 +249,9 @@ export default class ActiveAuctions extends React.Component {
                         });
                         withdrawFinishedAuctions(boxes);
                     })
-                    .catch(_ => console.log('failed to get boxes from explorer!'))
+                    .catch((_) =>
+                        console.log('failed to get boxes from explorer!')
+                    )
                     .finally(() => {
                         this.setState({ loading: false });
                     });

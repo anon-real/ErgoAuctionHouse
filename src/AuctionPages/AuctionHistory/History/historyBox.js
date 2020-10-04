@@ -16,6 +16,7 @@ import { faAngleUp } from '@fortawesome/free-solid-svg-icons';
 import { css } from '@emotion/core';
 import { getSpendingTx } from '../../../auction/explorer';
 import MyBidsModal from "../../ActiveAuction/Active/myBids";
+import BidHistory from "../../ActiveAuction/Active/bidHistory";
 
 const override = css`
     display: block;
@@ -27,8 +28,10 @@ export default class HistoryBox extends React.Component {
         super();
         this.state = {
             myBidsModal: false,
+            detailsModal: false
         };
         this.openMyBids = this.openMyBids.bind(this)
+        this.openDetails = this.openDetails.bind(this)
     }
 
     showIssuingTx(box) {
@@ -56,6 +59,10 @@ export default class HistoryBox extends React.Component {
         window.open(getAddrUrl(addr), '_blank');
     }
 
+    openDetails() {
+        this.setState({ detailsModal: !this.state.detailsModal });
+    }
+
     render() {
         return (
             <Col key={this.props.box.id} md="6">
@@ -65,6 +72,7 @@ export default class HistoryBox extends React.Component {
                     close={this.openMyBids}
                     highText='winner'
                 />
+                <BidHistory close={this.openDetails} box={this.props.box} isOpen={this.state.detailsModal} />
                 <div className="card mb-3 widget-chart">
                     <div className="widget-chart-content">
                         <ResponsiveContainer height={20}>
@@ -187,6 +195,17 @@ export default class HistoryBox extends React.Component {
                         >
                             <i className="nav-link-icon lnr-exit-up"> </i>
                             <span>Final Transaction</span>
+                        </Button>
+                        <Button
+                            onClick={() => {
+                                this.setState({ detailsModal: true });
+                            }}
+                            outline
+                            className="btn-outline-light m-2 border-0"
+                            color="primary"
+                        >
+                            <i className="nav-link-icon lnr-chart-bars"> </i>
+                            <span>Details</span>
                         </Button>
                     </div>
                     <CardFooter>

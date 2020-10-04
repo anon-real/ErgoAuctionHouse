@@ -21,8 +21,8 @@ export function currentHeight() {
     return explorer.getCurrentHeight();
 }
 export function getActiveAuctions() {
-    return explorer
-        .getUnspentOutputs(new Address(auctionAddress))
+    return getRequest(`/transactions/boxes/byAddress/unspent/${auctionAddress}`)
+        .then(res => res.data)
         .then((boxes) => boxes.filter((box) => box.assets.length > 0))
         .then((boxes) => {
             boxes.sort((a, b) => {
@@ -42,6 +42,11 @@ export function getAuctionHistory(limit, offset) {
 
 export function boxById(id) {
     return getRequest(`/transactions/boxes/${id}`)
+        .then(res => res.data)
+}
+
+export function txById(id) {
+    return getRequest(`/transactions/${id}`)
         .then(res => res.data)
 }
 
@@ -113,4 +118,7 @@ export function handlePendingBids() {
 
 export function sendTx(tx) {
     explorer.broadcastTx(tx);
+}
+
+export class test {
 }
