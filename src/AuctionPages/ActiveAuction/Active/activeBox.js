@@ -17,6 +17,7 @@ import { css } from '@emotion/core';
 import { getSpendingTx } from '../../../auction/explorer';
 import PlaceBidModal from './placeBid';
 import MyBidsModal from './myBids';
+import BidHistory from './bidHistory';
 
 const override = css`
     display: block;
@@ -26,9 +27,18 @@ const override = css`
 export default class ActiveBox extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { bidModal: false, myBidsModal: false };
+        this.state = {
+            bidModal: false,
+            myBidsModal: false,
+            detailsModal: false,
+        };
         this.openBid = this.openBid.bind(this);
         this.openMyBids = this.openMyBids.bind(this);
+        this.openDetails = this.openDetails.bind(this);
+    }
+
+    openDetails() {
+        this.setState({ detailsModal: !this.state.detailsModal });
     }
 
     openBid() {
@@ -85,8 +95,9 @@ export default class ActiveBox extends React.Component {
                     isOpen={this.state.myBidsModal}
                     box={this.props.box}
                     close={this.openMyBids}
-                    highText='current active bid'
+                    highText="current active bid"
                 />
+                <BidHistory close={this.openDetails} box={this.props.box} isOpen={this.state.detailsModal} />
                 <div className="card mb-3 widget-chart">
                     <div className="widget-chart-content">
                         <ResponsiveContainer height={20}>
@@ -209,6 +220,17 @@ export default class ActiveBox extends React.Component {
                         >
                             <i className="nav-link-icon lnr-pencil"> </i>
                             <span>Place Bid</span>
+                        </Button>
+                        <Button
+                            onClick={() => {
+                                this.setState({ detailsModal: true });
+                            }}
+                            outline
+                            className="btn-outline-light m-2 border-0"
+                            color="primary"
+                        >
+                            <i className="nav-link-icon lnr-chart-bars"> </i>
+                            <span>Details</span>
                         </Button>
                     </div>
                     <CardFooter>
