@@ -25,7 +25,7 @@ const data = {
             content:
                 'Lets say you have placed a 10 ERG bid on an auction, then 10 ERG from your wallet will be locked with the auction contract.\
                  If you win the auction, then you will receive the auctioned token and your 10 ERG will be sent to the seller. Otherwise, \
-                  immediately after someone places a bid bigger than yours, your 10 ERG will be returned to you.',
+                  immediately after someone places a higher bid, your 10 ERG will be returned to you.',
         },
         {
             title: 'What happens if I start an auction but no one places bid on it?',
