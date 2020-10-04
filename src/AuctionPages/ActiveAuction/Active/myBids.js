@@ -116,6 +116,7 @@ export default class MyBidsModal extends React.Component {
                                                             outline
                                                             className="btn-outline-lin m-2 border-0"
                                                             color="primary"
+                                                            disabled={bid.status === 'rejected'}
                                                         >
                                                             <span>
                                                                 See Transaction
