@@ -1,13 +1,13 @@
 {
-  "name": "architectui-react-theme-free",
+  "name": "ergo-auction",
   "version": "1.0.0",
   "homepage": "http://localhost:4000",
   "private": true,
-  "description": "ArchitectUI - Bootstrap 4 ReactJS Admin Dashboard Template FREE",
-  "author": "DashboardPack.com",
+  "description": "Auction on top of ERGO",
+  "author": "anon_real",
   "repository": {
-    "type": "git",
-    "url": "git+https://github.com/DashboardPack/architectui-react-theme-free"
+    "type": "https",
+    "url": "https://github.com/anon-real/ErgoAuction"
   },
   "dependencies": {
     "@coinbarn/ergo-ts": "^0.3.0",
