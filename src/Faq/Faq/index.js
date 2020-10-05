@@ -41,7 +41,7 @@ const data = {
                 'if you keep the app open, you will be notified about the status.',
         },
         {
-            title: "I have place a bid but it hasn't effected the auction yet!",
+            title: "I have placed a bid but it hasn't effected the auction yet!",
             content:
                 'Just like when you start an auction, you have to wait for your bid transaction to be mined. ' +
                 'It is possible that your bid transaction gets rejected because others also have placed bid on the auction. ' +
