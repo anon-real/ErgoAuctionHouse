@@ -108,7 +108,7 @@ export default class AuctionsHistory extends React.Component {
         return (
             <Fragment>
                 <PageTitle
-                    heading="Action History"
+                    heading="Auction History"
                     subheading="Here you can see the list of completed auctions."
                     icon="pe-7s-wristwatch icon-gradient bg-night-fade"
                 />
