@@ -6,6 +6,10 @@ import Faq from 'react-faq-component';
 const data = {
     rows: [
         {
+            title: 'What is auction fee?',
+            content: 'Some small percentage of the final bid will be deducted as the auction fee. This percentage is currently 10% and is configurable on the blockchain.',
+        },
+        {
             title: 'What tokens can I auction?',
             content: 'You can auction any token that you think is valuable somehow. Whether it is because of PoW done on creating it or it is representing digital art, etc.',
         },

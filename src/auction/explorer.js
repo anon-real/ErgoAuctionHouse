@@ -1,14 +1,20 @@
 import { Address, Explorer, Transaction } from '@coinbarn/ergo-ts';
 import { Serializer } from '@coinbarn/ergo-ts/dist/serializer';
 import {decodeString, encodeLong} from './serializer';
-import { friendlyToken, getMyBids, setMyBids, showStickyMsg } from './helpers';
+import {friendlyToken, getMyBids, isWalletSaved, setMyBids, showStickyMsg} from './helpers';
+import {broadcast} from "./nodeWallet";
 
 const explorer = Explorer.mainnet;
 export const auctionAddress =
-    '29VEf3kTBhxWuLWcAWBeqxgGxmtgKsjzJQDXCBPUw4mvKjKMrDFYKq5BJcuZ7KrdtJiyn6fTsmaij6eiHkozJfRqryMQTWMrYVKpMKGX3Hmwn7j6c7FyUJbmZJL1PPRbrEoXrq7MfXWT2wtVfijsofD9weuRfuSU1WTyWhSoSMZVsX5hpwWtcoedTX6eczvx3gz9p8HZJkDpz6qM3VgjdiDsDiE8ZQayaBXfbcoszFmVcHuC7AHv6SHSfozbgGZiu1rehuQ4WoVaU8PqyEo9NCjZxJt6M1mABgRatME11GuwDmJvcDZn7nqU8HeD5Cme39zzuJsdm';
+    'S4x6bgnmHjUrGARXfHDfGUVjjLrfEiJQ9ZhRYbvLEv4gwqCCDThZ8KJYEoBD91XNRtGiJsBY6PGwdY6VW2epqymBBdnz81hdRJi241YNVDEV4ZPbwBYA1wc64e1KtmDkBFx4oh9qstmfdV3PHaBwN9dHE85zpAX3dXVcPb1jRvMmG3A9smNaR9q6MRmT9F25NujPhgW6CYP27yjwNpFpjbAfwBFJyFvmcwJwfx6oYPbNjxcvpBzzrmatw4h4R263FajVF9btFa4y4ejz9vainPHmMdW6artTXD9JW8YnpGtvme8xQEgr5hJoYH2J2J7MYF4BYiriToJrit7WBb6543ZLGXeTXXt58fdZFezDuC86x8eNbygw24ENELxENKM2rsU81t8eeWWENm2F1ezGVx7GB8KT8VkQqhUdzai65Po1RwbAk3Sdbn1LZYnFBojbGbZ3QiTYYUqQ6Hs3USCp3y8cF';
 export const auctionTree = new Address(auctionAddress).ergoTree;
 export const trueAddress = '4wQyML64GnzMxZgm';
+export const dataInputAddress = 'AfHRBHDmA19bEqvBNoprnecKkffKTVpfjMJoWrutWzFztXBYrPijLGTq5WVGUapNRRKLr'
+export const auctionNFT = '35f2a7b17800bd28e0592559bccbaa65a46d90d592064eb98db0193914abb563'
 export const auctionFee = 2000000;
+export let additionalData = {
+
+}
 
 async function getRequest(url) {
     return explorer.apiClient({
@@ -20,6 +26,12 @@ async function getRequest(url) {
 export function currentHeight() {
     return explorer.getCurrentHeight();
 }
+
+export function unspentBoxesFor(address) {
+    return getRequest(`/transactions/boxes/byAddress/unspent/${address}`)
+        .then(res => res.data)
+}
+
 export function getActiveAuctions() {
     return getRequest(`/transactions/boxes/byAddress/unspent/${auctionAddress}`)
         .then(res => res.data)
@@ -99,7 +111,11 @@ export function handlePendingBids() {
                     }
                 } else {
                     try {
+                        console.log('broadcasting to explorer...')
                         explorer.broadcastTx(Transaction.formObject(bid.tx));
+                        if (isWalletSaved()) {
+                            broadcast(bid.tx).then(r => console.log(`broadcasting using node: ${r}`))
+                        }
                     } catch (_) {}
                 }
                 return bid;

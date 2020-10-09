@@ -1,8 +1,22 @@
 import { get, post } from './rest';
-import {auctionAddress, auctionFee, sendTx, trueAddress} from './explorer';
+import {
+    additionalData,
+    auctionAddress,
+    auctionFee,
+    auctionNFT,
+    dataInputAddress,
+    sendTx,
+    trueAddress,
+    unspentBoxesFor,
+} from './explorer';
 import { Address, Transaction } from '@coinbarn/ergo-ts';
-import { encodeLong, encodeStr } from './serializer';
-import {addBid, getMyBids, getWalletAddress, isWalletSaved} from './helpers';
+import {
+    decodePercentage,
+    decodeString,
+    encodeLong,
+    encodeStr,
+} from './serializer';
+import { addBid, getMyBids, getWalletAddress, isWalletSaved } from './helpers';
 
 function getUrl(url) {
     if (!url.startsWith('http')) url = 'http://' + url;
@@ -34,10 +48,22 @@ export async function getAssets(
     );
 }
 
-export async function boxToRaw(boxId,url = JSON.parse(sessionStorage.getItem('wallet')).url) {
+export async function boxToRaw(
+    boxId,
+    url = JSON.parse(sessionStorage.getItem('wallet')).url
+) {
     return await get(getUrl(url) + `/utxo/byIdBinary/${boxId}`)
         .then((res) => res.json())
-        .then(res => res.bytes)
+        .then((res) => res.bytes);
+}
+
+export async function broadcast(
+    tx,
+    url = JSON.parse(sessionStorage.getItem('wallet')).url
+) {
+    return await post(getUrl(url) + '/transactions', tx).then((res) =>
+        res.json()
+    );
 }
 
 export async function generateTx(
@@ -72,27 +98,29 @@ export async function unspentBoxes(
         apiKey
     )
         .then((res) => res.json())
-        .then(res => res.inputs.map(inp => inp.boxId))
-        .then(res => res.map(id => get(getUrl(url) + `/utxo/byId/${id}`).then(res => res.json())))
-        .then(res => Promise.all(res))
-        .catch(_ => {
-            return get(
-                getUrl(url) + '/wallet/boxes/unspent',
-                apiKey
-            ).then(res => res.json())
-                .then(res => res.sort((a, b) => b.box.value - a.box.value))
-                .then(res => {
-                    let needed = amount + auctionFee
-                    let selected = []
+        .then((res) => res.inputs.map((inp) => inp.boxId))
+        .then((res) =>
+            res.map((id) =>
+                get(getUrl(url) + `/utxo/byId/${id}`).then((res) => res.json())
+            )
+        )
+        .then((res) => Promise.all(res))
+        .catch((_) => {
+            return get(getUrl(url) + '/wallet/boxes/unspent', apiKey)
+                .then((res) => res.json())
+                .then((res) => res.sort((a, b) => b.box.value - a.box.value))
+                .then((res) => {
+                    let needed = amount + auctionFee;
+                    let selected = [];
                     for (let i = 0; i < res.length; i++) {
-                        selected.push(res[i].box)
-                        needed -= res[i].box.value
-                        if (needed <= 0) break
+                        selected.push(res[i].box);
+                        needed -= res[i].box.value;
+                        if (needed <= 0) break;
                     }
-                    if (needed > 0) return []
-                    return selected
+                    if (needed > 0) return [];
+                    return selected;
                 })
-                .catch(_ => [])
+                .catch((_) => []);
         });
 }
 
@@ -151,27 +179,42 @@ export function auctionTxRequest(
 }
 
 export async function bidTxRequest(box, amount) {
-    let ourAddr = getWalletAddress()
-    return unspentBoxes(amount).then(boxes => {
-        if (boxes.length === 0) throw new Error('Could not get enough unspent boxes for the bid form your wallet!')
-        let ids = boxes.map(box => box.boxId)
-        let raws = ids.concat([box.id]).map(id => boxToRaw(id))
-        return Promise.all(raws).then(inputsRaw => {
+    let ourAddr = getWalletAddress();
+    return unspentBoxes(amount).then((boxes) => {
+        if (boxes.length === 0)
+            throw new Error(
+                'Could not get enough unspent boxes for the bid form your wallet!'
+            );
+        if (additionalData.dataInput === undefined)
+            throw new Error(
+                'Data input is not loaded from explorer! Maybe there is some connection issue to the explorer!'
+            );
+        let ids = boxes.map((box) => box.boxId);
+        let raws = ids
+            .concat([box.id, additionalData.dataInput.id])
+            .map((id) => boxToRaw(id));
+        return Promise.all(raws).then((inputsRaw) => {
             let change = {
                 address: ourAddr,
-                value: boxes.map(box => box.value).reduce((a, b) => a + b) - amount - auctionFee
-            }
-            let changeAsset = {}
-            boxes.forEach(box => box.assets.forEach(asset => {
-                if (asset.tokenId in changeAsset) changeAsset[asset.tokenId] += asset.amount
-                else changeAsset[asset.tokenId] = asset.amount
-            }))
+                value:
+                    boxes.map((box) => box.value).reduce((a, b) => a + b) -
+                    amount -
+                    auctionFee,
+            };
+            let changeAsset = {};
+            boxes.forEach((box) =>
+                box.assets.forEach((asset) => {
+                    if (asset.tokenId in changeAsset)
+                        changeAsset[asset.tokenId] += asset.amount;
+                    else changeAsset[asset.tokenId] = asset.amount;
+                })
+            );
             change.assets = Object.entries(changeAsset).map((a, _) => {
                 return {
                     tokenId: a[0],
-                    amount: a[1]
-                }
-            })
+                    amount: a[1],
+                };
+            });
             let tree = new Address(ourAddr).ergoTree;
             let newBox = {
                 value: amount,
@@ -184,17 +227,18 @@ export async function bidTxRequest(box, amount) {
                     R7: box.additionalRegisters.R7,
                     R8: encodeStr(tree),
                     R9: box.additionalRegisters.R9,
-                }
-            }
+                },
+            };
             let returnBidder = {
                 value: box.value,
-                address: box.bidder
-            }
+                address: box.bidder,
+            };
             let request = {
                 requests: [newBox, returnBidder, change],
                 fee: auctionFee,
-                inputsRaw: inputsRaw
-            }
+                inputsRaw: inputsRaw.slice(0, inputsRaw.length - 1),
+                dataInputsRaw: [inputsRaw[inputsRaw.length - 1]],
+            };
 
             return generateTx(request).then((res) => {
                 let tx = Transaction.formObject(res);
@@ -210,36 +254,57 @@ export async function bidTxRequest(box, amount) {
                 };
                 addBid(bid);
             });
-        })
-    })
+        });
+    });
 }
 
 export function withdrawFinishedAuctions(boxes) {
-    if (!isWalletSaved()) return
-    let winnerVal = 1000000
-    boxes.filter(box => box.remBlock === 0).forEach(box => {
-        boxToRaw(box.id).then(res => {
-            let winner = {
-                value: winnerVal,
-                address: box.bidder,
-                assets: box.assets
-            }
-            let seller = {
-                value: box.value - auctionFee - winnerVal,
-                address: box.seller
-            }
-            let request = {
-                requests: [winner, seller],
-                fee: auctionFee,
-                inputsRaw: [res]
-            }
+    if (!isWalletSaved()) return;
+    let winnerVal = 1000000;
+    boxes
+        .filter((box) => box.remBlock === 0)
+        .forEach((box) => {
+            let dataInput = additionalData.dataInput;
+            let feeTo = Address.fromErgoTree(
+                decodeString(dataInput.additionalRegisters.R5)
+            ).address;
+            let percentage = decodePercentage(dataInput.additionalRegisters.R4);
+            let feeAmount = (box.value / percentage) | 0;
+            let raws = [boxToRaw(box.id), boxToRaw(dataInput.id)];
+            Promise.all(raws).then((both) => {
+                let res = both[0];
+                let winner = {
+                    value: winnerVal,
+                    address: box.bidder,
+                    assets: box.assets,
+                };
+                let seller = {
+                    value: box.value - feeAmount - auctionFee - winnerVal,
+                    address: box.seller,
+                };
+                let feeBox = {
+                    value: feeAmount,
+                    address: feeTo,
+                };
+                let request = {
+                    requests: [winner, seller, feeBox],
+                    fee: auctionFee,
+                    inputsRaw: [res],
+                    dataInputsRaw: [both[1]],
+                };
 
-            return generateTx(request).then((res) => {
-                console.log(`Withdrawing finished auction`)
-                console.log(res)
-                let tx = Transaction.formObject(res);
-                sendTx(tx);
-            }).catch(res => console.log(res));
-        })
-    })
+                return generateTx(request)
+                    .then((res) => {
+                        console.log(`Withdrawing finished auction`);
+                        console.log(res);
+                        let tx = Transaction.formObject(res);
+                        sendTx(tx);
+                    })
+                    .catch((res) =>
+                        console.log(
+                            `Error withdrawing finished auction ${res}\n ${request}`
+                        )
+                    );
+            });
+        });
 }

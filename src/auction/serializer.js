@@ -13,6 +13,13 @@ export function encodeLong(n, isInt = false) {
     return r;
 }
 
+export function decodePercentage(str) {
+    for (let i = 1; i <= 100; i++)
+        if (encodeLong(i, true) === str)
+            return i
+    return NaN
+}
+
 export function encodeStr(reg, applyHex = false) {
     let byteArray = reg
     if (applyHex) byteArray = Serializer.stringToHex(reg.toString());
