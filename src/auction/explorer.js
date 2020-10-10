@@ -1,6 +1,4 @@
-import { Address, Explorer, Transaction } from '@coinbarn/ergo-ts';
-import { Serializer } from '@coinbarn/ergo-ts/dist/serializer';
-import {decodeString, encodeLong} from './serializer';
+import {Address, Explorer, Transaction} from '@coinbarn/ergo-ts';
 import {friendlyToken, getMyBids, isWalletSaved, setMyBids, showStickyMsg} from './helpers';
 import {broadcast} from "./nodeWallet";
 
@@ -136,5 +134,3 @@ export function sendTx(tx) {
     explorer.broadcastTx(tx);
 }
 
-export class test {
-}

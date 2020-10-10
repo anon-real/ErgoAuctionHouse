@@ -10,9 +10,7 @@ import HistoryBox from './historyBox';
 import PropagateLoader from 'react-spinners/PropagateLoader';
 import { css } from '@emotion/core';
 import { showMsg } from '../../../auction/helpers';
-import { Serializer } from '@coinbarn/ergo-ts/dist/serializer';
-import { decodeString } from '../../../auction/serializer';
-import { Address } from '@coinbarn/ergo-ts/dist/models/address';
+import {decodeBox} from '../../../auction/serializer';
 import { Row } from 'react-bootstrap';
 import { Button } from 'reactstrap';
 import { ResponsiveContainer } from 'recharts';
@@ -49,31 +47,14 @@ export default class AuctionsHistory extends React.Component {
                     }
                     let boxes = res
                         .filter((tx) => tx.outputs[0].ergoTree !== auctionTree)
-                        .map((tx) => boxById(tx.inputs[0].id));
+                        .map((tx) => {
+                            return boxById(tx.inputs[0].id)
+                                .then(res => decodeBox(res))
+                        });
                     Promise.all(boxes)
                         .then((res) => {
                             res.forEach((box) => {
                                 box.finalTx = box.spentTransactionId;
-                                let info = Serializer.stringFromHex(
-                                    decodeString(box.additionalRegisters.R9)
-                                );
-                                info = info
-                                    .split(',')
-                                    .map((num) => parseInt(num));
-                                box.description = Serializer.stringFromHex(
-                                    decodeString(box.additionalRegisters.R7)
-                                );
-                                box.increase = (
-                                    ((box.value - info[0]) / info[0]) * 100
-                                ).toFixed(1);
-                                box.minStep = info[1];
-                                box.seller = Address.fromErgoTree(
-                                    decodeString(box.additionalRegisters.R4)
-                                ).address;
-                                box.bidder = Address.fromErgoTree(
-                                    decodeString(box.additionalRegisters.R8)
-                                ).address;
-                                box.loader = false;
                             });
                             return res;
                         })

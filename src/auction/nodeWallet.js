@@ -3,20 +3,18 @@ import {
     additionalData,
     auctionAddress,
     auctionFee,
-    auctionNFT,
-    dataInputAddress,
     sendTx,
     trueAddress,
-    unspentBoxesFor,
 } from './explorer';
 import { Address, Transaction } from '@coinbarn/ergo-ts';
 import {
-    decodePercentage,
+    decodeNum,
     decodeString,
-    encodeLong,
-    encodeStr,
+    encodeNum,
+    encodeHex,
 } from './serializer';
 import { addBid, getMyBids, getWalletAddress, isWalletSaved } from './helpers';
+import {Serializer} from "@coinbarn/ergo-ts/dist/serializer";
 
 function getUrl(url) {
     if (!url.startsWith('http')) url = 'http://' + url;
@@ -124,7 +122,7 @@ export async function unspentBoxes(
         });
 }
 
-export function auctionTxRequest(
+export async function auctionTxRequest(
     initial,
     bidder,
     tokenId,
@@ -148,12 +146,12 @@ export function auctionTxRequest(
                     },
                 ],
                 registers: {
-                    R4: encodeStr(tree),
-                    R5: encodeLong(end, true),
-                    R6: encodeLong(step),
-                    R7: encodeStr(description, true),
-                    R8: encodeStr(tree),
-                    R9: encodeStr(info, true),
+                    R4: await encodeHex(tree),
+                    R5: await encodeNum(end, true),
+                    R6: await encodeNum(step.toString()),
+                    R7: await encodeHex(Serializer.stringToHex(description)),
+                    R8: await encodeHex(tree),
+                    R9: await encodeHex(Serializer.stringToHex(info)),
                 },
             },
         ],
@@ -180,6 +178,8 @@ export function auctionTxRequest(
 
 export async function bidTxRequest(box, amount) {
     let ourAddr = getWalletAddress();
+    let tree = new Address(ourAddr).ergoTree;
+    let encodedTree = await encodeHex(tree)
     return unspentBoxes(amount).then((boxes) => {
         if (boxes.length === 0)
             throw new Error(
@@ -215,7 +215,6 @@ export async function bidTxRequest(box, amount) {
                     amount: a[1],
                 };
             });
-            let tree = new Address(ourAddr).ergoTree;
             let newBox = {
                 value: amount,
                 address: auctionAddress,
@@ -225,7 +224,7 @@ export async function bidTxRequest(box, amount) {
                     R5: box.additionalRegisters.R5,
                     R6: box.additionalRegisters.R6,
                     R7: box.additionalRegisters.R7,
-                    R8: encodeStr(tree),
+                    R8: encodedTree,
                     R9: box.additionalRegisters.R9,
                 },
             };
@@ -258,17 +257,15 @@ export async function bidTxRequest(box, amount) {
     });
 }
 
-export function withdrawFinishedAuctions(boxes) {
+export async function withdrawFinishedAuctions(boxes) {
     if (!isWalletSaved()) return;
+    let dataInput = additionalData.dataInput;
+    let percentage = await decodeNum(dataInput.additionalRegisters.R4, true);
+    let feeTo = Address.fromErgoTree(await decodeString(dataInput.additionalRegisters.R5)).address
     let winnerVal = 1000000;
     boxes
         .filter((box) => box.remBlock === 0)
         .forEach((box) => {
-            let dataInput = additionalData.dataInput;
-            let feeTo = Address.fromErgoTree(
-                decodeString(dataInput.additionalRegisters.R5)
-            ).address;
-            let percentage = decodePercentage(dataInput.additionalRegisters.R4);
             let feeAmount = (box.value / percentage) | 0;
             let raws = [boxToRaw(box.id), boxToRaw(dataInput.id)];
             Promise.all(raws).then((both) => {
