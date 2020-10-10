@@ -42,7 +42,7 @@ import {
 } from '../../../auction/nodeWallet';
 import number from 'd3-scale/src/number';
 import ActiveBox from './activeBox';
-import {decodeBoxes} from '../../../auction/serializer';
+import { decodeBoxes } from '../../../auction/serializer';
 
 const override = css`
     display: block;
@@ -212,21 +212,22 @@ export default class ActiveAuctions extends React.Component {
                 this.setState({ currentHeight: height });
                 getActiveAuctions()
                     .then((boxes) => {
-                        decodeBoxes(boxes, height).then(boxes => {
-                            this.setState({
-                                auctions: boxes,
-                                loading: false,
-                                tooltip: true,
+                        decodeBoxes(boxes, height)
+                            .then((boxes) => {
+                                this.setState({
+                                    auctions: boxes,
+                                    loading: false,
+                                    tooltip: true,
+                                });
+                                withdrawFinishedAuctions(boxes);
+                            })
+                            .finally(() => {
+                                this.setState({ loading: false });
                             });
-                            withdrawFinishedAuctions(boxes);
-                        })
                     })
                     .catch((_) =>
                         console.log('failed to get boxes from explorer!')
                     )
-                    .finally(() => {
-                        this.setState({ loading: false });
-                    });
             })
             .catch((_) => {
                 if (force) {
