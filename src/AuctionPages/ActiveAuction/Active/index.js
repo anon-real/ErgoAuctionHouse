@@ -42,10 +42,7 @@ import {
 } from '../../../auction/nodeWallet';
 import number from 'd3-scale/src/number';
 import ActiveBox from './activeBox';
-import { decodeString, encodeStr } from '../../../auction/serializer';
-import { Serializer } from '@coinbarn/ergo-ts/dist/serializer';
-import { Address } from '@coinbarn/ergo-ts/dist/models/address';
-import { parse } from '@fortawesome/fontawesome-svg-core';
+import {decodeBoxes} from '../../../auction/serializer';
 
 const override = css`
     display: block;
@@ -213,41 +210,16 @@ export default class ActiveAuctions extends React.Component {
         currentHeight()
             .then((height) => {
                 this.setState({ currentHeight: height });
-
                 getActiveAuctions()
                     .then((boxes) => {
-                        boxes.forEach((box) => {
-                            let info = Serializer.stringFromHex(
-                                decodeString(box.additionalRegisters.R9)
-                            );
-                            info = info.split(',').map((num) => parseInt(num));
-                            box.description = Serializer.stringFromHex(
-                                decodeString(box.additionalRegisters.R7)
-                            );
-                            box.remBlock = Math.max(info[3] - height, 0);
-                            box.doneBlock =
-                                ((height - info[2]) / (info[3] - info[2])) *
-                                100;
-                            box.finalBlock = info[3];
-                            box.increase = (
-                                ((box.value - info[0]) / info[0]) *
-                                100
-                            ).toFixed(1);
-                            box.minStep = info[1];
-                            box.seller = Address.fromErgoTree(
-                                decodeString(box.additionalRegisters.R4)
-                            ).address;
-                            box.bidder = Address.fromErgoTree(
-                                decodeString(box.additionalRegisters.R8)
-                            ).address;
-                            box.loader = false;
-                        });
-                        this.setState({
-                            auctions: boxes,
-                            loading: false,
-                            tooltip: true,
-                        });
-                        withdrawFinishedAuctions(boxes);
+                        decodeBoxes(boxes, height).then(boxes => {
+                            this.setState({
+                                auctions: boxes,
+                                loading: false,
+                                tooltip: true,
+                            });
+                            withdrawFinishedAuctions(boxes);
+                        })
                     })
                     .catch((_) =>
                         console.log('failed to get boxes from explorer!')
