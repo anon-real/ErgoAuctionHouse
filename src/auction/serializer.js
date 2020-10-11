@@ -2,6 +2,9 @@ import { Serializer } from '@coinbarn/ergo-ts/dist/serializer';
 import {Address} from "@coinbarn/ergo-ts/dist/models/address";
 let ergolib = import('ergo-lib-wasm')
 
+const floatRe = new RegExp('^([0-9]*[.])?[0-9]*$')
+const naturalRe = new RegExp('^[0-9]+$')
+
 export async function encodeNum(n, isInt = false) {
     if (isInt) return (await ergolib).Constant.from_i32(n).encode_to_base16()
     else return (await ergolib).Constant.from_i64((await ergolib).I64.from_str(n)).encode_to_base16()
@@ -58,4 +61,19 @@ export async function decodeBoxes(boxes, height) {
     return Promise.all(boxes.map((box) => decodeBox(box, height)))
 }
 
+export function ergToNano(erg) {
+    if (erg === undefined) return 0
+    if (erg.startsWith('.')) return parseInt(erg.slice(1) + '0'.repeat(9 - erg.length + 1))
+    let parts = erg.split('.')
+    if (parts.length === 1) parts.push('')
+    if (parts[1].length > 9) return 0
+    return parseInt(parts[0] + parts[1] + '0'.repeat(9 - parts[1].length))
+}
 
+export function isFloat(num) {
+    return num === '' || floatRe.test(num)
+}
+
+export function isNatural(num) {
+    return num === '' || naturalRe.test(num)
+}
