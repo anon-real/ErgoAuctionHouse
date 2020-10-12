@@ -71,7 +71,7 @@ class WalletModal extends React.Component {
             processing: true,
         });
         getInfo(this.state.nodeUrl)
-            .then((res) => {
+            .then(() => {
                 getAddress(this.state.nodeUrl, this.state.apiKey)
                     .then((res) => {
                         if (res.error !== undefined) {
@@ -85,7 +85,7 @@ class WalletModal extends React.Component {
                                 type: this.state.activeTab,
                                 url: this.state.nodeUrl,
                                 apiKey: this.state.apiKey,
-                                address: res.address,
+                                address: res,
                             })
                         );
                         this.setState({ walletState: 'Update' });

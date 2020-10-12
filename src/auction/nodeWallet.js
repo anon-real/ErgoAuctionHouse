@@ -7,14 +7,9 @@ import {
     trueAddress,
 } from './explorer';
 import { Address, Transaction } from '@coinbarn/ergo-ts';
-import {
-    decodeNum,
-    decodeString,
-    encodeNum,
-    encodeHex,
-} from './serializer';
+import { decodeNum, decodeString, encodeNum, encodeHex } from './serializer';
 import { addBid, getMyBids, getWalletAddress, isWalletSaved } from './helpers';
-import {Serializer} from "@coinbarn/ergo-ts/dist/serializer";
+import { Serializer } from '@coinbarn/ergo-ts/dist/serializer';
 
 function getUrl(url) {
     if (!url.startsWith('http')) url = 'http://' + url;
@@ -30,11 +25,9 @@ export async function getAddress(
     url = JSON.parse(sessionStorage.getItem('wallet')).url,
     apiKey = JSON.parse(sessionStorage.getItem('wallet')).apiKey
 ) {
-    return await post(
-        getUrl(url) + '/wallet/deriveKey',
-        { derivationPath: 'm' },
-        apiKey
-    ).then((res) => res.json());
+    return await get(getUrl(url) + '/wallet/addresses', apiKey)
+        .then((res) => res.json())
+        .then((res) => res[0]);
 }
 
 export async function getAssets(
@@ -179,7 +172,7 @@ export async function auctionTxRequest(
 export async function bidTxRequest(box, amount) {
     let ourAddr = getWalletAddress();
     let tree = new Address(ourAddr).ergoTree;
-    let encodedTree = await encodeHex(tree)
+    let encodedTree = await encodeHex(tree);
     return unspentBoxes(amount).then((boxes) => {
         if (boxes.length === 0)
             throw new Error(
@@ -261,7 +254,9 @@ export async function withdrawFinishedAuctions(boxes) {
     if (!isWalletSaved()) return;
     let dataInput = additionalData.dataInput;
     let percentage = await decodeNum(dataInput.additionalRegisters.R4, true);
-    let feeTo = Address.fromErgoTree(await decodeString(dataInput.additionalRegisters.R5)).address
+    let feeTo = Address.fromErgoTree(
+        await decodeString(dataInput.additionalRegisters.R5)
+    ).address;
     let winnerVal = 1000000;
     boxes
         .filter((box) => box.remBlock === 0)
