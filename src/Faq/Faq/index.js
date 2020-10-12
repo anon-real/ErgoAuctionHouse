@@ -7,7 +7,7 @@ const data = {
     rows: [
         {
             title: 'What is auction fee?',
-            content: 'Some small percentage of the final bid will be deducted as the auction fee. This percentage is currently 10% and is configurable on the blockchain.',
+            content: 'Some small percentage of the final bid will be deducted as the auction fee. This percentage is currently set to 2%.',
         },
         {
             title: 'What tokens can I auction?',
@@ -16,7 +16,7 @@ const data = {
         {
             title: 'How can I trust Ergo Auction with my wallet info?',
             content:
-                'Ergo Auction is open source and serverless. ' +
+                'Ergo Auction is open source and serverless.' +
                 ' Your wallet info will be saved in the session storage of your browser securely and will be removed as soon as you close the app.',
         },
         {
