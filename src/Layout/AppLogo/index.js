@@ -50,9 +50,9 @@ class HeaderLogo extends React.Component {
                             style={{ height: '40px', width: '40px' }}
                             src={nodeWallet}
                         />
-                        <strong className="ml-2 text-white">Ergo Auction</strong>
+                        <strong className="ml-2 text-white">Auction House</strong>
                     </a>
-                    <div className="header__pane ml-auto">
+                    <div  className="header__pane ml-auto">
                         <div onClick={this.toggleEnableClosedSidebar}>
                             <Hamburger
                                 active={enableClosedSidebar}

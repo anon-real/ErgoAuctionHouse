@@ -1,5 +1,5 @@
-# Ergo Auction
-Decentralized auction on top of [ERGO](https://ergoplatform.org/en/).
+# Ergo Auction House
+Decentralized Auction House on top of [ERGO](https://ergoplatform.org/en/).
 
 ## Running
 ```bash

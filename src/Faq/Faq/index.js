@@ -6,7 +6,7 @@ import Faq from 'react-faq-component';
 const data = {
     rows: [
         {
-            title: 'What is auction fee?',
+            title: 'What is the auction fee?',
             content: 'Some small percentage of the final bid will be deducted as the auction fee. This percentage is currently set to 2%.',
         },
         {
@@ -14,9 +14,9 @@ const data = {
             content: 'You can auction any token that you think is valuable somehow. Whether it is because of PoW done on creating it or it is representing digital art, etc.',
         },
         {
-            title: 'How can I trust Ergo Auction with my wallet info?',
+            title: 'How can I trust Ergo Auction House with my wallet info?',
             content:
-                'Ergo Auction is open source and serverless.' +
+                'Ergo Auction House is open source and serverless.' +
                 ' Your wallet info will be saved in the session storage of your browser securely and will be removed as soon as you close the app.',
         },
         {
