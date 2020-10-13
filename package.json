@@ -1,9 +1,9 @@
 {
-  "name": "ergo-auction",
+  "name": "ergo-auction-house",
   "version": "1.0.0",
   "homepage": "http://localhost:4000",
   "private": true,
-  "description": "Auction on top of ERGO",
+  "description": "Auction House on top of ERGO",
   "author": "anon_real",
   "repository": {
     "type": "https",
