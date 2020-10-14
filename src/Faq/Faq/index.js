@@ -11,7 +11,7 @@ const data = {
         },
         {
             title: 'What tokens can I auction?',
-            content: 'You can auction any token that you think is valuable somehow. Whether it is because of PoW-backed NFTs or it is representing some business shares, digital art, etc.',
+            content: 'You can auction any token that you think is valuable somehow. Whether it is PoW-backed NFTs or it is representing some business\' shares, digital art, etc.',
         },
         {
             title: 'How can I trust Ergo Auction House with my wallet info?',
