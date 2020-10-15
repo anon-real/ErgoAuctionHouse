@@ -17,6 +17,7 @@ const data = {
             title: 'How can I trust Ergo Auction House with my wallet info?',
             content:
                 'Ergo Auction House is open source and serverless.' +
+                ' The hosting website is only there to serve the app for your browser, all the other things will be done locally without any communication with any servers.' +
                 ' Your wallet info will be saved in the session storage of your browser securely and will be removed as soon as you close the app.',
         },
         {
