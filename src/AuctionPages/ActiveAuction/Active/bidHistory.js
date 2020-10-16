@@ -11,9 +11,7 @@ import {
 import {friendlyToken, getAddrUrl, getTxUrl, showMsg} from '../../../auction/helpers';
 import SyncLoader from 'react-spinners/SyncLoader';
 import { css } from '@emotion/core';
-import { ResponsiveContainer } from 'recharts';
-import { auctionTree, boxById, txById } from '../../../auction/explorer';
-import AppMobileMenu from '../../../Layout/AppMobileMenu';
+import {allAuctionTrees, boxById, txById} from '../../../auction/explorer';
 import moment from 'moment';
 
 const override = css`
@@ -53,7 +51,7 @@ class BidHistory extends React.Component {
 
                 boxById(res.inputs[res.inputs.length - 1].id)
                     .then((res) => {
-                        if (res.ergoTree !== auctionTree) {
+                        if (!allAuctionTrees.includes(res.ergoTree)) {
                             this.setState({
                                 loading: false,
                             });
