@@ -192,11 +192,12 @@ export default class ActiveBox extends React.Component {
                                     flex: 1,
                                     justifyContent: 'center',
                                     alignItems: 'center',
-                                    height: '50px',
-                                    overflow: 'scroll',
+                                    height: '60px',
+                                    overflowY: 'auto',
+                                    overflowX: 'hidden'
                                 }}
                             >
-                                <p className="text-primary">
+                                <p className="text-primary mr-2 ml-2">
                                     {this.props.box.description}
                                 </p>
                             </div>
