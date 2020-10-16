@@ -55,22 +55,6 @@ const AppMain = () => {
                     </div>
                 }
             >
-                <Route path="/home" component={Homepage} />
-            </Suspense>
-
-            {/* Homepage */}
-            <Suspense
-                fallback={
-                    <div className="loader-container">
-                        <div className="loader-container-inner">
-                            <h6 className="mt-5">
-                                Please wait while we load all the Components
-                                examples
-                            </h6>
-                        </div>
-                    </div>
-                }
-            >
                 <Route path="/faq" component={FaqPage} />
             </Suspense>
 
