@@ -10,6 +10,12 @@ const data = {
             content: 'Some small percentage of the final bid will be deducted as the auction fee. This percentage is currently set to 2%.',
         },
         {
+            title: "Can I use my node's wallet through the internet?",
+            content: 'It is possible to connect to your node through the internet to place bids and start auctions, however,' +
+                ' since the app is currently over HTTP, it is strongly advised not to use nodes through the internet and instead' +
+                ' use nodes locally or in a secure private network.'
+        },
+        {
             title: 'What tokens can I auction?',
             content: 'You can auction any token that you think is valuable somehow. Whether it is PoW-backed NFTs or it is representing some business shares, digital art, etc.',
         },
