@@ -2,7 +2,7 @@ import React, { Fragment } from 'react';
 
 import PageTitle from '../../../Layout/AppMain/PageTitle';
 import {
-    auctionTree,
+    allAuctionTrees,
     boxById,
     getAuctionHistory,
 } from '../../../auction/explorer';
@@ -46,7 +46,7 @@ export default class AuctionsHistory extends React.Component {
                             showMsg('Complete auction history is loaded.');
                     }
                     let boxes = res
-                        .filter((tx) => tx.outputs[0].ergoTree !== auctionTree)
+                        .filter((tx) => !allAuctionTrees.includes(tx.outputs[0].ergoTree))
                         .map((tx) => {
                             return boxById(tx.inputs[0].id)
                                 .then(res => decodeBox(res))

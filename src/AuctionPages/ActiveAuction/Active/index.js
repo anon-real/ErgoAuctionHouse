@@ -3,7 +3,7 @@ import React, {Fragment} from 'react';
 import {
     auctionFee,
     currentHeight,
-    getActiveAuctions,
+    getActiveAuctions, getAllActiveAuctions,
     test,
 } from '../../../auction/explorer';
 import {
@@ -213,7 +213,7 @@ export default class ActiveAuctions extends React.Component {
         currentHeight()
             .then((height) => {
                 this.setState({currentHeight: height});
-                getActiveAuctions()
+                getAllActiveAuctions()
                     .then((boxes) => {
                         decodeBoxes(boxes, height)
                             .then((boxes) => {
