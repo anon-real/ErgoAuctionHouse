@@ -23,7 +23,6 @@ import {
 import SyncLoader from 'react-spinners/SyncLoader';
 import { css } from '@emotion/core';
 import {
-    auctionTxRequest,
     bidTxRequest,
     getAssets,
 } from '../../../auction/nodeWallet';
