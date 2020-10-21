@@ -7,7 +7,7 @@ import {
     extendNum,
     extendThreshold,
     sendTx,
-    trueAddress,
+    trueAddress, auctionOrdinaryAddr,
 } from './explorer';
 import { Address, Transaction } from '@coinbarn/ergo-ts';
 import { decodeNum, decodeString, encodeNum, encodeHex } from './serializer';
@@ -126,14 +126,17 @@ export async function auctionTxRequest(
     step,
     start,
     end,
-    description
+    description,
+    autoExtend,
 ) {
     let tree = new Address(bidder).ergoTree;
     let info = `${initial},${step},${start}`;
+    let auctionAddress = auctionWithExtensionAddr
+    if (!autoExtend) auctionAddress = auctionOrdinaryAddr
     let req = {
         requests: [
             {
-                address: auctionWithExtensionAddr,
+                address: auctionAddress,
                 value: initial,
                 assets: [
                     {
@@ -178,7 +181,7 @@ export async function bidTxRequest(box, amount, currentHeight) {
     let encodedTree = await encodeHex(tree);
     let nextEndTime =
         box.finalBlock - currentHeight <= extendThreshold &&
-        box.ergoTree === auctionWithExtensionTree // TODO fix this when the first auction (by anon_real) is finished!
+        box.ergoTree === auctionWithExtensionTree
             ? box.finalBlock + extendNum
             : box.finalBlock;
     console.log(`height: ${currentHeight}, fb: ${box.finalBlock}, ${box.finalBlock - currentHeight}`)

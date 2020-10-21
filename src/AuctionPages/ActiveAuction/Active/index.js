@@ -143,7 +143,8 @@ export default class ActiveAuctions extends React.Component {
                     ergToNano(this.state.auctionStep),
                     height,
                     height + parseInt(this.state.auctionDuration) + 5, // +5 to take into account the time it takes to be mined
-                    description
+                    description,
+                    this.state.auctionAutoExtend
                 );
                 res.then((data) => {
                     showMsg(
