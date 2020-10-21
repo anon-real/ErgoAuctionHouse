@@ -27,7 +27,7 @@ import {
     bidTxRequest,
     getAssets,
 } from '../../../auction/nodeWallet';
-import { auctionFee } from '../../../auction/explorer';
+import { auctionFee, currentHeight } from '../../../auction/explorer';
 import { ergToNano, isFloat } from '../../../auction/serializer';
 
 const override = css`
@@ -66,7 +66,10 @@ export default class PlaceBidModal extends React.Component {
     }
 
     placeBid() {
-        if (ergToNano(this.state.bidAmount) + auctionFee > this.state.ergBalance) {
+        if (
+            ergToNano(this.state.bidAmount) + auctionFee >
+            this.state.ergBalance
+        ) {
             showMsg(
                 `Not enough balance to place ${this.state.bidAmount} ERG bid.`,
                 true
@@ -74,20 +77,29 @@ export default class PlaceBidModal extends React.Component {
             return;
         }
         this.setState({ modalLoading: true });
-        let res = bidTxRequest(this.props.box, ergToNano(this.state.bidAmount));
-        res.then((_) => {
-            showMsg(
-                'Your bid transaction was generated successfully. If you keep the app open, you will be notified about any status!'
-            );
-            this.props.close();
-        })
-            .catch((nodeRes) => {
-                showMsg(
-                    'Could not generate bid transaction. Potentially your wallet is locked.',
-                    true
-                );
+        currentHeight()
+            .then((height) => {
+                let res = bidTxRequest(this.props.box, ergToNano(this.state.bidAmount), height);
+                res.then((_) => {
+                    showMsg(
+                        'Your bid transaction was generated successfully. If you keep the app open, you will be notified about any status!'
+                    );
+                    this.props.close();
+                })
+                    .catch((nodeRes) => {
+                        showMsg(
+                            'Could not generate bid transaction. Potentially your wallet is locked.',
+                            true
+                        );
+                    })
+                    .finally((_) => this.setState({ modalLoading: false }));
             })
-            .finally((_) => this.setState({ modalLoading: false }));
+            .catch(() =>
+                showMsg(
+                    'Could not get height from the explorer, try again!',
+                    true
+                )
+            );
     }
 
     render() {
@@ -160,7 +172,9 @@ export default class PlaceBidModal extends React.Component {
                         className="mr-2 btn-transition"
                         color="secondary"
                         disabled={
-                            ergToNano(this.state.bidAmount) < this.props.box.value + this.props.box.minStep || this.state.modalLoading
+                            ergToNano(this.state.bidAmount) <
+                                this.props.box.value + this.props.box.minStep ||
+                            this.state.modalLoading
                         }
                         onClick={this.placeBid}
                     >

@@ -9,20 +9,38 @@ import {
 import { broadcast } from './nodeWallet';
 
 const explorer = Explorer.mainnet;
-export const auctionAddress =
-    '9RN5yYHW3AfFvU65Zo5KXpwrmYMEx549dtTTB8Bq5PSwyPQ1je35jAQrwvM9xLkxMS1Tp4if3DvaXfduY6Us7CNu4xsZMCZYjD5V33p8Znu7PyNxx2qtSduL2nK64tREtH2e7isDCueZHJCmfQbVaZEw6EidRtg9tDusXb963wKaV43GVSgF2i2tt6UtNBskmQA1RzYwjXGWXCtTnE7kYN68w34Yt3yAhxtArxKTcr48GxfT1raTDaytB8AGLa3Bq7GGZVRmPtpJCzSKUsAYveQ94FCwfCd1fbJfY3af42ec4GGfnrwLj3iuPsuTggh5x5bLFzZpW8uKTf5VCyWv9MoBhBjtBGhuchMnpHqNUJrA993f2APVXUwdTfgCHRvtsUawg4mWBjT8c5iojvnY863x9TxuxQ1Kp9UJVcc1783jZsrZCbHRZnuEqkHwG3nom8i1TCT4rxpVcGqmtUjSDbofjg4K';
-export const auctionTree = new Address(auctionAddress).ergoTree;
-export const oldAuctionAddresses = [
-    'sLjd9UUGa3nhh58YLReDqyZb695v91tKLyaV5Lifpw9uTKyJEGdcF7Z5MJsEgnPMyQycASAaBtSfLQdzw6HkZgAXTTZQtruZw3dFLC3MZrVYG14Gyjw7Twf2pYXzWLqauNqiCVrVq6bs8dEg7UycdnGUKEdP6a7HvtdtLZoaRRsK9hf8Jhx9TUnVjaGhYFjMRKnDEhXzDsKBpvmXnKyAJok89gqbspWbzhvnJPat2SgGXU3t4RTxRvYZyV2UJkcS2JVpB9jZ26pAcG55PAgxDNsmuXgDUGRnqutbFaigpTZWSpkTeP9yUFCfYFD4g4pJLvFGwY8knARVLoGADPAPRvs7EbPTFTYde8RxMFyPYdh6gtGmJ7Lz3QTve2ufCXTasAEZ5tJini8sip9zj2yHbATmeXC789wgjinSYmEaPvUF3T9JUxLG7Eb2575tpGdbN2sQotSAXdqFbtcw3V',
+
+// auction contract protocol with time extending functionality
+export const auctionWithExtensionAddr =
+    'B63bstXvgAmLqicW4SphqE6AkixAyU7xPpN8g5QwzKsCLvUmNSjZTkrWif7dDzHTBwtCFSvE9qsouL9LnkfJKKmhL4Mw4sA2gNKzgN4wuVcXqvPmPRq5yHky2LyADXmF6Py8vS8KGm7cyHB4U2voCMFqEbgPFoXLRYaa2m3rmCJiNmfdmbqYtMdzH9xRYEVZheDmuBJJnAEFqn6z4h5pitDKZeJJRMnWoJ8YJAooXw5bhxviqcB3HAWmLuJovSpcQ2btWK9h6QhkfyjxbRCmLkKhkbqnF49PkvaqFhqSar68uXVRf6s9FDC4WVND8KmVVh2DhyRrNjNx8u25hwas3q8S7MQfY2jmMJ7pMmgQ8NXZL9FjEeH7WUJbWnwLvm8rKf3yAACP6WD9s84R7Nvr2ijK21PhXkRFgGAPzjWfa4VHVXqcKYYJrA79eK5fVnM8QrLEEd3Rn9Km1LjjT7EEgZhTyym5QyFVzHrx6XipunbwBw2BAXj7HE9wCi';
+export const auctionWithExtensionTree = new Address(auctionWithExtensionAddr).ergoTree;
+export const extendThreshold = 15; // if bid is being placed and endTime - HEIGHT <= extendThreshold we have to extend endTime
+export const extendNum = 20; // number by which we have to extend endTime
+
+// auction contract protocol with fixed end-time
+export const auctionOrdinaryAddr =
+    '5CC8sXX8ReWpiBXENqXCcSSD6JUAmMikyrsevD38QgCZ5rMx7QMzTrkfh2TfVkkVHmXkqFfLM3ucTtNbriFL7GbzLVxr65jrNUaVHxWj495fuYupgZWB1VApcBdVs4nezMDJq1uRVFvDZrFji2gbYpYwLa3G6R2cjR1Bkbh5CEQMJzP9DZQCRC9n62eXjH8o12ZTeBWrc7oeoBvpuzumf9T1y3Qt2qk1xD2f3FKEUmTczFLzvpVX1CpVFiu9FmUzTo33F124p8yU6Xj4urtdR5X12CesUPbErdwz4uqDzommprvJEdhse7SMtmXKdwKBN3sokcC11Be9TLkkzCTnBUC85ReMVgpx4fFVbLHB7ZGg6mQBVhgj69PiJrZNEUKZyAAg7p2HXT2btJbFppktHFmtCaigqs57FpbdFMeGfqbZV1TuUTbsU1yx3PNsaBVkcQGQxLvXWsifL32qfBvRbifn3giy54tkpiv';
+export const auctionOrdinaryTree = new Address(auctionOrdinaryAddr).ergoTree;
+
+export const activeAuctionAddresses = [
+    auctionWithExtensionAddr, auctionOrdinaryAddr
 ];
-export const allAuctionTrees = oldAuctionAddresses
+export const inactiveAuctionAddresses = [
+    // this is inactive due to the bug reported by Jason Davis!
+    'S4x6bgnmHjUrGARXfHDfGUVjjLrfEiJQ9ZhRYbvLEv4gwqCCDThZ8KJYEoBD91XNRtGiJsBY6PGwdY6VW2epqymBBdnz81hdRJi241YNVDEV4ZPbwBYA1wc64e1KtmDkBFx4oh9qstmfdV3PHaBwN9dHE85zpAX3dXVcPb1jRvMmG3A9smNaR9q6MRmT9F25NujPhgW6CYP27yjwNpFpjbAfwBFJyFvmcwJwfx6oYPbNjxcvpBzzrmatw4h4R263FajVF9btFa4y4ejz9vainPHmMdW6artTXD9JW8YnpGtvme8xQEgr5hJoYH2J2J7MYF4BYiriToJrit7WBb6543ZLGXeTXXt58fdZFezDuC86x8eNbygw24ENELxENKM2rsU81t8eeWWENm2F1ezGVx7GB8KT8VkQqhUdzai65Po1RwbAk3Sdbn1LZYnFBojbGbZ3QiTYYUqQ6Hs3USCp3y8cF',
+];
+export const allAuctionTrees = activeAuctionAddresses // array of trees of all auction addresses until now.
+    .concat(inactiveAuctionAddresses)
     .map((addr) => new Address(addr).ergoTree)
-    .concat(auctionTree);
-export const trueAddress = '4wQyML64GnzMxZgm';
+    .concat([auctionWithExtensionTree, auctionOrdinaryTree]);
+
+export const trueAddress = '4wQyML64GnzMxZgm'; // dummy address to get unsigned tx from node, we only care about the boxes though in this case
+
 export const dataInputAddress =
     'AfHRBHDmA19bEqvBNoprnecKkffKTVpfjMJoWrutWzFztXBYrPijLGTq5WVGUapNRRKLr';
 export const auctionNFT =
     '35f2a7b17800bd28e0592559bccbaa65a46d90d592064eb98db0193914abb563';
+
 export const auctionFee = 2000000;
 export let additionalData = {};
 
@@ -50,8 +68,8 @@ export function getActiveAuctions(addr) {
 }
 
 export function getAllActiveAuctions() {
-    let all = oldAuctionAddresses
-        .concat(auctionAddress)
+    let all = activeAuctionAddresses
+        .concat(auctionWithExtensionAddr)
         .map((addr) => getActiveAuctions(addr));
     return Promise.all(all)
         .then((res) => [].concat.apply([], res))
@@ -65,12 +83,22 @@ export function getAllActiveAuctions() {
         });
 }
 
-export function getAuctionHistory(limit, offset) {
+export function getAuctionHistory(limit, offset, auctionAddr) {
     return getRequest(
-        `/addresses/${auctionAddress}/transactions?limit=${limit}&offset=${offset}`
+        `/addresses/${auctionAddr}/transactions?limit=${limit}&offset=${offset}`
     )
         .then((res) => res.data)
         .then((res) => res.items);
+}
+
+export async function getCompleteAuctionHistory(limit, offset) {
+    let allHistory = activeAuctionAddresses.map(addr => getAuctionHistory(limit, offset, addr))
+    return Promise.all(allHistory)
+        .then(res => [].concat.apply([], res))
+        .then(res => {
+            res.sort((a, b) => b.timestamp - a.timestamp)
+            return res
+        })
 }
 
 export function boxById(id) {
@@ -89,7 +117,7 @@ export async function getSpendingTx(boxId) {
         .catch((_) => null);
 }
 
-export function handlePendingBids() {
+export function handlePendingBids(height) {
     let bids = getMyBids().filter((bid) => bid.status === 'pending mining');
     if (bids !== null) {
         let res = bids.map((bid) => {
@@ -133,6 +161,21 @@ export function handlePendingBids() {
                         showStickyMsg(msg, true);
                     }
                 } else {
+                    // maybe bid was in the mempool for a long time and the endTiem must be extened.
+                    if (!bid.isFirst && bid.shouldExtend) {
+                        if (bid.prevEndTime - height < extendThreshold) {
+                            bid.status = 'rejected';
+                            bid.tx = null
+                            let msg = `Your ${
+                                bid.amount / 1e9
+                            } ERG bid for ${friendlyToken(
+                                bid.token,
+                                false,
+                                5
+                            )} is rejected because the bid's end time must be extended, place your bid again to take that into account!.`;
+                            showStickyMsg(msg, true);
+                        }
+                    }
                     try {
                         console.log('broadcasting to explorer...');
                         explorer.broadcastTx(Transaction.formObject(bid.tx));
