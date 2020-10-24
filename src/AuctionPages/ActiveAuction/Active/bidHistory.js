@@ -2,17 +2,27 @@ import React, { Fragment } from 'react';
 import { Bar } from 'react-chartjs-2';
 import {
     Button,
+    Col,
     Container,
     Modal,
     ModalBody,
     ModalHeader,
     Row,
+    Tooltip,
 } from 'reactstrap';
-import {friendlyToken, getAddrUrl, getTxUrl, showMsg} from '../../../auction/helpers';
+import {
+    friendlyToken,
+    getAddrUrl,
+    getTxUrl,
+    showMsg,
+} from '../../../auction/helpers';
 import SyncLoader from 'react-spinners/SyncLoader';
 import { css } from '@emotion/core';
-import {allAuctionTrees, boxById, txById} from '../../../auction/explorer';
+import { allAuctionTrees, boxById, txById } from '../../../auction/explorer';
 import moment from 'moment';
+import { ResponsiveContainer } from 'recharts';
+import PropagateLoader from 'react-spinners/PropagateLoader';
+import ReactTooltip from 'react-tooltip';
 
 const override = css`
     display: block;
@@ -20,10 +30,12 @@ const override = css`
 `;
 
 class BidHistory extends React.Component {
-    constructor() {
+    constructor(props) {
         super();
         this.state = {
             loading: false,
+            remains: true,
+            nextTx: props.box.txId,
             data: {
                 bids: [],
                 labels: [],
@@ -37,37 +49,35 @@ class BidHistory extends React.Component {
         window.open(getTxUrl(txId), '_blank');
     }
 
-    loadBids(txId) {
+    loadBids(txId, toLoad) {
         txById(txId)
-            .then((res) => {
-                let time = moment(res.summary.timestamp).format('lll');
-                this.setState({
-                    data: {
-                        labels: [time].concat(this.state.data.labels),
-                        bids: this.state.data.bids,
-                        txIds: this.state.data.txIds,
-                    },
-                });
-
-                boxById(res.inputs[res.inputs.length - 1].id)
+            .then((tx) => {
+                boxById(tx.inputs[tx.inputs.length - 1].id)
                     .then((res) => {
+                        let time = moment(tx.summary.timestamp).format('lll');
+                        this.setState({
+                            data: {
+                                bids: [tx.outputs[0].value / 1e9].concat(
+                                    this.state.data.bids
+                                ),
+                                labels: [time].concat(this.state.data.labels),
+                                txIds: [txId].concat(this.state.data.txIds),
+                            },
+                        });
+
                         if (!allAuctionTrees.includes(res.ergoTree)) {
                             this.setState({
                                 loading: false,
+                                remains: false,
                             });
                         } else {
-                            this.setState({
-                                data: {
-                                    bids: [res.value / 1e9].concat(
-                                        this.state.data.bids
-                                    ),
-                                    labels: this.state.data.labels,
-                                    txIds: [res.txId].concat(
-                                        this.state.data.txIds
-                                    ),
-                                },
-                            });
-                            this.loadBids(res.txId);
+                            this.setState({ nextTx: res.txId });
+                            if (toLoad > 1) this.loadBids(res.txId, toLoad - 1);
+                            else {
+                                this.setState({
+                                    loading: false,
+                                });
+                            }
                         }
                     })
                     .catch((_) => {
@@ -89,13 +99,14 @@ class BidHistory extends React.Component {
         if (!this.props.isOpen && nextProps.isOpen) {
             this.setState({
                 data: {
-                    bids: [this.props.box.value / 1e9],
+                    bids: [],
                     labels: [],
-                    txIds: [this.props.box.txId],
+                    txIds: [],
                 },
                 loading: true,
+                remains: true,
             });
-            this.loadBids(this.props.box.txId);
+            this.loadBids(this.props.box.txId, 10);
         }
     }
 
@@ -121,24 +132,21 @@ class BidHistory extends React.Component {
                 className={this.props.className}
             >
                 <ModalHeader toggle={this.props.close}>
+                    <ReactTooltip />
                     <span className="fsize-1 text-muted">
                         Bid history of{' '}
-                        {friendlyToken(this.props.box.assets[0], false, 5)}. Click on bars to see transaction.
+                        {friendlyToken(this.props.box.assets[0], false, 5)}.
+                        Click on bars to see transaction.
                     </span>
                 </ModalHeader>
                 <ModalBody>
-                    <Row>
-                        <SyncLoader
-                            css={override}
-                            size={8}
-                            color={'#0b473e'}
-                            loading={this.state.loading}
-                        />
-                    </Row>
                     <div>
                         <Bar
                             onElementsClick={(e) => {
-                                if (e.length > 0 && e[0]._index !== undefined) this.showTx(this.state.data.txIds[e[0]._index])
+                                if (e.length > 0 && e[0]._index !== undefined)
+                                    this.showTx(
+                                        this.state.data.txIds[e[0]._index]
+                                    );
                             }}
                             data={data}
                             width={100}
@@ -146,18 +154,97 @@ class BidHistory extends React.Component {
                             options={{
                                 maintainAspectRatio: true,
                                 scales: {
-                                    yAxes: [{
-                                        ticks: {
-                                            beginAtZero: true,
-                                            callback: function(value, index, values) {
-                                                return value + ' ERG';
-                                            }
+                                    yAxes: [
+                                        {
+                                            ticks: {
+                                                beginAtZero: true,
+                                                callback: function (
+                                                    value,
+                                                    index,
+                                                    values
+                                                ) {
+                                                    return value + ' ERG';
+                                                },
+                                            },
                                         },
-                                    }],
-                                }
+                                    ],
+                                },
                             }}
                         />
                     </div>
+
+                    <hr />
+                    <ResponsiveContainer height={40}>
+                        <div
+                            className="mt-1"
+                            style={{
+                                display: 'flex',
+                                justifyContent: 'center',
+                            }}
+                        >
+                            {this.state.remains && !this.state.loading && (
+                                <div>
+                                    <ReactTooltip
+                                        effect="solid"
+                                        place="right"
+                                    />
+                                    <div
+                                        data-tip="load 10 more bids"
+                                        id="loadMoreIcn"
+                                        style={{
+                                            display: 'flex',
+                                            justifyContent: 'center',
+                                        }}
+                                        className="widget-subheading m-1"
+                                    >
+                                        <span>
+                                            Latest{' '}
+                                            {this.state.data.txIds.length} Bids
+                                            Are Loaded
+                                        </span>
+                                        <i
+                                            onClick={() => {
+                                                this.setState({
+                                                    loading: true,
+                                                });
+                                                this.loadBids(
+                                                    this.state.nextTx,
+                                                    10
+                                                );
+                                            }}
+                                            style={{
+                                                fontSize: '1.5rem',
+                                                marginLeft: '5px',
+                                            }}
+                                            className="pe-7s-plus icon-gradient bg-night-sky"
+                                        />
+                                    </div>
+                                </div>
+                            )}
+                            {!this.state.remains && (
+                                <span>
+                                    {this.state.data.txIds.length === 1 && (
+                                        <span>All Bids Are Loaded</span>
+                                    )}
+                                    {this.state.data.txIds.length > 1 && (
+                                        <span>
+                                            All {this.state.data.txIds.length}{' '}
+                                            Bids Are Loaded
+                                        </span>
+                                    )}
+                                </span>
+                            )}
+                            <br />
+                            <Row>
+                                <SyncLoader
+                                    css={override}
+                                    size={8}
+                                    color={'#0b473e'}
+                                    loading={this.state.loading}
+                                />
+                            </Row>
+                        </div>
+                    </ResponsiveContainer>
                 </ModalBody>
             </Modal>
         );
