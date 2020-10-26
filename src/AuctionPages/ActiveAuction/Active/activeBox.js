@@ -14,7 +14,7 @@ import ReactTooltip from 'react-tooltip';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleUp } from '@fortawesome/free-solid-svg-icons';
 import { css } from '@emotion/core';
-import { getSpendingTx } from '../../../auction/explorer';
+import {auctionWithExtensionTree, getSpendingTx} from '../../../auction/explorer';
 import PlaceBidModal from './placeBid';
 import MyBidsModal from './myBids';
 import BidHistory from './bidHistory';
@@ -256,7 +256,10 @@ export default class ActiveBox extends React.Component {
                                             </div>
                                         </div>
                                         <div className="widget-content-right">
-                                            <div className="text-muted opacity-6">
+                                            <div
+                                                data-tip={this.props.box.ergoTree === auctionWithExtensionTree ?
+                                                    "Auto Extend Enabled" : ""}
+                                                className="text-muted opacity-6">
                                                 Blocks Remaining
                                             </div>
                                         </div>

@@ -1,15 +1,21 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 // import registerServiceWorker from './registerServiceWorker';
-import {unregister} from './registerServiceWorker';
+import { unregister } from './registerServiceWorker';
 
-import {HashRouter} from 'react-router-dom';
+import { HashRouter } from 'react-router-dom';
 import './assets/base.css';
 import Main from './AuctionPages/Main';
 import configureStore from './config/configureStore';
-import {Provider} from 'react-redux';
-import {auctionNFT, dataInputAddress, additionalData, handlePendingBids, unspentBoxesFor} from './auction/explorer';
-import {showMsg} from "./auction/helpers";
+import { Provider } from 'react-redux';
+import {
+    auctionNFT,
+    dataInputAddress,
+    additionalData,
+    handlePendingBids,
+    unspentBoxesFor, currentHeight,
+} from './auction/explorer';
+import { showMsg } from './auction/helpers';
 
 const store = configureStore();
 const rootElement = document.getElementById('root');
@@ -24,20 +30,30 @@ const renderApp = (Component) => {
                         box.assets[0].tokenId === auctionNFT
                 );
             })
-            .then((res) => additionalData['dataInput'] = res[0])
-            .catch(() => showMsg('Could not load data input from explorer...', false, true))
+            .then((res) => (additionalData['dataInput'] = res[0]))
+            .catch(() =>
+                showMsg(
+                    'Could not load data input from explorer...',
+                    false,
+                    true
+                )
+            );
     }
 
-    updateDataInput()
-    setInterval(handlePendingBids, 60000);
+    updateDataInput();
     setInterval(() => {
-        updateDataInput()
-    }, 120000)
+        currentHeight().then(height => {
+            handlePendingBids(height);
+        })
+    }, 60000);
+    setInterval(() => {
+        updateDataInput();
+    }, 120000);
 
     ReactDOM.render(
         <Provider store={store}>
             <HashRouter>
-                <Component/>
+                <Component />
             </HashRouter>
         </Provider>,
         rootElement
