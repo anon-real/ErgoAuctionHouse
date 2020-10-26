@@ -1,10 +1,13 @@
 import { get, post } from './rest';
 import {
     additionalData,
-    auctionAddress,
+    auctionWithExtensionAddr,
     auctionFee,
+    auctionWithExtensionTree,
+    extendNum,
+    extendThreshold,
     sendTx,
-    trueAddress,
+    trueAddress, auctionOrdinaryAddr,
 } from './explorer';
 import { Address, Transaction } from '@coinbarn/ergo-ts';
 import { decodeNum, decodeString, encodeNum, encodeHex } from './serializer';
@@ -123,10 +126,13 @@ export async function auctionTxRequest(
     step,
     start,
     end,
-    description
+    description,
+    autoExtend,
 ) {
     let tree = new Address(bidder).ergoTree;
-    let info = `${initial},${step},${start},${end}`;
+    let info = `${initial},${step},${start}`;
+    let auctionAddress = auctionWithExtensionAddr
+    if (!autoExtend) auctionAddress = auctionOrdinaryAddr
     let req = {
         requests: [
             {
@@ -169,10 +175,18 @@ export async function auctionTxRequest(
     });
 }
 
-export async function bidTxRequest(box, amount) {
+export async function bidTxRequest(box, amount, currentHeight) {
     let ourAddr = getWalletAddress();
     let tree = new Address(ourAddr).ergoTree;
     let encodedTree = await encodeHex(tree);
+    let nextEndTime =
+        box.finalBlock - currentHeight <= extendThreshold &&
+        box.ergoTree === auctionWithExtensionTree
+            ? box.finalBlock + extendNum
+            : box.finalBlock;
+    console.log(`height: ${currentHeight}, fb: ${box.finalBlock}, ${box.finalBlock - currentHeight}`)
+    if (nextEndTime !== box.finalBlock) console.log(`extended from ${box.finalBlock} to ${nextEndTime}. height: ${currentHeight}`)
+    let encodedNextEndTime = await encodeNum(nextEndTime, true);
     return unspentBoxes(amount).then((boxes) => {
         if (boxes.length === 0)
             throw new Error(
@@ -210,11 +224,11 @@ export async function bidTxRequest(box, amount) {
             });
             let newBox = {
                 value: amount,
-                address: auctionAddress,
+                address: Address.fromErgoTree(box.ergoTree).address,
                 assets: box.assets,
                 registers: {
                     R4: box.additionalRegisters.R4,
-                    R5: box.additionalRegisters.R5,
+                    R5: encodedNextEndTime,
                     R6: box.additionalRegisters.R6,
                     R7: box.additionalRegisters.R7,
                     R8: encodedTree,
@@ -240,6 +254,8 @@ export async function bidTxRequest(box, amount) {
                     boxId: box.id,
                     txId: tx.id,
                     tx: res,
+                    prevEndTime: box.finalBlock,
+                    shouldExtend: (box.ergoTree === auctionWithExtensionTree && nextEndTime === box.finalBlock),
                     status: 'pending mining',
                     amount: amount,
                     isFirst: false,
