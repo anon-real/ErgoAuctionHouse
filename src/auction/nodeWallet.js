@@ -300,7 +300,6 @@ export async function withdrawFinishedAuctions(boxes) {
                     inputsRaw: [res],
                     dataInputsRaw: [both[1]],
                 };
-                console.log(request)
 
                 return generateTx(request)
                     .then((res) => {
