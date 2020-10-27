@@ -38,7 +38,7 @@ export async function decodeBox(box, height) {
     box.description = Serializer.stringFromHex(
         await decodeString(box.additionalRegisters.R7)
     );
-    box.remBlock = Math.max(finalBlock - height, 0);
+    box.remBlock = Math.max(finalBlock - height - 1, 0);
     box.doneBlock =
         ((height - info[2]) / (finalBlock - info[2])) *
         100;
