@@ -277,7 +277,7 @@ export async function withdrawFinishedAuctions(boxes) {
     boxes
         .filter((box) => box.remBlock === 0)
         .forEach((box) => {
-            let feeAmount = (box.value / percentage) | 0;
+            let feeAmount = box.value / percentage;
             let raws = [boxToRaw(box.id), boxToRaw(dataInput.id)];
             Promise.all(raws).then((both) => {
                 let res = both[0];
@@ -300,6 +300,7 @@ export async function withdrawFinishedAuctions(boxes) {
                     inputsRaw: [res],
                     dataInputsRaw: [both[1]],
                 };
+                console.log(request)
 
                 return generateTx(request)
                     .then((res) => {
