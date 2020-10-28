@@ -4,7 +4,7 @@ import PageTitle from '../../../Layout/AppMain/PageTitle';
 import {
     allAuctionTrees,
     boxById,
-    getAuctionHistory,
+    getAuctionHistory, getCompleteAuctionHistory,
 } from '../../../auction/explorer';
 import HistoryBox from './historyBox';
 import PropagateLoader from 'react-spinners/PropagateLoader';
@@ -38,7 +38,7 @@ export default class AuctionsHistory extends React.Component {
     loadMore(show = false) {
         if (this.state.still) {
             this.setState({ loading: true });
-            getAuctionHistory(pagination, this.state.offset)
+            getCompleteAuctionHistory(pagination, this.state.offset)
                 .then((res) => {
                     if (res.length < pagination) {
                         this.setState({ still: false });

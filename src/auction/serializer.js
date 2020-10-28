@@ -34,14 +34,15 @@ export async function decodeBox(box, height) {
         await decodeString(box.additionalRegisters.R9)
     );
     info = info.split(',').map((num) => parseInt(num));
+    let finalBlock = await decodeNum(box.additionalRegisters.R5, true)
     box.description = Serializer.stringFromHex(
         await decodeString(box.additionalRegisters.R7)
     );
-    box.remBlock = Math.max(info[3] - height, 0);
+    box.remBlock = Math.max(finalBlock - height - 1, 0);
     box.doneBlock =
-        ((height - info[2]) / (info[3] - info[2])) *
+        ((height - info[2]) / (finalBlock - info[2])) *
         100;
-    box.finalBlock = info[3];
+    box.finalBlock = finalBlock;
     box.increase = (
         ((box.value - info[0]) / info[0]) *
         100
