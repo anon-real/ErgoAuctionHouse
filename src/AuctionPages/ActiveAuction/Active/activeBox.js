@@ -91,6 +91,7 @@ export default class ActiveBox extends React.Component {
                     isOpen={this.state.bidModal}
                     box={this.props.box}
                     close={this.openBid}
+                    assemblerModal={this.props.assemblerModal}
                 />
                 <MyBidsModal
                     isOpen={this.state.myBidsModal}
