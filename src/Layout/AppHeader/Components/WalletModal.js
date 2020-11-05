@@ -289,7 +289,7 @@ class WalletModal extends React.Component {
                                     </a>
                                     . Your funds will be safe, find out more
                                     about how{' '}
-                                    <a target="_blank" href="to add">
+                                    <a target="_blank" href="https://www.ergoforum.org/t/some-details-about-ergo-auction-house/428/6">
                                         here
                                     </a>
                                     .

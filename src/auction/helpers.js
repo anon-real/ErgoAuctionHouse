@@ -15,12 +15,14 @@ export function friendlyToken(token, quantity = true, length = 13) {
 }
 
 export function friendlyAddress(addr) {
+    if (addr === undefined || addr.slice === undefined) return ''
     return addr.slice(0, 13) + '...' + addr.slice(-13);
 }
 
 export function getTxUrl(txId) {
     return explorerUrl + 'transactions/' + txId;
 }
+
 export function getAddrUrl(addr) {
     return explorerUrl + 'addresses/' + addr;
 }
@@ -85,9 +87,28 @@ export function addBid(bid) {
     setMyBids(bids)
 }
 
+export function getAssemblerBids() {
+    let bids = JSON.parse(localStorage.getItem('assemblerBids'));
+    if (bids === null) bids = []
+    return bids
+}
+
+export function setAssemblerBids(bids) {
+    localStorage.setItem('assemblerBids', JSON.stringify(bids));
+}
+
+export function addAssemblerBid(bid) {
+    let bids = getAssemblerBids()
+    bids = bids.concat([bid])
+    setAssemblerBids(bids)
+}
+
 export function getUrl(url) {
     if (!url.startsWith('http')) url = 'http://' + url;
     if (url.endsWith('/')) url = url.slice(0, url.length - 1);
     return url;
 }
 
+export async function copyToClipboard(text) {
+    return navigator.clipboard.writeText(text).then(_ => showMsg("Copied!"))
+}

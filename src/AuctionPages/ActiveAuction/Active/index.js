@@ -8,6 +8,7 @@ import {
     test,
 } from '../../../auction/explorer';
 import {
+    copyToClipboard, friendlyAddress,
     getWalletAddress, isWalletNode,
     isWalletSaved,
     showMsg,
@@ -76,6 +77,7 @@ export default class ActiveAuctions extends React.Component {
         this.canStartAuction = this.canStartAuction.bind(this);
         this.updateAssets = this.updateAssets.bind(this);
         this.closeMyBids = this.closeMyBids.bind(this);
+        this.toggleAssemblerModal = this.toggleAssemblerModal.bind(this);
     }
 
     componentDidMount() {
@@ -258,12 +260,81 @@ export default class ActiveAuctions extends React.Component {
         });
     }
 
+    toggleAssemblerModal(address = '', bid = 0) {
+        this.setState({
+            assemblerModal: !this.state.assemblerModal,
+            bidAddress: address,
+            bidAmount: bid
+        })
+    }
+
     render() {
         const listItems = this.state.auctions.map((box) => {
-            return <ActiveBox box={box} />;
+            return <ActiveBox box={box} assemblerModal={this.toggleAssemblerModal} />;
         });
         return (
             <Fragment>
+                <Modal
+                    isOpen={this.state.assemblerModal}
+                    backdrop="static"
+                    toggle={this.toggleAssemblerModal}
+                    className={this.props.className}
+                >
+                    <ModalHeader>
+                        <span className="fsize-1 text-muted">
+                            Click on the amount and the address to copy them!
+                        </span>
+                    </ModalHeader>
+                    <ModalBody>
+                        <Container>
+                            <p>
+                                Send{' '}
+                                <b
+                                    onClick={() =>
+                                        copyToClipboard(
+                                            (this.state.bidAmount +
+                                                auctionFee) /
+                                            1e9
+                                        )
+                                    }
+                                >
+                                    exactly{' '}
+                                    {(this.state.bidAmount +
+                                        auctionFee) /
+                                    1e9}{' '}
+                                    erg
+                                </b>{' '}
+                                to{' '}
+                                <b
+                                    onClick={() =>
+                                        copyToClipboard(this.state.bidAddress)
+                                    }
+                                >
+                                    {friendlyAddress(this.state.bidAddress)}
+                                </b>
+                            </p>
+                            <p>
+                                Your funds will be safe, find out more about how{' '}
+                                <a
+                                    target="_blank"
+                                    href="https://www.ergoforum.org/t/some-details-about-ergo-auction-house/428/6"
+                                >
+                                    here.
+                                </a>
+                            </p>
+                        </Container>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button
+                            className="ml-3 mr-3 btn-transition"
+                            color="secondary"
+                            onClick={this.toggleAssemblerModal}
+                        >
+                            OK
+                        </Button>
+                    </ModalFooter>
+                </Modal>
+
                 <Modal
                     size="lg"
                     isOpen={this.state.modal}

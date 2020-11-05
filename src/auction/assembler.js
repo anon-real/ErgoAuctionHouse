@@ -1,5 +1,13 @@
 import {post, get} from "./rest";
-import {getUrl, getWalletAddress} from "./helpers";
+import {
+    addAssemblerBid,
+    addBid,
+    getAssemblerBids,
+    getUrl,
+    getWalletAddress,
+    setAssemblerBids,
+    showMsg
+} from "./helpers";
 import {Address} from "@coinbarn/ergo-ts";
 import {additionalData, auctionFee, auctionWithExtensionTree, extendNum, extendThreshold} from "./explorer";
 import {encodeHex, encodeNum} from "./serializer";
@@ -88,6 +96,26 @@ export async function registerBid(currentHeight, bidAmount, box, address) {
         getUrl(url) + '/follow',
         request
     ).then(res => res.json())
+        .then(res => {
+            if (res.id !== undefined) {
+                let bid = {
+                    id: res.id,
+                    info: {
+                        token: box.assets[0],
+                        boxId: box.id,
+                        txId: null,
+                        tx: null,
+                        prevEndTime: box.finalBlock,
+                        shouldExtend: (box.ergoTree === auctionWithExtensionTree && nextEndTime === box.finalBlock),
+                        status: 'pending mining',
+                        amount: bidAmount,
+                        isFirst: false,
+                    }
+                };
+                addAssemblerBid(bid);
+            }
+            return res
+        })
 }
 
 export async function getP2s(bid, box) {
@@ -98,4 +126,37 @@ export async function getP2s(bid, box) {
         .replace('$auctionId', id64)
         .replaceAll('\n', '\\n')
     return p2s(script)
+}
+
+function retry(id) {
+
+}
+
+export async function bidFollower() {
+    let bids = getAssemblerBids()
+    // setAssemblerBids(bids[0])
+    let all = bids.map(cur => stat(cur.id))
+    Promise.all(all).then(res => {
+        let newBids = []
+        res.forEach(out => {
+            console.log(out)
+            if (out.id !== undefined) {
+                let bid = bids.find(cur => cur.id === out.id)
+                if (out.detail === 'success') {
+                    showMsg("Your bid is being placed, see 'My Bids' section for more details.")
+                    let curBid = bid.info
+                    curBid.tx = out.tx
+                    curBid.txId = out.tx.id
+                    addBid(curBid)
+
+                } else if (out.detail === 'returning') {
+                    showMsg("Your funds are being returned to you.", false, true)
+                } else if (out.detail !== 'pending') {
+                    retry(bid.id)
+                } else newBids.push(bid)
+            }
+        })
+        setAssemblerBids(newBids)
+    })
+
 }
