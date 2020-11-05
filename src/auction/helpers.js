@@ -53,8 +53,20 @@ export function isWalletSaved() {
     return sessionStorage.getItem('wallet') !== null;
 }
 
+export function isWalletNode() {
+    return isWalletSaved() && getWalletType() === 'node';
+}
+
+export function isAssembler() {
+    return isWalletSaved() && getWalletType() === 'assembler';
+}
+
 export function getWalletAddress() {
     return JSON.parse(sessionStorage.getItem('wallet')).address
+}
+
+export function getWalletType() {
+    return JSON.parse(sessionStorage.getItem('wallet')).type
 }
 
 export function getMyBids() {
@@ -72,3 +84,10 @@ export function addBid(bid) {
     bids.unshift(bid)
     setMyBids(bids)
 }
+
+export function getUrl(url) {
+    if (!url.startsWith('http')) url = 'http://' + url;
+    if (url.endsWith('/')) url = url.slice(0, url.length - 1);
+    return url;
+}
+
