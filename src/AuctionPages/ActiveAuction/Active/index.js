@@ -8,7 +8,7 @@ import {
     test,
 } from '../../../auction/explorer';
 import {
-    getWalletAddress,
+    getWalletAddress, isWalletNode,
     isWalletSaved,
     showMsg,
 } from '../../../auction/helpers';
@@ -97,9 +97,9 @@ export default class ActiveAuctions extends React.Component {
     }
 
     openAuction() {
-        if (!isWalletSaved()) {
+        if (!isWalletNode()) {
             showMsg(
-                'In order to create a new auction, you have to configure the wallet first.',
+                'In order to create a new auction, you have to configure a node wallet first.',
                 true
             );
         } else {
