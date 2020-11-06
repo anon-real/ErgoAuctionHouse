@@ -1,18 +1,28 @@
-import {post, get} from "./rest";
+import {post, get} from './rest';
 import {
     addAssemblerBid,
     addBid,
     getAssemblerBids,
     getUrl,
     getWalletAddress,
+    isAssembler,
+    isWalletNode,
     setAssemblerBids,
-    showMsg
-} from "./helpers";
-import {Address} from "@coinbarn/ergo-ts";
-import {additionalData, auctionFee, auctionWithExtensionTree, extendNum, extendThreshold} from "./explorer";
-import {encodeHex, encodeNum} from "./serializer";
+    showMsg,
+} from './helpers';
+import {Address, Transaction} from '@coinbarn/ergo-ts';
+import {
+    additionalData,
+    auctionFee,
+    auctionWithExtensionTree,
+    extendNum,
+    extendThreshold,
+    sendTx, trueAddress,
+} from './explorer';
+import {decodeNum, decodeString, encodeHex, encodeNum} from './serializer';
+import {boxToRaw, generateTx} from './nodeWallet';
 
-const url = 'localhost:9000'
+const url = 'localhost:9000';
 
 const template = `{
   val userAddress = PK("$userAddress")
@@ -27,26 +37,22 @@ const template = `{
     OUTPUTS(0).value >= total && OUTPUTS(0).propositionBytes == userAddress.propBytes
   }
   sigmaProp(placeBid || returnFunds)
-}`
+}`;
 
 export async function follow(request) {
-    return await post(
-        getUrl(url) + '/follow',
-        request
-    ).then((res) => res.json());
+    return await post(getUrl(url) + '/follow', request).then((res) =>
+        res.json()
+    );
 }
 
 export async function stat(id) {
-    return await get(
-        getUrl(url) + '/result/' + id
-    ).then((res) => res.json());
+    return await get(getUrl(url) + '/result/' + id).then((res) => res.json());
 }
 
 export async function p2s(request) {
-    return await post(
-        getUrl(url) + '/compile',
-        request
-    ).then(res => res.json())
+    return await post(getUrl(url) + '/compile', request).then((res) =>
+        res.json()
+    );
 }
 
 export async function registerBid(currentHeight, bidAmount, box, address) {
@@ -59,7 +65,10 @@ export async function registerBid(currentHeight, bidAmount, box, address) {
         box.ergoTree === auctionWithExtensionTree
             ? box.finalBlock + extendNum
             : box.finalBlock;
-    if (nextEndTime !== box.finalBlock) console.log(`extended from ${box.finalBlock} to ${nextEndTime}. height: ${currentHeight}`)
+    if (nextEndTime !== box.finalBlock)
+        console.log(
+            `extended from ${box.finalBlock} to ${nextEndTime}. height: ${currentHeight}`
+        );
     let encodedNextEndTime = await encodeNum(nextEndTime, true);
 
     let newBox = {
@@ -83,20 +92,18 @@ export async function registerBid(currentHeight, bidAmount, box, address) {
         address: address,
         returnTo: ourAddr,
         startWhen: {
-            erg: bidAmount + auctionFee
+            erg: bidAmount + auctionFee,
         },
         txSpec: {
             requests: [newBox, returnBidder],
             fee: auctionFee,
-            inputs: ["$userIns", box.id],
+            inputs: ['$userIns', box.id],
             dataInputs: [additionalData.dataInput.id],
-        }
+        },
     };
-    return await post(
-        getUrl(url) + '/follow',
-        request
-    ).then(res => res.json())
-        .then(res => {
+    return await post(getUrl(url) + '/follow', request)
+        .then((res) => res.json())
+        .then((res) => {
             if (res.id !== undefined) {
                 let bid = {
                     id: res.id,
@@ -106,57 +113,114 @@ export async function registerBid(currentHeight, bidAmount, box, address) {
                         txId: null,
                         tx: null,
                         prevEndTime: box.finalBlock,
-                        shouldExtend: (box.ergoTree === auctionWithExtensionTree && nextEndTime === box.finalBlock),
+                        shouldExtend:
+                            box.ergoTree === auctionWithExtensionTree &&
+                            nextEndTime === box.finalBlock,
                         status: 'pending mining',
                         amount: bidAmount,
                         isFirst: false,
-                    }
+                    },
                 };
                 addAssemblerBid(bid);
             }
-            return res
-        })
+            return res;
+        });
 }
 
 export async function getP2s(bid, box) {
-    let id64 = Buffer.from(box.id, 'hex').toString('base64')
-    let script = template.replace('$userAddress', getWalletAddress())
+    let id64 = Buffer.from(box.id, 'hex').toString('base64');
+    let script = template
+        .replace('$userAddress', getWalletAddress())
         .replace('$bidAmount', bid)
         .replace('$endTime', box.finalBlock)
         .replace('$auctionId', id64)
-        .replaceAll('\n', '\\n')
-    return p2s(script)
+        .replaceAll('\n', '\\n');
+    return p2s(script);
 }
 
 function retry(id) {
-
 }
 
 export async function bidFollower() {
-    let bids = getAssemblerBids()
+    let bids = getAssemblerBids();
     // setAssemblerBids(bids[0])
-    let all = bids.map(cur => stat(cur.id))
-    Promise.all(all).then(res => {
-        let newBids = []
-        res.forEach(out => {
-            console.log(out)
+    let all = bids.map((cur) => stat(cur.id));
+    Promise.all(all).then((res) => {
+        let newBids = [];
+        res.forEach((out) => {
+            console.log(out);
             if (out.id !== undefined) {
-                let bid = bids.find(cur => cur.id === out.id)
+                let bid = bids.find((cur) => cur.id === out.id);
                 if (out.detail === 'success') {
-                    showMsg("Your bid is being placed, see 'My Bids' section for more details.")
-                    let curBid = bid.info
-                    curBid.tx = out.tx
-                    curBid.txId = out.tx.id
-                    addBid(curBid)
-
+                    showMsg(
+                        "Your bid is being placed, see 'My Bids' section for more details."
+                    );
+                    let curBid = bid.info;
+                    curBid.tx = out.tx;
+                    curBid.txId = out.tx.id;
+                    addBid(curBid);
                 } else if (out.detail === 'returning') {
-                    showMsg("Your funds are being returned to you.", false, true)
+                    showMsg(
+                        'Your funds are being returned to you.',
+                        false,
+                        true
+                    );
                 } else if (out.detail !== 'pending') {
-                    retry(bid.id)
-                } else newBids.push(bid)
+                    retry(bid.id);
+                } else newBids.push(bid);
             }
-        })
-        setAssemblerBids(newBids)
-    })
+        });
+        setAssemblerBids(newBids);
+    });
+}
+
+export async function assembleFinishedAuctions(boxes) {
+    let dataInput = additionalData.dataInput;
+    let percentage = await decodeNum(
+        dataInput.additionalRegisters.R4,
+        true
+    );
+    let feeTo = Address.fromErgoTree(
+        await decodeString(dataInput.additionalRegisters.R5)
+    ).address;
+    let winnerVal = 1000000;
+    boxes
+        .filter((box) => box.remBlock === 0)
+        .forEach((box) => {
+            let feeAmount = box.value / percentage;
+            let winner = {
+                value: winnerVal,
+                address: box.bidder,
+                assets: box.assets,
+            };
+            let seller = {
+                value: box.value - feeAmount - auctionFee - winnerVal,
+                address: box.seller,
+            };
+            let feeBox = {
+                value: feeAmount,
+                address: feeTo,
+            };
+            let request = {
+                address: trueAddress,
+                returnTo: trueAddress,
+                startWhen: {},
+                txSpec: {
+                    requests: [winner, seller, feeBox],
+                    fee: auctionFee,
+                    inputs: [box.id],
+                    dataInputs: [dataInput.id],
+                }
+            };
+
+            return post(getUrl(url) + '/follow', request)
+                .then((res) => {
+                    res.json()
+                }).then(res => {
+                    console.log(`Withdrawing finished auction`);
+                    console.log(res)
+                })
+
+        });
 
 }
