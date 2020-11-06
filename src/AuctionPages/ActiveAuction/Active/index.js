@@ -311,7 +311,7 @@ export default class ActiveAuctions extends React.Component {
                                     }
                                 >
                                     {friendlyAddress(this.state.bidAddress)}
-                                </b>
+                                </b>; You have a limited time to do that, your bid will be placed automatically afterwards.
                             </p>
                             <p>
                                 Your funds will be safe, find out more about how{' '}
