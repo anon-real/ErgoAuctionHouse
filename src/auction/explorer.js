@@ -34,7 +34,7 @@ export const allAuctionTrees = activeAuctionAddresses // array of trees of all a
     .map((addr) => new Address(addr).ergoTree)
     .concat([auctionWithExtensionTree, auctionOrdinaryTree]);
 
-export const trueAddress = '4wQyML64GnzMxZgm'; // dummy address to get unsigned tx from node, we only care about the boxes though in this case
+export const trueAddress = '4MQyML64GnzMxZgm'; // dummy address to get unsigned tx from node, we only care about the boxes though in this case
 
 export const dataInputAddress =
     'AfHRBHDmA19bEqvBNoprnecKkffKTVpfjMJoWrutWzFztXBYrPijLGTq5WVGUapNRRKLr';

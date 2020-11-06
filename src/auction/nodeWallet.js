@@ -11,7 +11,7 @@ import {
 } from './explorer';
 import { Address, Transaction } from '@coinbarn/ergo-ts';
 import { decodeNum, decodeString, encodeNum, encodeHex } from './serializer';
-import {addBid, getMyBids, getUrl, getWalletAddress, isWalletSaved} from './helpers';
+import {addBid, getMyBids, getUrl, getWalletAddress, isWalletNode, isWalletSaved} from './helpers';
 import { Serializer } from '@coinbarn/ergo-ts/dist/serializer';
 
 export async function getInfo(url) {
@@ -260,7 +260,7 @@ export async function bidTxRequest(box, amount, currentHeight) {
 }
 
 export async function withdrawFinishedAuctions(boxes) {
-    if (!isWalletSaved()) return;
+    if (!isWalletNode()) return;
     let dataInput = additionalData.dataInput;
     let percentage = await decodeNum(dataInput.additionalRegisters.R4, true);
     let feeTo = Address.fromErgoTree(

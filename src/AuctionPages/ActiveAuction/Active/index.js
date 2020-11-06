@@ -50,6 +50,7 @@ import {
     isFloat,
     isNatural,
 } from '../../../auction/serializer';
+import {assembleFinishedAuctions} from "../../../auction/assembler";
 
 const override = css`
     display: block;
@@ -84,7 +85,7 @@ export default class ActiveAuctions extends React.Component {
         currentHeight().then((res) => {
             this.setState({ height: res });
         });
-        this.refreshInfo(true);
+        this.refreshInfo(true, true);
         this.refreshTimer = setInterval(this.refreshInfo, 5000);
     }
 
@@ -213,7 +214,7 @@ export default class ActiveAuctions extends React.Component {
         }
     }
 
-    refreshInfo(force = false) {
+    refreshInfo(force = false, firstTime = false) {
         if (!force) {
             this.setState({ lastUpdated: this.state.lastUpdated + 5 });
             if (this.state.lastUpdated < 40) return;
@@ -232,6 +233,7 @@ export default class ActiveAuctions extends React.Component {
                                     tooltip: true,
                                 });
                                 withdrawFinishedAuctions(boxes);
+                                if (firstTime) assembleFinishedAuctions(boxes)
                             })
                             .finally(() => {
                                 this.setState({ loading: false });
