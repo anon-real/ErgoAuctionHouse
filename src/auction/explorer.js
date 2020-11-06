@@ -1,7 +1,7 @@
 import { Address, Explorer, Transaction } from '@coinbarn/ergo-ts';
 import {
     friendlyToken,
-    getMyBids,
+    getMyBids, isWalletNode,
     isWalletSaved,
     setMyBids,
     showStickyMsg,
@@ -75,6 +75,7 @@ export function getAllActiveAuctions() {
             boxes.sort((a, b) => {
                 if (a.assets[0].tokenId > b.assets[0].tokenId) return 1;
                 else if (a.assets[0].tokenId < b.assets[0].tokenId) return -1;
+                else if (a.assets[0].amount === b.assets[0].amount) return b.value - a.value
                 else return a.assets[0].amount - b.assets[0].amount;
             });
             return boxes;
@@ -177,7 +178,7 @@ export function handlePendingBids(height) {
                     try {
                         console.log('broadcasting to explorer...');
                         explorer.broadcastTx(Transaction.formObject(bid.tx));
-                        if (isWalletSaved()) {
+                        if (isWalletNode()) {
                             broadcast(bid.tx).then((r) =>
                                 console.log(`broadcasting using node: ${r}`)
                             );
