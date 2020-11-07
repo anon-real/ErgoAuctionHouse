@@ -1,5 +1,6 @@
 import React from 'react';
 import {Flip, Slide, toast} from 'react-toastify';
+import {Address} from "@coinbarn/ergo-ts";
 
 const explorerUrl = 'https://explorer.ergoplatform.com/en/';
 
@@ -111,4 +112,13 @@ export function getUrl(url) {
 
 export async function copyToClipboard(text) {
     return navigator.clipboard.writeText(text).then(_ => showMsg("Copied!"))
+}
+
+export function isAddressValid(address) {
+    console.log(new Address(address).isValid())
+    try {
+        return (new Address(address).isValid())
+    } catch (_) {
+        return false
+    }
 }

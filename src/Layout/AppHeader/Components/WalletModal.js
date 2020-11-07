@@ -2,7 +2,7 @@ import React from 'react';
 import yoroiWallet from '../../../assets/images/yoroi-logo-shape-blue.inline.svg';
 import nodeWallet from '../../../assets/images/symbol_bold__1080px__black.svg';
 import { getAddress, getInfo } from '../../../auction/nodeWallet';
-import {isWalletNode, showMsg} from '../../../auction/helpers';
+import {isAddressValid, isWalletNode, showMsg} from '../../../auction/helpers';
 
 import {
     Button,
@@ -302,7 +302,7 @@ class WalletModal extends React.Component {
                                         type="text"
                                         name="address"
                                         id="address"
-                                        invalid={!new Address(this.state.userAddress).isValid()}
+                                        invalid={!isAddressValid(this.state.userAddress)}
                                         onChange={(event) =>
                                             this.setState({
                                                 userAddress: event.target.value,
@@ -348,7 +348,7 @@ class WalletModal extends React.Component {
                             disabled={
                                 this.state.activeTab === 'yoroi' ||
                                 this.state.processing ||
-                                (this.state.activeTab === 'assembler' && !new Address(this.state.userAddress).isValid())
+                                (this.state.activeTab === 'assembler' && !isAddressValid(this.state.userAddress))
                             }
                             onClick={this.saveWallet}
                         >
