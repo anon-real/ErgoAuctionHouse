@@ -20,9 +20,8 @@ import {
     sendTx, trueAddress,
 } from './explorer';
 import {decodeNum, decodeString, encodeHex, encodeNum} from './serializer';
-import {boxToRaw, generateTx} from './nodeWallet';
 
-const url = 'localhost:9000';
+const url = 'http://95.217.50.117:8080/';
 
 const template = `{
   val userAddress = PK("$userAddress")
