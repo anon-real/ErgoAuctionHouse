@@ -314,7 +314,7 @@ class WalletModal extends React.Component {
                                         Invalid ergo address.
                                     </FormFeedback>
                                     <FormText>
-                                        Will be used to return your funds in case of failures!
+                                        Your funds and winning tokens will be sent to this address. <b>Make sure your wallet can take care of tokens!</b>
                                     </FormText>
                                 </FormGroup>
                             </TabPane>
