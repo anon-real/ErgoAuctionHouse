@@ -1,16 +1,14 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useRef } from 'react';
 
 import {
     auctionFee,
     currentHeight,
-    getActiveAuctions,
     getAllActiveAuctions,
-    test,
 } from '../../../auction/explorer';
 import {
-    copyToClipboard, friendlyAddress,
-    getWalletAddress, isWalletNode,
-    isWalletSaved,
+    friendlyAddress,
+    getWalletAddress,
+    isWalletNode,
     showMsg,
 } from '../../../auction/helpers';
 import { css } from '@emotion/core';
@@ -50,7 +48,7 @@ import {
     isFloat,
     isNatural,
 } from '../../../auction/serializer';
-import {assembleFinishedAuctions} from "../../../auction/assembler";
+import { assembleFinishedAuctions } from '../../../auction/assembler';
 
 const override = css`
     display: block;
@@ -233,7 +231,7 @@ export default class ActiveAuctions extends React.Component {
                                     tooltip: true,
                                 });
                                 withdrawFinishedAuctions(boxes);
-                                if (firstTime) assembleFinishedAuctions(boxes)
+                                if (firstTime) assembleFinishedAuctions(boxes);
                             })
                             .finally(() => {
                                 this.setState({ loading: false });
@@ -266,13 +264,37 @@ export default class ActiveAuctions extends React.Component {
         this.setState({
             assemblerModal: !this.state.assemblerModal,
             bidAddress: address,
-            bidAmount: bid
-        })
+            bidAmount: bid,
+        });
+    }
+
+    copyToClipboard(text) {
+        let textarea = document.createElement('textarea');
+        textarea.textContent = text;
+        document.body.appendChild(textarea);
+
+        let selection = document.getSelection();
+        let range = document.createRange();
+        range.selectNode(textarea);
+        selection.removeAllRanges();
+        selection.addRange(range);
+
+        console.log('copy success', document.execCommand('copy'));
+        selection.removeAllRanges();
+
+        document.body.removeChild(textarea);
+
+        showMsg("Copied")
     }
 
     render() {
         const listItems = this.state.auctions.map((box) => {
-            return <ActiveBox box={box} assemblerModal={this.toggleAssemblerModal} />;
+            return (
+                <ActiveBox
+                    box={box}
+                    assemblerModal={this.toggleAssemblerModal}
+                />
+            );
         });
         return (
             <Fragment>
@@ -293,27 +315,23 @@ export default class ActiveAuctions extends React.Component {
                                 Send{' '}
                                 <b
                                     onClick={() =>
-                                        copyToClipboard(
+                                        this.copyToClipboard(
                                             (this.state.bidAmount +
                                                 auctionFee) /
-                                            1e9
+                                                1e9
                                         )
                                     }
                                 >
                                     exactly{' '}
-                                    {(this.state.bidAmount +
-                                        auctionFee) /
-                                    1e9}{' '}
+                                    {(this.state.bidAmount + auctionFee) / 1e9}{' '}
                                     erg
                                 </b>{' '}
                                 to{' '}
-                                <b
-                                    onClick={() =>
-                                        copyToClipboard(this.state.bidAddress)
-                                    }
-                                >
+                                <b onClick={() => this.copyToClipboard(this.state.bidAddress)}>
                                     {friendlyAddress(this.state.bidAddress)}
-                                </b>; You have a limited time to do that, your bid will be placed automatically afterwards.
+                                </b>
+                                ; You have a limited time to do that, your bid
+                                will be placed automatically afterwards.
                             </p>
                             <p>
                                 Your funds will be safe, find out more about how{' '}
@@ -535,8 +553,20 @@ export default class ActiveAuctions extends React.Component {
                                                     <InputGroupText>
                                                         <Label check>
                                                             <Input
-                                                                checked={this.state.auctionAutoExtend}
-                                                                onChange={(e) => this.setState({auctionAutoExtend: e.target.checked})}
+                                                                checked={
+                                                                    this.state
+                                                                        .auctionAutoExtend
+                                                                }
+                                                                onChange={(e) =>
+                                                                    this.setState(
+                                                                        {
+                                                                            auctionAutoExtend:
+                                                                                e
+                                                                                    .target
+                                                                                    .checked,
+                                                                        }
+                                                                    )
+                                                                }
                                                                 className="mr-2"
                                                                 addon
                                                                 type="checkbox"
@@ -577,7 +607,7 @@ export default class ActiveAuctions extends React.Component {
                                             <FormText>
                                                 Auction will last for this
                                                 number of blocks (e.g. 720 for
-                                                ~1 day). <br/> By enabling auto
+                                                ~1 day). <br /> By enabling auto
                                                 extend, your auction's duration
                                                 will be extended slightly if a
                                                 bid is placed near the end of
