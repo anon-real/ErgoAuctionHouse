@@ -118,7 +118,7 @@ class WalletModal extends React.Component {
                         this.toggle();
                     })
                     .catch((res) => {
-                        showMsg('Wrong API key for this URL.', true);
+                        showMsg('Wrong API key.', true);
                     });
             })
             .catch((err) => {
