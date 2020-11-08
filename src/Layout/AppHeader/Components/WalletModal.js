@@ -274,9 +274,7 @@ class WalletModal extends React.Component {
                             </TabPane>
                             <TabPane tabId="assembler">
                                 <p>
-                                    Using the assembler service, you can use the
-                                    your favorite wallet and still be able to
-                                    use Auction House.
+                                    By using the assembler service, you can use any wallet to place bids.
                                 </p>
                                 <p>
                                     The assembler service is an intermediate
