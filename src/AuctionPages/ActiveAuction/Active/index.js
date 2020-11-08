@@ -11,6 +11,7 @@ import {
     isWalletNode,
     showMsg,
 } from '../../../auction/helpers';
+import Clipboard from 'react-clipboard.js';
 import { css } from '@emotion/core';
 import PropagateLoader from 'react-spinners/PropagateLoader';
 import SyncLoader from 'react-spinners/SyncLoader';
@@ -268,25 +269,6 @@ export default class ActiveAuctions extends React.Component {
         });
     }
 
-    copyToClipboard(text) {
-        let textarea = document.createElement('textarea');
-        textarea.textContent = text;
-        document.body.appendChild(textarea);
-
-        let selection = document.getSelection();
-        let range = document.createRange();
-        range.selectNode(textarea);
-        selection.removeAllRanges();
-        selection.addRange(range);
-
-        console.log('copy success', document.execCommand('copy'));
-        selection.removeAllRanges();
-
-        document.body.removeChild(textarea);
-
-        showMsg("Copied")
-    }
-
     render() {
         const listItems = this.state.auctions.map((box) => {
             return (
@@ -313,23 +295,33 @@ export default class ActiveAuctions extends React.Component {
                         <Container>
                             <p>
                                 Send{' '}
-                                <b
-                                    onClick={() =>
-                                        this.copyToClipboard(
-                                            (this.state.bidAmount +
-                                                auctionFee) /
-                                                1e9
-                                        )
+                                <Clipboard
+                                    component="b"
+                                    data-clipboard-text={
+                                        (this.state.bidAmount + auctionFee) /
+                                        1e9
                                     }
+                                    onSuccess={() => showMsg('Copied!')}
                                 >
                                     exactly{' '}
                                     {(this.state.bidAmount + auctionFee) / 1e9}{' '}
                                     erg
-                                </b>{' '}
+                                </Clipboard>{' '}
                                 to{' '}
-                                <b onClick={() => this.copyToClipboard(this.state.bidAddress)}>
+                                <Clipboard
+                                    component="b"
+                                    data-clipboard-text={this.state.bidAddress}
+                                    onSuccess={() => showMsg('Copied!')}
+                                >
                                     {friendlyAddress(this.state.bidAddress)}
-                                </b>
+                                </Clipboard>
+                                <b
+                                    onClick={() =>
+                                        this.copyToClipboard(
+                                            this.state.bidAddress
+                                        )
+                                    }
+                                ></b>
                                 ; You have a limited time to do that, your bid
                                 will be placed automatically afterwards.
                             </p>
