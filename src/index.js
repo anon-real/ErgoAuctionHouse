@@ -52,7 +52,7 @@ const renderApp = (Component) => {
     }, 120000);
     setInterval(() => {
         bidFollower();
-    }, 20000);
+    }, 15000);
 
     ReactDOM.render(
         <Provider store={store}>
