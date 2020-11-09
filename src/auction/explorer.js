@@ -129,9 +129,10 @@ export function handlePendingBids(height) {
                 .map((inp) => inp.boxId)
                 .map((id) => getSpendingTx(id));
             return Promise.all(txs).then((res) => {
-                if (res.filter((txId) => txId !== null).length > 0) {
+                let spent = res.filter((txId) => txId !== null && txId !== undefined)
+                if (spent.length > 0) {
                     bid.tx = null;
-                    if (res[0] === bid.txId) {
+                    if (spent[0] === bid.txId) {
                         bid.status = 'complete';
                         let msg = `Your ${
                             bid.amount / 1e9
