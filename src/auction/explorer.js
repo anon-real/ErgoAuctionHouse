@@ -7,6 +7,7 @@ import {
     showStickyMsg,
 } from './helpers';
 import { broadcast } from './nodeWallet';
+import {get} from "./rest";
 
 const explorer = Explorer.mainnet;
 
@@ -44,15 +45,19 @@ export const auctionNFT =
 export const auctionFee = 2000000;
 export let additionalData = {};
 
+export const explorerApi = 'https://api.ergoplatform.com/api/v0'
+
 async function getRequest(url) {
-    return explorer.apiClient({
-        method: 'GET',
-        url,
-    });
+    return get(explorerApi + url).then(res => {
+        return {data: res.json()}
+    })
 }
 
-export function currentHeight() {
-    return explorer.getCurrentHeight();
+export async function currentHeight() {
+    // return explorer.getCurrentHeight();
+    return getRequest('/blocks?limit=1')
+        .then(res => res.data)
+        .then(res => res.items[0].height)
 }
 
 export function unspentBoxesFor(address) {
