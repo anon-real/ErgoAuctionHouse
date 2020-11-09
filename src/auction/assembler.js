@@ -142,7 +142,6 @@ function retry(id) {
 
 export async function bidFollower() {
     let bids = getAssemblerBids();
-    // setAssemblerBids(bids[0])
     let all = bids.map((cur) => stat(cur.id));
     Promise.all(all).then((res) => {
         let newBids = [];
