@@ -4,7 +4,7 @@ import {
     friendlyAddress,
     friendlyToken,
     getAddrUrl,
-    getTxUrl,
+    getTxUrl, getWalletAddress,
     isWalletSaved,
     showMsg,
 } from '../../../auction/helpers';
@@ -18,6 +18,7 @@ import {auctionWithExtensionTree, getSpendingTx} from '../../../auction/explorer
 import PlaceBidModal from './placeBid';
 import MyBidsModal from './myBids';
 import BidHistory from './bidHistory';
+import {getP2s} from "../../../auction/assembler";
 
 const override = css`
     display: block;
@@ -90,6 +91,7 @@ export default class ActiveBox extends React.Component {
                     isOpen={this.state.bidModal}
                     box={this.props.box}
                     close={this.openBid}
+                    assemblerModal={this.props.assemblerModal}
                 />
                 <MyBidsModal
                     isOpen={this.state.myBidsModal}

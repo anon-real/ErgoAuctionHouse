@@ -1,13 +1,15 @@
 import React from 'react';
 import yoroiWallet from '../../../assets/images/yoroi-logo-shape-blue.inline.svg';
 import nodeWallet from '../../../assets/images/symbol_bold__1080px__black.svg';
-import {getAddress, getInfo} from '../../../auction/nodeWallet';
-import {showMsg} from '../../../auction/helpers';
+import { getAddress, getInfo } from '../../../auction/nodeWallet';
+import {isAddressValid, isWalletNode, showMsg} from '../../../auction/helpers';
 
 import {
     Button,
     Form,
+    FormFeedback,
     FormGroup,
+    FormText,
     Input,
     Label,
     Modal,
@@ -19,7 +21,8 @@ import {
 } from 'reactstrap';
 import classnames from 'classnames';
 import SyncLoader from 'react-spinners/SyncLoader';
-import {css} from '@emotion/core';
+import { css } from '@emotion/core';
+import { Address } from '@coinbarn/ergo-ts';
 
 const override = css`
     display: block;
@@ -29,11 +32,15 @@ const override = css`
 class WalletModal extends React.Component {
     constructor(props) {
         super(props);
+
+        let type = 'assembler'
+        if (isWalletNode()) type = 'node'
         let walletState = 'Configure';
         if (sessionStorage.getItem('wallet') != null) walletState = 'Update';
         this.state = {
             modal: false,
-            activeTab: 'node',
+            activeTab: type,
+            userAddress: '',
             processing: false,
             nodeUrl: '',
             apiKey: '',
@@ -50,8 +57,11 @@ class WalletModal extends React.Component {
             modal: !this.state.modal,
         });
 
+        let type = 'assembler'
+        if (isWalletNode()) type = 'node'
+
         this.setState({
-            activeTab: 'node',
+            activeTab: type,
             processing: false,
             nodeUrl: '',
             apiKey: '',
@@ -70,15 +80,31 @@ class WalletModal extends React.Component {
         this.setState({
             processing: true,
         });
+        if (this.state.activeTab === 'assembler') {
+            sessionStorage.setItem(
+                'wallet',
+                JSON.stringify({
+                    type: this.state.activeTab,
+                    address: this.state.userAddress,
+                })
+            );
+            showMsg('Successfully configured the wallet.');
+            this.toggle();
+            this.setState({ walletState: 'Update' });
+            return;
+        }
         getInfo(this.state.nodeUrl)
             .then(() => {
                 getAddress(this.state.nodeUrl, this.state.apiKey)
                     .then((res) => {
                         if (res.error !== undefined) {
-                            showMsg('Could not get wallet address. Your wallet is locked potentially.', true);
-                            return
+                            showMsg(
+                                'Could not get wallet address. Your wallet is locked potentially.',
+                                true
+                            );
+                            return;
                         }
-                        showMsg('Successfully saved the wallet.');
+                        showMsg('Successfully configured the wallet.');
                         sessionStorage.setItem(
                             'wallet',
                             JSON.stringify({
@@ -92,7 +118,7 @@ class WalletModal extends React.Component {
                         this.toggle();
                     })
                     .catch((res) => {
-                        showMsg('Wrong API key for this URL.', true);
+                        showMsg('Wrong API key.', true);
                     });
             })
             .catch((err) => {
@@ -135,6 +161,23 @@ class WalletModal extends React.Component {
                 >
                     <ModalHeader toggle={this.toggle}>
                         <div className="btn-actions-pane-right">
+                            <Button
+                                outline
+                                className={
+                                    'mr-2 ml-2 btn-wide btn-pill ' +
+                                    classnames({
+                                        active:
+                                            this.state.activeTab ===
+                                            'assembler',
+                                    })
+                                }
+                                color="light"
+                                onClick={() => {
+                                    this.toggleTab('assembler');
+                                }}
+                            >
+                                <span>Assembler</span>
+                            </Button>
                             <Button
                                 outline
                                 className={
@@ -184,11 +227,12 @@ class WalletModal extends React.Component {
                                         This information will be saved locally
                                         in the session storage of your browser
                                         securely and will be used only with your
-                                        approval to place bids and start auctions.
+                                        approval to place bids and start
+                                        auctions.
                                     </p>
                                     <p>
-                                        This information will be removed when you
-                                        close the application.
+                                        This information will be removed when
+                                        you close the application.
                                     </p>
                                     <FormGroup>
                                         <Label for="nodeUrl">Node's URL</Label>
@@ -228,6 +272,50 @@ class WalletModal extends React.Component {
                                     future.
                                 </p>
                             </TabPane>
+                            <TabPane tabId="assembler">
+                                <p>
+                                    By using the assembler service, you can use any wallet to place bids.
+                                </p>
+                                <p>
+                                    The assembler service is an intermediate
+                                    step which you can find out more about{' '}
+                                    <a
+                                        target="_blank"
+                                        href="https://www.ergoforum.org/t/tx-assembler-service-bypassing-node-requirement-for-dapps/443"
+                                    >
+                                        here
+                                    </a>
+                                    . Your funds will be safe, find out more
+                                    about how{' '}
+                                    <a target="_blank" href="https://www.ergoforum.org/t/some-details-about-ergo-auction-house/428/6">
+                                        here
+                                    </a>
+                                    .
+                                </p>
+
+                                <FormGroup>
+                                    <Label for="apiKey">Address</Label>
+                                    <Input
+                                        value={this.state.userAddress}
+                                        type="text"
+                                        name="address"
+                                        id="address"
+                                        invalid={!isAddressValid(this.state.userAddress)}
+                                        onChange={(event) =>
+                                            this.setState({
+                                                userAddress: event.target.value,
+                                            })
+                                        }
+                                        placeholder="Your ergo address"
+                                    />
+                                    <FormFeedback invalid>
+                                        Invalid ergo address.
+                                    </FormFeedback>
+                                    <FormText>
+                                        Your funds and winning tokens will be sent to this address. <b>Make sure your wallet can take care of tokens!</b>
+                                    </FormText>
+                                </FormGroup>
+                            </TabPane>
                         </TabContent>
                     </ModalBody>
                     <ModalFooter>
@@ -257,7 +345,8 @@ class WalletModal extends React.Component {
                             color="secondary"
                             disabled={
                                 this.state.activeTab === 'yoroi' ||
-                                this.state.processing
+                                this.state.processing ||
+                                (this.state.activeTab === 'assembler' && !isAddressValid(this.state.userAddress))
                             }
                             onClick={this.saveWallet}
                         >
