@@ -176,7 +176,7 @@ class WalletModal extends React.Component {
                                     this.toggleTab('assembler');
                                 }}
                             >
-                                <span>Assembler</span>
+                                <span>Any Wallet</span>
                             </Button>
                             <Button
                                 outline
@@ -274,7 +274,7 @@ class WalletModal extends React.Component {
                             </TabPane>
                             <TabPane tabId="assembler">
                                 <p>
-                                    By using the assembler service, you can use any wallet to place bids.
+                                    You can use any wallet to place bids by using the assembler service.
                                 </p>
                                 <p>
                                     The assembler service is an intermediate
