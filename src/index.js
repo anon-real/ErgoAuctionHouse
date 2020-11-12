@@ -1,13 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 // import registerServiceWorker from './registerServiceWorker';
-import { unregister } from './registerServiceWorker';
+import {unregister} from './registerServiceWorker';
 
-import { HashRouter } from 'react-router-dom';
+import {HashRouter} from 'react-router-dom';
 import './assets/base.css';
 import Main from './AuctionPages/Main';
 import configureStore from './config/configureStore';
-import { Provider } from 'react-redux';
+import {Provider} from 'react-redux';
 import {
     auctionNFT,
     dataInputAddress,
@@ -15,7 +15,8 @@ import {
     handlePendingBids,
     unspentBoxesFor, currentHeight,
 } from './auction/explorer';
-import { showMsg } from './auction/helpers';
+import {showMsg} from './auction/helpers';
+import {bidFollower} from "./auction/assembler";
 
 const store = configureStore();
 const rootElement = document.getElementById('root');
@@ -49,11 +50,14 @@ const renderApp = (Component) => {
     setInterval(() => {
         updateDataInput();
     }, 120000);
+    setInterval(() => {
+        bidFollower();
+    }, 15000);
 
     ReactDOM.render(
         <Provider store={store}>
             <HashRouter>
-                <Component />
+                <Component/>
             </HashRouter>
         </Provider>,
         rootElement

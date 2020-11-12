@@ -11,14 +11,8 @@ import {
 } from './explorer';
 import { Address, Transaction } from '@coinbarn/ergo-ts';
 import { decodeNum, decodeString, encodeNum, encodeHex } from './serializer';
-import { addBid, getMyBids, getWalletAddress, isWalletSaved } from './helpers';
+import {addBid, getMyBids, getUrl, getWalletAddress, isWalletNode, isWalletSaved} from './helpers';
 import { Serializer } from '@coinbarn/ergo-ts/dist/serializer';
-
-function getUrl(url) {
-    if (!url.startsWith('http')) url = 'http://' + url;
-    if (url.endsWith('/')) url = url.slice(0, url.length - 1);
-    return url;
-}
 
 export async function getInfo(url) {
     return get(getUrl(url) + '/info').then((res) => res.json());
@@ -184,7 +178,6 @@ export async function bidTxRequest(box, amount, currentHeight) {
         box.ergoTree === auctionWithExtensionTree
             ? box.finalBlock + extendNum
             : box.finalBlock;
-    console.log(`height: ${currentHeight}, fb: ${box.finalBlock}, ${box.finalBlock - currentHeight}`)
     if (nextEndTime !== box.finalBlock) console.log(`extended from ${box.finalBlock} to ${nextEndTime}. height: ${currentHeight}`)
     let encodedNextEndTime = await encodeNum(nextEndTime, true);
     return unspentBoxes(amount).then((boxes) => {
@@ -267,7 +260,7 @@ export async function bidTxRequest(box, amount, currentHeight) {
 }
 
 export async function withdrawFinishedAuctions(boxes) {
-    if (!isWalletSaved()) return;
+    if (!isWalletNode()) return;
     let dataInput = additionalData.dataInput;
     let percentage = await decodeNum(dataInput.additionalRegisters.R4, true);
     let feeTo = Address.fromErgoTree(

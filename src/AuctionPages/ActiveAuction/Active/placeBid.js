@@ -16,18 +16,19 @@ import {
     Row,
 } from 'reactstrap';
 import {
+    copyToClipboard,
+    friendlyAddress,
     friendlyToken,
     getWalletAddress,
+    isWalletNode,
     showMsg,
 } from '../../../auction/helpers';
 import SyncLoader from 'react-spinners/SyncLoader';
 import { css } from '@emotion/core';
-import {
-    bidTxRequest,
-    getAssets,
-} from '../../../auction/nodeWallet';
+import { bidTxRequest, getAssets } from '../../../auction/nodeWallet';
 import { auctionFee, currentHeight } from '../../../auction/explorer';
 import { ergToNano, isFloat } from '../../../auction/serializer';
+import { getP2s, registerBid } from '../../../auction/assembler';
 
 const override = css`
     display: block;
@@ -39,6 +40,8 @@ export default class PlaceBidModal extends React.Component {
         super(props);
         this.state = {
             modalLoading: false,
+            assemblerModal: false,
+            copied: false,
             bidAmount: ((props.box.value + props.box.minStep) / 1e9).toString(),
         };
         this.updateAssets = this.updateAssets.bind(this);
@@ -60,14 +63,17 @@ export default class PlaceBidModal extends React.Component {
     }
 
     componentWillReceiveProps(nextProps, nextContext) {
-        if (nextProps.isOpen === true && this.props.isOpen === false)
-            this.updateAssets();
+        if (nextProps.isOpen === true && this.props.isOpen === false) {
+            if (isWalletNode()) this.updateAssets();
+            this.setState({copied: false})
+            if (this.state.bidAddress !== undefined) this.setState({assemblerModal: true})
+        }
     }
 
     placeBid() {
         if (
-            ergToNano(this.state.bidAmount) + auctionFee >
-            this.state.ergBalance
+            isWalletNode() &&
+            ergToNano(this.state.bidAmount) + auctionFee > this.state.ergBalance
         ) {
             showMsg(
                 `Not enough balance to place ${this.state.bidAmount} ERG bid.`,
@@ -78,20 +84,63 @@ export default class PlaceBidModal extends React.Component {
         this.setState({ modalLoading: true });
         currentHeight()
             .then((height) => {
-                let res = bidTxRequest(this.props.box, ergToNano(this.state.bidAmount), height);
-                res.then((_) => {
-                    showMsg(
-                        'Your bid transaction was generated successfully. If you keep the app open, you will be notified about any status!'
+                if (isWalletNode()) {
+                    let res = bidTxRequest(
+                        this.props.box,
+                        ergToNano(this.state.bidAmount),
+                        height
                     );
-                    this.props.close();
-                })
-                    .catch((nodeRes) => {
+                    res.then((_) => {
                         showMsg(
-                            'Could not generate bid transaction. Potentially your wallet is locked.',
-                            true
+                            'Your bid transaction was generated successfully. If you keep the app open, you will be notified about any status!'
                         );
+                        this.props.close();
                     })
-                    .finally((_) => this.setState({ modalLoading: false }));
+                        .catch((nodeRes) => {
+                            showMsg(
+                                'Could not generate bid transaction. Potentially your wallet is locked.',
+                                true
+                            );
+                        })
+                        .finally((_) => this.setState({ modalLoading: false }));
+                } else {
+                    getP2s(ergToNano(this.state.bidAmount), this.props.box)
+                        .then((addr) => {
+                            registerBid(
+                                height,
+                                ergToNano(this.state.bidAmount),
+                                this.props.box,
+                                addr.address
+                            )
+                                .then((r) => {
+                                    if (r.id !== undefined) {
+                                        this.props.close()
+                                        this.props.assemblerModal(addr.address, ergToNano(this.state.bidAmount))
+                                    } else {
+                                        showMsg(
+                                            'Could not contact the assembler service.',
+                                            true
+                                        );
+                                    }
+                                })
+                                .catch((_) => {
+                                    showMsg(
+                                        'Could not contact the assembler service.',
+                                        true
+                                    );
+                                })
+                                .finally((_) =>
+                                    this.setState({ modalLoading: false })
+                                );
+                        })
+                        .catch((_) => {
+                            showMsg(
+                                'Could not contact the assembler service.',
+                                true
+                            );
+                            this.setState({ modalLoading: false });
+                        });
+                }
             })
             .catch(() =>
                 showMsg(
@@ -103,84 +152,88 @@ export default class PlaceBidModal extends React.Component {
 
     render() {
         return (
-            <Modal
-                isOpen={this.props.isOpen}
-                toggle={this.props.close}
-                className={this.props.className}
-            >
-                <ModalHeader toggle={this.props.close}>
-                    <span className="fsize-1 text-muted">
-                        New bid for{' '}
-                        {friendlyToken(this.props.box.assets[0], false, 5)}
-                    </span>
-                </ModalHeader>
-                <ModalBody>
-                    <Container>
-                        <Row>
-                            <SyncLoader
-                                css={override}
-                                size={8}
-                                color={'#0b473e'}
-                                loading={this.state.modalLoading}
-                            />
-                        </Row>
-
-                        <FormGroup>
-                            <InputGroup>
-                                <Input
-                                    type="number"
-                                    value={this.state.bidAmount}
-                                    invalid={
-                                        ergToNano(this.state.bidAmount) <
-                                        this.props.box.value +
-                                            this.props.box.minStep
-                                    }
-                                    onChange={(e) => {
-                                        if (isFloat(e.target.value)) {
-                                            this.setState({
-                                                bidAmount: e.target.value,
-                                            });
-                                        }
-                                    }}
-                                    id="bidAmount"
+            <span>
+                <Modal
+                    isOpen={this.props.isOpen}
+                    toggle={this.props.close}
+                    className={this.props.className}
+                >
+                    <ModalHeader toggle={this.props.close}>
+                        <span className="fsize-1 text-muted">
+                            New bid for{' '}
+                            {friendlyToken(this.props.box.assets[0], false, 5)}
+                        </span>
+                    </ModalHeader>
+                    <ModalBody>
+                        <Container>
+                            <Row>
+                                <SyncLoader
+                                    css={override}
+                                    size={8}
+                                    color={'#0b473e'}
+                                    loading={this.state.modalLoading}
                                 />
-                                <InputGroupAddon addonType="append">
-                                    <InputGroupText>ERG</InputGroupText>
-                                </InputGroupAddon>
-                                <FormFeedback invalid>
-                                    Minimum bid value for this auction is{' '}
-                                    {(this.props.box.value +
-                                        this.props.box.minStep) /
-                                        1e9}{' '}
-                                    ERG
-                                </FormFeedback>
-                            </InputGroup>
-                            <FormText>Specify your bid amount.</FormText>
-                        </FormGroup>
-                    </Container>
-                </ModalBody>
-                <ModalFooter>
-                    <Button
-                        className="ml mr-2 btn-transition"
-                        color="secondary"
-                        onClick={this.props.close}
-                    >
-                        Cancel
-                    </Button>
-                    <Button
-                        className="mr-2 btn-transition"
-                        color="secondary"
-                        disabled={
-                            ergToNano(this.state.bidAmount) <
-                                this.props.box.value + this.props.box.minStep ||
-                            this.state.modalLoading
-                        }
-                        onClick={this.placeBid}
-                    >
-                        Place Bid
-                    </Button>
-                </ModalFooter>
-            </Modal>
+                            </Row>
+
+                            <FormGroup>
+                                <InputGroup>
+                                    <Input
+                                        type="number"
+                                        value={this.state.bidAmount}
+                                        invalid={
+                                            ergToNano(this.state.bidAmount) <
+                                            this.props.box.value +
+                                                this.props.box.minStep
+                                        }
+                                        onChange={(e) => {
+                                            if (isFloat(e.target.value)) {
+                                                this.setState({
+                                                    bidAmount: e.target.value,
+                                                });
+                                            }
+                                        }}
+                                        id="bidAmount"
+                                    />
+                                    <InputGroupAddon addonType="append">
+                                        <InputGroupText>ERG</InputGroupText>
+                                    </InputGroupAddon>
+                                    <FormFeedback invalid>
+                                        Minimum bid value for this auction is{' '}
+                                        {(this.props.box.value +
+                                            this.props.box.minStep) /
+                                            1e9}{' '}
+                                        ERG
+                                    </FormFeedback>
+                                </InputGroup>
+                                <FormText>Specify your bid amount.</FormText>
+                            </FormGroup>
+                        </Container>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button
+                            className="ml mr-2 btn-transition"
+                            color="secondary"
+                            onClick={this.props.close}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            className="mr-2 btn-transition"
+                            color="secondary"
+                            disabled={
+                                ergToNano(this.state.bidAmount) <
+                                    this.props.box.value +
+                                        this.props.box.minStep ||
+                                this.state.modalLoading
+                            }
+                            onClick={this.placeBid}
+                        >
+                            Place Bid
+                        </Button>
+                    </ModalFooter>
+                </Modal>
+
+            </span>
         );
     }
 }

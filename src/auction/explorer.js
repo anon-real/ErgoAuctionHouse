@@ -1,12 +1,13 @@
 import { Address, Explorer, Transaction } from '@coinbarn/ergo-ts';
 import {
     friendlyToken,
-    getMyBids,
+    getMyBids, isWalletNode,
     isWalletSaved,
     setMyBids,
     showStickyMsg,
 } from './helpers';
 import { broadcast } from './nodeWallet';
+import {get} from "./rest";
 
 const explorer = Explorer.mainnet;
 
@@ -34,7 +35,7 @@ export const allAuctionTrees = activeAuctionAddresses // array of trees of all a
     .map((addr) => new Address(addr).ergoTree)
     .concat([auctionWithExtensionTree, auctionOrdinaryTree]);
 
-export const trueAddress = '4wQyML64GnzMxZgm'; // dummy address to get unsigned tx from node, we only care about the boxes though in this case
+export const trueAddress = '4MQyML64GnzMxZgm'; // dummy address to get unsigned tx from node, we only care about the boxes though in this case
 
 export const dataInputAddress =
     'AfHRBHDmA19bEqvBNoprnecKkffKTVpfjMJoWrutWzFztXBYrPijLGTq5WVGUapNRRKLr';
@@ -44,15 +45,19 @@ export const auctionNFT =
 export const auctionFee = 2000000;
 export let additionalData = {};
 
+export const explorerApi = 'https://api.ergoplatform.com/api/v0'
+
 async function getRequest(url) {
-    return explorer.apiClient({
-        method: 'GET',
-        url,
-    });
+    return get(explorerApi + url).then(res => {
+        return {data: res.json()}
+    })
 }
 
-export function currentHeight() {
-    return explorer.getCurrentHeight();
+export async function currentHeight() {
+    // return explorer.getCurrentHeight();
+    return getRequest('/blocks?limit=1')
+        .then(res => res.data)
+        .then(res => res.items[0].height)
 }
 
 export function unspentBoxesFor(address) {
@@ -75,6 +80,7 @@ export function getAllActiveAuctions() {
             boxes.sort((a, b) => {
                 if (a.assets[0].tokenId > b.assets[0].tokenId) return 1;
                 else if (a.assets[0].tokenId < b.assets[0].tokenId) return -1;
+                else if (a.assets[0].amount === b.assets[0].amount) return b.value - a.value
                 else return a.assets[0].amount - b.assets[0].amount;
             });
             return boxes;
@@ -123,9 +129,10 @@ export function handlePendingBids(height) {
                 .map((inp) => inp.boxId)
                 .map((id) => getSpendingTx(id));
             return Promise.all(txs).then((res) => {
-                if (res.filter((txId) => txId !== null).length > 0) {
+                let spent = res.filter((txId) => txId !== null && txId !== undefined)
+                if (spent.length > 0) {
                     bid.tx = null;
-                    if (res[0] === bid.txId) {
+                    if (spent[0] === bid.txId) {
                         bid.status = 'complete';
                         let msg = `Your ${
                             bid.amount / 1e9
@@ -177,7 +184,7 @@ export function handlePendingBids(height) {
                     try {
                         console.log('broadcasting to explorer...');
                         explorer.broadcastTx(Transaction.formObject(bid.tx));
-                        if (isWalletSaved()) {
+                        if (isWalletNode()) {
                             broadcast(bid.tx).then((r) =>
                                 console.log(`broadcasting using node: ${r}`)
                             );
