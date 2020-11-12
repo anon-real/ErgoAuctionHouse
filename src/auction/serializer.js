@@ -1,6 +1,6 @@
 import { Serializer } from '@coinbarn/ergo-ts/dist/serializer';
 import {Address} from "@coinbarn/ergo-ts/dist/models/address";
-let ergolib = import('ergo-lib-wasm')
+let ergolib = import('ergo-lib-wasm-browser')
 
 const floatRe = new RegExp('^([0-9]*[.])?[0-9]*$')
 const naturalRe = new RegExp('^[0-9]+$')
@@ -11,8 +11,8 @@ export async function encodeNum(n, isInt = false) {
 }
 
 export async function decodeNum(n, isInt = false) {
-    if (isInt) return (await ergolib).Constant.decode_from_base16(n).as_i32()
-    else return (await ergolib).Constant.decode_from_base16(n).as_i64().to_str()
+    if (isInt) return (await ergolib).Constant.decode_from_base16(n).to_i32()
+    else return (await ergolib).Constant.decode_from_base16(n).to_i64().to_str()
 }
 
 export async function encodeHex(reg) {
@@ -26,7 +26,7 @@ function toHexString(byteArray) {
 }
 
 export async function decodeString(encoded) {
-    return toHexString((await ergolib).Constant.decode_from_base16(encoded).as_byte_array())
+    return toHexString((await ergolib).Constant.decode_from_base16(encoded).to_byte_array())
 }
 
 export async function decodeBox(box, height) {
