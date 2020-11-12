@@ -146,7 +146,6 @@ export async function bidFollower() {
     Promise.all(all).then((res) => {
         let newBids = [];
         res.forEach((out) => {
-            console.log(out);
             if (out.id !== undefined) {
                 let bid = bids.find((cur) => cur.id === out.id);
                 if (out.detail === 'success') {

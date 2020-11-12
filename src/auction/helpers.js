@@ -115,7 +115,6 @@ export async function copyToClipboard(text) {
 }
 
 export function isAddressValid(address) {
-    console.log(new Address(address).isValid())
     try {
         return (new Address(address).isValid())
     } catch (_) {
