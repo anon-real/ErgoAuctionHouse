@@ -177,7 +177,7 @@ export function handlePendingBids(height) {
                                 bid.token,
                                 false,
                                 5
-                            )} is rejected because the bid's end time must be extended, place your bid again to take that into account!.`;
+                            )} is rejected because the bid's end time must be extended, place your bid again to take that into account!`;
                             showStickyMsg(msg, true);
                         }
                     }
