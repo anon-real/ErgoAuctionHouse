@@ -132,11 +132,11 @@ export default class ActiveAuctions extends React.Component {
             );
             return;
         }
+        this.setState({ modalLoading: true });
         currentHeight()
             .then((height) => {
                 let description = this.state.description;
                 if (!description) description = '';
-                this.setState({ modalLoading: true });
                 let res = auctionTxRequest(
                     ergToNano(this.state.initialBid),
                     getWalletAddress(),
