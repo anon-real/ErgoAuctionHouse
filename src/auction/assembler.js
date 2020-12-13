@@ -21,7 +21,7 @@ import {
 } from './explorer';
 import {decodeNum, decodeString, encodeHex, encodeNum} from './serializer';
 
-const url = 'http://95.217.50.117:8080/';
+const url = 'https://assembler.ergoauctions.org/';
 
 const template = `{
   val userAddress = PK("$userAddress")
