@@ -1,4 +1,4 @@
-import React, { Fragment, useRef } from 'react';
+import React, {Fragment, useRef} from 'react';
 
 import {
     auctionFee,
@@ -12,7 +12,7 @@ import {
     showMsg,
 } from '../../../auction/helpers';
 import Clipboard from 'react-clipboard.js';
-import { css } from '@emotion/core';
+import {css} from '@emotion/core';
 import PropagateLoader from 'react-spinners/PropagateLoader';
 import SyncLoader from 'react-spinners/SyncLoader';
 import {
@@ -49,7 +49,7 @@ import {
     isFloat,
     isNatural,
 } from '../../../auction/serializer';
-import { assembleFinishedAuctions } from '../../../auction/assembler';
+import {assembleFinishedAuctions} from '../../../auction/assembler';
 
 const override = css`
     display: block;
@@ -82,7 +82,7 @@ export default class ActiveAuctions extends React.Component {
 
     componentDidMount() {
         currentHeight().then((res) => {
-            this.setState({ height: res });
+            this.setState({height: res});
         });
         this.refreshInfo(true, true);
         this.refreshTimer = setInterval(this.refreshInfo, 5000);
@@ -95,7 +95,7 @@ export default class ActiveAuctions extends React.Component {
     }
 
     closeMyBids() {
-        this.setState(this.setState({ myBids: false }));
+        this.setState(this.setState({myBids: false}));
     }
 
     openAuction() {
@@ -132,7 +132,7 @@ export default class ActiveAuctions extends React.Component {
             );
             return;
         }
-        this.setState({ modalLoading: true });
+        this.setState({modalLoading: true});
         currentHeight()
             .then((height) => {
                 let description = this.state.description;
@@ -160,7 +160,7 @@ export default class ActiveAuctions extends React.Component {
                             true
                         );
                     })
-                    .finally((_) => this.setState({ modalLoading: false }));
+                    .finally((_) => this.setState({modalLoading: false}));
             })
             .catch(
                 (_) =>
@@ -172,14 +172,14 @@ export default class ActiveAuctions extends React.Component {
     }
 
     updateAssets() {
-        this.setState({ modalLoading: true });
+        this.setState({modalLoading: true});
         return getAssets()
             .then((res) => {
-                this.setState({ assets: res.assets });
-                this.setState({ ergBalance: res.balance });
+                this.setState({assets: res.assets});
+                this.setState({ergBalance: res.balance});
             })
             .finally(() => {
-                this.setState({ modalLoading: false });
+                this.setState({modalLoading: false});
             });
     }
 
@@ -188,7 +188,7 @@ export default class ActiveAuctions extends React.Component {
             modal: !this.state.modal,
         });
         if (this.state.modal) {
-            this.setState({ modalLoading: false, assets: {} });
+            this.setState({modalLoading: false, assets: {}});
         } else {
             this.updateAssets()
                 .then(() => {
@@ -215,13 +215,13 @@ export default class ActiveAuctions extends React.Component {
 
     refreshInfo(force = false, firstTime = false) {
         if (!force) {
-            this.setState({ lastUpdated: this.state.lastUpdated + 5 });
+            this.setState({lastUpdated: this.state.lastUpdated + 5});
             if (this.state.lastUpdated < 40) return;
         }
-        this.setState({ lastUpdated: 0 });
+        this.setState({lastUpdated: 0});
         currentHeight()
             .then((height) => {
-                this.setState({ currentHeight: height });
+                this.setState({currentHeight: height});
                 getAllActiveAuctions()
                     .then((boxes) => {
                         decodeBoxes(boxes, height)
@@ -235,7 +235,7 @@ export default class ActiveAuctions extends React.Component {
                                 if (firstTime) assembleFinishedAuctions(boxes);
                             })
                             .finally(() => {
-                                this.setState({ loading: false });
+                                this.setState({loading: false});
                             });
                     })
                     .catch((_) =>
@@ -397,7 +397,7 @@ export default class ActiveAuctions extends React.Component {
                                         wallet.
                                     </FormText>
                                 </FormGroup>
-                                <div className="divider" />
+                                <div className="divider"/>
                                 <Row>
                                     <Col md="6">
                                         <FormGroup>
@@ -422,7 +422,7 @@ export default class ActiveAuctions extends React.Component {
                                                 invalid={
                                                     this.state.assets[
                                                         this.state.tokenId
-                                                    ] < this.state.tokenQuantity
+                                                        ] < this.state.tokenQuantity
                                                 }
                                             />
                                             <FormFeedback invalid>
@@ -431,7 +431,7 @@ export default class ActiveAuctions extends React.Component {
                                                 {
                                                     this.state.assets[
                                                         this.state.tokenId
-                                                    ]
+                                                        ]
                                                 }
                                             </FormFeedback>
                                             <FormText>
@@ -463,8 +463,8 @@ export default class ActiveAuctions extends React.Component {
                                                         ) {
                                                             this.setState({
                                                                 initialBid:
-                                                                    e.target
-                                                                        .value,
+                                                                e.target
+                                                                    .value,
                                                             });
                                                         }
                                                     }}
@@ -486,7 +486,7 @@ export default class ActiveAuctions extends React.Component {
                                         </FormGroup>
                                     </Col>
                                 </Row>
-                                <div className="divider" />
+                                <div className="divider"/>
                                 <Row>
                                     <Col md="6">
                                         <FormGroup>
@@ -513,8 +513,8 @@ export default class ActiveAuctions extends React.Component {
                                                         ) {
                                                             this.setState({
                                                                 auctionStep:
-                                                                    e.target
-                                                                        .value,
+                                                                e.target
+                                                                    .value,
                                                             });
                                                         }
                                                     }}
@@ -553,9 +553,9 @@ export default class ActiveAuctions extends React.Component {
                                                                     this.setState(
                                                                         {
                                                                             auctionAutoExtend:
-                                                                                e
-                                                                                    .target
-                                                                                    .checked,
+                                                                            e
+                                                                                .target
+                                                                                .checked,
                                                                         }
                                                                     )
                                                                 }
@@ -584,8 +584,8 @@ export default class ActiveAuctions extends React.Component {
                                                         )
                                                             this.setState({
                                                                 auctionDuration:
-                                                                    event.target
-                                                                        .value,
+                                                                event.target
+                                                                    .value,
                                                             });
                                                     }}
                                                     id="duration"
@@ -599,7 +599,7 @@ export default class ActiveAuctions extends React.Component {
                                             <FormText>
                                                 Auction will last for this
                                                 number of blocks (e.g. 720 for
-                                                ~1 day). <br /> By enabling auto
+                                                ~1 day). <br/> By enabling auto
                                                 extend, your auction's duration
                                                 will be extended slightly if a
                                                 bid is placed near the end of
@@ -608,13 +608,13 @@ export default class ActiveAuctions extends React.Component {
                                         </FormGroup>
                                     </Col>
                                 </Row>
-                                <div className="divider" />
+                                <div className="divider"/>
                                 <FormGroup>
                                     <Label for="description">Description</Label>
                                     <Input
                                         invalid={
                                             this.state.description !==
-                                                undefined &&
+                                            undefined &&
                                             this.state.description.length > 150
                                         }
                                         value={this.state.description}
@@ -665,7 +665,7 @@ export default class ActiveAuctions extends React.Component {
                                     'd-none': false,
                                 })}
                             >
-                                <i className="pe-7s-volume2 icon-gradient bg-night-fade" />
+                                <i className="pe-7s-volume2 icon-gradient bg-night-fade"/>
                             </div>
                             <div>
                                 Active Auctions
@@ -681,7 +681,7 @@ export default class ActiveAuctions extends React.Component {
                             </div>
                         </div>
                         <div className="page-title-actions">
-                            <TitleComponent2 />
+                            <TitleComponent2/>
                         </div>
                         <Button
                             onClick={this.openAuction}
