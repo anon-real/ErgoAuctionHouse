@@ -1,5 +1,5 @@
-import React, { Fragment } from 'react';
-import { Bar } from 'react-chartjs-2';
+import React, {Fragment} from 'react';
+import {Bar} from 'react-chartjs-2';
 import {
     Button,
     Col,
@@ -17,134 +17,79 @@ import {
     showMsg,
 } from '../../../auction/helpers';
 import SyncLoader from 'react-spinners/SyncLoader';
-import { css } from '@emotion/core';
+import {css} from '@emotion/core';
 import {allAuctionTrees, auctionFee, boxById, currentHeight, txById} from '../../../auction/explorer';
 import moment from 'moment';
-import { ResponsiveContainer } from 'recharts';
+import {ResponsiveContainer} from 'recharts';
 import PropagateLoader from 'react-spinners/PropagateLoader';
 import ReactTooltip from 'react-tooltip';
 import {ergToNano, isFloat, isNatural} from "../../../auction/serializer";
 import {auctionTxRequest, getAssets} from "../../../auction/nodeWallet";
+import {getAuctionP2s, registerAuction} from "../../../auction/auctionAssembler";
 
 const override = css`
     display: block;
     margin: 0 auto;
 `;
 
-class NewAuction extends React.Component {
+class NewAuctionAssembler extends React.Component {
     constructor(props) {
         super();
         this.state = {
-            tokenId: '',
-            assets: {},
-            modalLoading: true,
+            modalLoading: false,
         }
         this.canStartAuction = this.canStartAuction.bind(this);
-        this.updateAssets = this.updateAssets.bind(this);
     }
 
     componentWillReceiveProps(nextProps, nextContext) {
-        if (!this.props.isOpen && nextProps.isOpen) {
-            this.updateAssets()
-                .then(() => {
-                    let assets = this.state.assets;
-                    if (Object.keys(assets).length === 0)
-                        showMsg(
-                            'Your wallet contains no tokens to auction!',
-                            true
-                        );
-                    else
-                        this.setState({
-                            tokenId: Object.keys(assets)[0],
-                            tokenQuantity: Object.values(assets)[0],
-                        });
-                })
-                .catch(() => {
-                    showMsg(
-                        'Error getting assets from wallet. Check your wallet accessibility.',
-                        true
-                    );
-                });
-        } else if (!this.props.isOpen) {
+        if (this.props.isOpen && !nextProps.isOpen) {
             this.setState({modalLoading: false, assets: {}});
         }
     }
 
-    updateAssets() {
-        this.setState({modalLoading: true});
-        return getAssets()
-            .then((res) => {
-                this.setState({assets: res.assets});
-                this.setState({ergBalance: res.balance});
-            })
-            .finally(() => {
-                this.setState({modalLoading: false});
-            });
-    }
-
-
     canStartAuction() {
         return (
             !this.state.modalLoading &&
-            this.state.tokenId !== undefined &&
-            this.state.tokenId.length > 0 &&
             ergToNano(this.state.initialBid) >= 100000000 &&
             this.state.auctionDuration > 0 &&
-            ergToNano(this.state.auctionStep) >= 100000000 &&
-            this.state.tokenQuantity > 0
+            ergToNano(this.state.auctionStep) >= 100000000
         );
     }
 
     startAuction() {
-        if (
-            ergToNano(this.state.initialBid) + auctionFee >
-            this.state.ergBalance
-        ) {
-            showMsg(
-                `Not enough balance to initiate auction with ${this.state.initialBid} ERG.`,
-                true
-            );
-            return;
-        }
         this.setState({modalLoading: true});
         currentHeight()
             .then((height) => {
-                let description = this.state.description;
-                if (!description) description = '';
-                let res = auctionTxRequest(
-                    ergToNano(this.state.initialBid),
-                    getWalletAddress(),
-                    this.state.tokenId,
-                    this.state.tokenQuantity,
-                    ergToNano(this.state.auctionStep),
-                    height,
-                    height + parseInt(this.state.auctionDuration) + 5, // +5 to take into account the time it takes to be mined
-                    description,
-                    this.state.auctionAutoExtend
-                );
-                res.then((data) => {
-                    showMsg(
-                        'Auction transaction was generated successfully. If you keep the app open, you will be notified about any status!'
-                    );
-                    this.props.close();
-                })
-                    .catch((nodeRes) => {
-                        showMsg(
-                            'Could not generate auction transaction. Potentially your wallet is locked.',
-                            true
-                        );
-                    })
-                    .finally((_) => this.setState({modalLoading: false}));
-            })
-            .catch(
-                (_) =>
-                    showMsg(
-                        'Could not get height from the explorer, try again!'
-                    ),
-                true
-            );
-    }
+                getAuctionP2s(ergToNano(this.state.initialBid), height + parseInt(this.state.auctionDuration) + 5,
+                    ergToNano(this.state.auctionStep)).then(addr => {
+                    let description = this.state.description;
+                    if (!description) description = '';
+                    registerAuction(
+                        addr.address,
+                        ergToNano(this.state.initialBid),
+                        getWalletAddress(),
+                        ergToNano(this.state.auctionStep),
+                        height,
+                        height + parseInt(this.state.auctionDuration) + 5, // +5 to take into account the time it takes to be mined
+                        description,
+                        this.state.auctionAutoExtend
+                    ).then(res => {
+                        console.log("fuck", res)
+                        this.props.close()
+                        this.props.assemblerModal(addr.address, ergToNano(this.state.initialBid), true)
 
+                    }).catch(err => {
+                        console.log("my fuck", err)
+                        showMsg('Error while registering the request to the assembler!', true);
+                        this.setState({modalLoading: false})
+                    })
+
+                }).catch(_ => {
+                    showMsg('Could not contact the assembler service.', true);
+                    this.setState({modalLoading: false})
+                })
+            }).catch(_ => showMsg('Could not get height from the explorer, try again!', true));
+    }
 
     render() {
         return (
@@ -169,123 +114,48 @@ class NewAuction extends React.Component {
 
                         <Form>
                             <FormGroup>
-                                <Label for="tokenId">Token</Label>
-                                <Input
-                                    value={this.state.tokenId}
-                                    onChange={(event) => {
-                                        this.setState({
-                                            tokenId: event.target.value,
-                                            tokenQuantity: this.state
-                                                .assets[event.target.value],
-                                        });
-                                    }}
-                                    type="select"
-                                    id="tokenId"
-                                    invalid={this.state.tokenId === ''}
-                                >
-                                    {Object.keys(this.state.assets).map(
-                                        (id) => {
-                                            return <option>{id}</option>;
+                                <Label for="bid">Initial Bid</Label>
+                                <InputGroup>
+                                    <Input
+                                        type="text"
+                                        invalid={
+                                            ergToNano(
+                                                this.state
+                                                    .initialBid
+                                            ) < 100000000
                                         }
-                                    )}
-                                </Input>
-                                <FormFeedback invalid>
-                                    No tokens to select from.
-                                </FormFeedback>
+                                        value={
+                                            this.state.initialBid
+                                        }
+                                        onChange={(e) => {
+                                            if (
+                                                isFloat(
+                                                    e.target.value
+                                                )
+                                            ) {
+                                                this.setState({
+                                                    initialBid:
+                                                    e.target
+                                                        .value,
+                                                });
+                                            }
+                                        }}
+                                        id="bid"
+                                    />
+                                    <InputGroupAddon addonType="append">
+                                        <InputGroupText>
+                                            ERG
+                                        </InputGroupText>
+                                    </InputGroupAddon>
+                                    <FormFeedback invalid>
+                                        Must be at least 0.1 ERG
+                                    </FormFeedback>
+                                </InputGroup>
                                 <FormText>
-                                    These tokens are loaded from your
-                                    wallet.
+                                    Specify initial bid of the
+                                    auction.
                                 </FormText>
                             </FormGroup>
-                            <div className="divider"/>
-                            <Row>
-                                <Col md="6">
-                                    <FormGroup>
-                                        <Label for="tokenQuantity">
-                                            Token Quantity
-                                        </Label>
-                                        <Input
-                                            min={1}
-                                            type="number"
-                                            step="1"
-                                            value={this.state.tokenQuantity}
-                                            onChange={(event) => {
-                                                let cur =
-                                                    event.target.value;
-                                                this.setState({
-                                                    tokenQuantity: parseInt(
-                                                        cur
-                                                    ),
-                                                });
-                                            }}
-                                            id="tokenQuantity"
-                                            invalid={
-                                                this.state.assets[
-                                                    this.state.tokenId
-                                                    ] < this.state.tokenQuantity
-                                            }
-                                        />
-                                        <FormFeedback invalid>
-                                            More than balance, selected
-                                            token's balance is{' '}
-                                            {
-                                                this.state.assets[
-                                                    this.state.tokenId
-                                                    ]
-                                            }
-                                        </FormFeedback>
-                                        <FormText>
-                                            Specify token quantity to be
-                                            auctioned.
-                                        </FormText>
-                                    </FormGroup>
-                                </Col>
-                                <Col md="6">
-                                    <FormGroup>
-                                        <Label for="bid">Initial Bid</Label>
-                                        <InputGroup>
-                                            <Input
-                                                type="text"
-                                                invalid={
-                                                    ergToNano(
-                                                        this.state
-                                                            .initialBid
-                                                    ) < 100000000
-                                                }
-                                                value={
-                                                    this.state.initialBid
-                                                }
-                                                onChange={(e) => {
-                                                    if (
-                                                        isFloat(
-                                                            e.target.value
-                                                        )
-                                                    ) {
-                                                        this.setState({
-                                                            initialBid:
-                                                            e.target
-                                                                .value,
-                                                        });
-                                                    }
-                                                }}
-                                                id="bid"
-                                            />
-                                            <InputGroupAddon addonType="append">
-                                                <InputGroupText>
-                                                    ERG
-                                                </InputGroupText>
-                                            </InputGroupAddon>
-                                            <FormFeedback invalid>
-                                                Must be at least 0.1 ERG
-                                            </FormFeedback>
-                                        </InputGroup>
-                                        <FormText>
-                                            Specify initial bid of the
-                                            auction.
-                                        </FormText>
-                                    </FormGroup>
-                                </Col>
-                            </Row>
                             <div className="divider"/>
                             <Row>
                                 <Col md="6">
@@ -461,4 +331,4 @@ class NewAuction extends React.Component {
     }
 }
 
-export default NewAuction;
+export default NewAuctionAssembler;

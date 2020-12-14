@@ -8,7 +8,7 @@ import {
 import {
     friendlyAddress,
     getWalletAddress,
-    isWalletNode,
+    isWalletNode, isWalletSaved,
     showMsg,
 } from '../../../auction/helpers';
 import Clipboard from 'react-clipboard.js';
@@ -51,6 +51,8 @@ import {
 } from '../../../auction/serializer';
 import {assembleFinishedAuctions} from '../../../auction/assembler';
 import NewAuction from "./newAuction";
+import NewAuctionAssembler from "./newAuctionAssembler";
+import PlaceBidModal from "./placeBid";
 
 const override = css`
     display: block;
@@ -95,9 +97,9 @@ export default class ActiveAuctions extends React.Component {
     }
 
     openAuction() {
-        if (!isWalletNode()) {
+        if (!isWalletSaved()) {
             showMsg(
-                'In order to create a new auction, you have to configure a node wallet first.',
+                'In order to create a new auction, configure a wallet first.',
                 true
             );
         } else {
@@ -106,9 +108,15 @@ export default class ActiveAuctions extends React.Component {
     }
 
     toggleModal() {
-        this.setState({
-            modal: !this.state.modal,
-        });
+        if (isWalletNode()) {
+            this.setState({
+                modal: !this.state.modal,
+            });
+        } else {
+            this.setState({
+                modalAssembler: !this.state.modalAssembler,
+            });
+        }
     }
 
     refreshInfo(force = false, firstTime = false) {
@@ -159,11 +167,12 @@ export default class ActiveAuctions extends React.Component {
         });
     }
 
-    toggleAssemblerModal(address = '', bid = 0) {
+    toggleAssemblerModal(address = '', bid = 0, isAuction = false) {
         this.setState({
             assemblerModal: !this.state.assemblerModal,
             bidAddress: address,
             bidAmount: bid,
+            isAuction: isAuction
         });
     }
 
@@ -205,6 +214,7 @@ export default class ActiveAuctions extends React.Component {
                                     {(this.state.bidAmount + auctionFee) / 1e9}{' '}
                                     erg
                                 </Clipboard>{' '}
+                                {this.state.isAuction && <span>and the <b>token</b> you want to auction</span>}{' '}
                                 to{' '}
                                 <Clipboard
                                     component="b"
@@ -220,8 +230,14 @@ export default class ActiveAuctions extends React.Component {
                                         )
                                     }
                                 ></b>
-                                ; You have a limited time to do that, your bid
-                                will be placed automatically afterwards.
+                                {!this.state.isAuction ?
+                                    <p>
+                                        You have a limited time to do that, your bid will be placed automatically
+                                        afterward.
+                                    </p> : <p>
+                                        You have a limited time to do that, your auction will be started automatically
+                                        afterward.
+                                    </p>}
                             </p>
                             <p>
                                 Your funds will be safe, find out more about how{' '}
@@ -248,6 +264,12 @@ export default class ActiveAuctions extends React.Component {
                 <NewAuction
                     isOpen={this.state.modal}
                     close={this.toggleModal}
+                />
+
+                <NewAuctionAssembler
+                    isOpen={this.state.modalAssembler}
+                    close={this.toggleModal}
+                    assemblerModal={this.toggleAssemblerModal}
                 />
 
                 <div className="app-page-title">
