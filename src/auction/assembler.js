@@ -23,25 +23,13 @@ import {decodeNum, decodeString, encodeHex, encodeNum} from './serializer';
 
 const url = 'https://assembler.ergoauctions.org/';
 
-const template = `{
-  val userAddress = PK("$userAddress")
-  val bidAmount = $bidAmountL
-  val endTime = $endTime
-  val placeBid = {
-    HEIGHT < endTime && INPUTS(INPUTS.size - 1).id == fromBase64("$auctionId") &&
-      OUTPUTS(0).R8[Coll[Byte]].get == userAddress.propBytes && OUTPUTS(0).value == bidAmount
-  }
-  val returnFunds = {
-    val total = INPUTS.fold(0L, {(x:Long, b:Box) => x + b.value}) - 4000000
-    OUTPUTS(0).value >= total && OUTPUTS(0).propositionBytes == userAddress.propBytes
-  }
-  sigmaProp(placeBid || returnFunds)
-}`;
-
 export async function follow(request) {
     return await post(getUrl(url) + '/follow', request).then((res) =>
         res.json()
-    );
+    ).then(res => {
+        if (res.success === false) throw new Error()
+        return res
+    });
 }
 
 export async function stat(id) {
@@ -51,7 +39,11 @@ export async function stat(id) {
 export async function p2s(request) {
     return await post(getUrl(url) + '/compile', request).then((res) =>
         res.json()
-    );
+    ).then(res => {
+        console.log(res)
+        if (res.success === false) throw new Error()
+        return res
+    });
 }
 
 function retry(id) {
@@ -70,6 +62,12 @@ export async function bidFollower() {
                     let curBid = bid.info;
                     curBid.tx = out.tx;
                     curBid.txId = out.tx.id;
+                    if (!curBid.boxId) {
+                        curBid.boxId = out.tx.outputs[0].id
+                    }
+                    if (!curBid.token) {
+                        curBid.token = out.tx.outputs[0].assets[0]
+                    }
                     addBid(curBid);
                 } else if (out.detail === 'returning') {
                     showStickyMsg(

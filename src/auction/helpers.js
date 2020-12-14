@@ -15,9 +15,9 @@ export function friendlyToken(token, quantity = true, length = 13) {
     return res
 }
 
-export function friendlyAddress(addr) {
+export function friendlyAddress(addr, tot=13) {
     if (addr === undefined || addr.slice === undefined) return ''
-    return addr.slice(0, 13) + '...' + addr.slice(-13);
+    return addr.slice(0, tot) + '...' + addr.slice(-tot);
 }
 
 export function getTxUrl(txId) {

@@ -121,8 +121,14 @@ export async function getSpendingTx(boxId) {
         .catch((_) => null);
 }
 
-export function handlePendingBids(height) {
-    let bids = getMyBids().filter((bid) => bid.status === 'pending mining');
+export async function getIssuingBox(tokenId) {
+    const data = getRequest(`/assets/${tokenId}/issuingBox`);
+    return data
+        .then((res) => res.data)
+        .catch((_) => null);
+}
+
+export function handlePendingBids(height) { let bids = getMyBids().filter((bid) => bid.status === 'pending mining');
     if (bids !== null) {
         let res = bids.map((bid) => {
             let txs = bid.tx.inputs
