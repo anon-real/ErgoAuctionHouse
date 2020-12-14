@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, CardFooter, Col, Progress } from 'reactstrap';
+import {Button, CardFooter, Col, Progress} from 'reactstrap';
 import {
     friendlyAddress,
     friendlyToken,
@@ -8,17 +8,18 @@ import {
     isWalletSaved,
     showMsg,
 } from '../../../auction/helpers';
-import { ResponsiveContainer } from 'recharts';
+import {ResponsiveContainer} from 'recharts';
 import SyncLoader from 'react-spinners/SyncLoader';
 import ReactTooltip from 'react-tooltip';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faAngleUp } from '@fortawesome/free-solid-svg-icons';
-import { css } from '@emotion/core';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {faAngleUp} from '@fortawesome/free-solid-svg-icons';
+import {css} from '@emotion/core';
 import {auctionWithExtensionTree, getSpendingTx} from '../../../auction/explorer';
 import PlaceBidModal from './placeBid';
 import MyBidsModal from './myBids';
 import BidHistory from './bidHistory';
-import {getP2s} from "../../../auction/assembler";
+import {Row} from "react-bootstrap";
+import ArtworkDetails from "../../artworkDetails";
 
 const override = css`
     display: block;
@@ -39,12 +40,12 @@ export default class ActiveBox extends React.Component {
     }
 
     openDetails() {
-        this.setState({ detailsModal: !this.state.detailsModal });
+        this.setState({detailsModal: !this.state.detailsModal});
     }
 
     openBid() {
         if (this.state.bidModal) {
-            this.setState({ bidModal: !this.state.bidModal });
+            this.setState({bidModal: !this.state.bidModal});
             return;
         }
         if (!isWalletSaved()) {
@@ -58,12 +59,12 @@ export default class ActiveBox extends React.Component {
                 true
             );
         } else {
-            this.setState({ bidModal: !this.state.bidModal });
+            this.setState({bidModal: !this.state.bidModal});
         }
     }
 
     openMyBids() {
-        this.setState({ myBidsModal: !this.state.myBidsModal });
+        this.setState({myBidsModal: !this.state.myBidsModal});
     }
 
     showIssuingTx(box) {
@@ -99,7 +100,7 @@ export default class ActiveBox extends React.Component {
                     close={this.openMyBids}
                     highText="current active bid"
                 />
-                <BidHistory close={this.openDetails} box={this.props.box} isOpen={this.state.detailsModal} />
+                <BidHistory close={this.openDetails} box={this.props.box} isOpen={this.state.detailsModal}/>
                 <div className="card mb-3 widget-chart">
                     <div className="widget-chart-content">
                         <ResponsiveContainer height={20}>
@@ -111,8 +112,24 @@ export default class ActiveBox extends React.Component {
                             />
                         </ResponsiveContainer>
 
-                        <div className="widget-numbers">
-                            {this.props.box.value / 1e9} ERG
+                        <div className="d-inline-flex">
+                            <span className="widget-numbers">
+                                {this.props.box.value / 1e9} ERG
+                            </span>
+                            {this.props.box.isArtwork && <span
+                                onClick={() => this.setState({artDetail: true})}
+                                data-tip="Artwork NFT"
+                                className="icon-wrapper rounded-circle opacity-7 m-2 font-icon-wrapper">
+                                <i className="lnr-picture icon-gradient bg-plum-plate fsize-4"/>
+                                <ArtworkDetails
+                                    isOpen={this.state.artDetail}
+                                    close={() => this.setState({artDetail: !this.state.artDetail})}
+                                    tokenId={this.props.box.assets[0].tokenId}
+                                    tokenName={this.props.box.tokenName}
+                                    tokenDescription={this.props.box.tokenDescription}
+                                    artHash={this.props.box.artHash}
+                                />
+                            </span>}
                         </div>
                         <div className="widget-chart-wrapper chart-wrapper-relative justify justify-content-lg-start">
                             <div
@@ -186,7 +203,7 @@ export default class ActiveBox extends React.Component {
                                 />
                             </div>
                         </div>
-                        <ReactTooltip effect="solid" place="bottom" />
+                        <ReactTooltip effect="solid" place="bottom"/>
 
                         <div className="widget-chart-wrapper chart-wrapper-relative">
                             <div
@@ -226,7 +243,7 @@ export default class ActiveBox extends React.Component {
                         </Button>
                         <Button
                             onClick={() => {
-                                this.setState({ detailsModal: true });
+                                this.setState({detailsModal: true});
                             }}
                             outline
                             className="btn-outline-light m-2 border-0"
@@ -240,7 +257,7 @@ export default class ActiveBox extends React.Component {
                         <Col md={6} className="widget-description">
                             Up by
                             <span className="text-success pl-1 pr-1">
-                                <FontAwesomeIcon icon={faAngleUp} />
+                                <FontAwesomeIcon icon={faAngleUp}/>
                                 <span className="pl-1">
                                     {this.props.box.increase}%
                                 </span>
