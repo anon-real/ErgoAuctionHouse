@@ -1,5 +1,7 @@
 import { Serializer } from '@coinbarn/ergo-ts/dist/serializer';
 import {Address} from "@coinbarn/ergo-ts/dist/models/address";
+import {getIssuingBox, getSpendingTx} from "./explorer";
+import {getTxUrl} from "./helpers";
 let ergolib = import('ergo-lib-wasm-browser')
 
 const floatRe = new RegExp('^([0-9]*[.])?[0-9]*$')
@@ -55,6 +57,31 @@ export async function decodeBox(box, height) {
         await decodeString(box.additionalRegisters.R8)
     ).address;
     box.loader = false;
+
+    await getIssuingBox(box.assets[0].tokenId)
+        .then((res) => {
+            if(Object.keys(res[0].additionalRegisters).length === 5) {
+                box.isArtwork = true
+                box.artHash = res[0].additionalRegisters.R8
+                box.artCode = res[0].additionalRegisters.R7
+                box.tokenName = res[0].additionalRegisters.R4
+                box.tokenDescription = res[0].additionalRegisters.R5
+            }
+        })
+        .catch(err => {
+            console.log(err)
+        });
+    if (box.isArtwork) {
+        let code = Serializer.stringFromHex(await decodeString(box.artCode))
+        if (code !== "0101") {
+            box.isArtwork = false
+        } else {
+            box.artHash = await decodeString(box.artHash)
+            box.tokenName = Serializer.stringFromHex(await decodeString(box.tokenName))
+            box.tokenDescription = Serializer.stringFromHex(box.tokenDescription)
+        }
+    }
+
     return await box
 }
 

@@ -17,6 +17,7 @@ import { css } from '@emotion/core';
 import { getSpendingTx } from '../../../auction/explorer';
 import MyBidsModal from "../../ActiveAuction/Active/myBids";
 import BidHistory from "../../ActiveAuction/Active/bidHistory";
+import ArtworkDetails from "../../artworkDetails";
 
 const override = css`
     display: block;
@@ -84,8 +85,24 @@ export default class HistoryBox extends React.Component {
                             />
                         </ResponsiveContainer>
 
-                        <div className="widget-numbers">
-                            {this.props.box.value / 1e9} ERG
+                        <div className="d-inline-flex">
+                            <span className="widget-numbers">
+                                {this.props.box.value / 1e9} ERG
+                            </span>
+                            {this.props.box.isArtwork && <span
+                                onClick={() => this.setState({artDetail: true})}
+                                data-tip="Artwork NFT"
+                                className="icon-wrapper rounded-circle opacity-7 m-2 font-icon-wrapper">
+                                <i className="lnr-picture icon-gradient bg-plum-plate fsize-4"/>
+                                <ArtworkDetails
+                                    isOpen={this.state.artDetail}
+                                    close={() => this.setState({artDetail: !this.state.artDetail})}
+                                    tokenId={this.props.box.assets[0].tokenId}
+                                    tokenName={this.props.box.tokenName}
+                                    tokenDescription={this.props.box.tokenDescription}
+                                    artHash={this.props.box.artHash}
+                                />
+                            </span>}
                         </div>
                         <div className="widget-chart-wrapper chart-wrapper-relative justify justify-content-lg-start">
                             <div

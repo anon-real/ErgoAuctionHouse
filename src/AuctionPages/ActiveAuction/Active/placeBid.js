@@ -28,7 +28,7 @@ import { css } from '@emotion/core';
 import { bidTxRequest, getAssets } from '../../../auction/nodeWallet';
 import { auctionFee, currentHeight } from '../../../auction/explorer';
 import { ergToNano, isFloat } from '../../../auction/serializer';
-import { getP2s, registerBid } from '../../../auction/assembler';
+import {getBidP2s, registerBid} from "../../../auction/bidAssembler";
 
 const override = css`
     display: block;
@@ -104,7 +104,7 @@ export default class PlaceBidModal extends React.Component {
                         })
                         .finally((_) => this.setState({ modalLoading: false }));
                 } else {
-                    getP2s(ergToNano(this.state.bidAmount), this.props.box)
+                    getBidP2s(ergToNano(this.state.bidAmount), this.props.box)
                         .then((addr) => {
                             registerBid(
                                 height,
