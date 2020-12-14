@@ -18,7 +18,6 @@ import {auctionWithExtensionTree, getSpendingTx} from '../../../auction/explorer
 import PlaceBidModal from './placeBid';
 import MyBidsModal from './myBids';
 import BidHistory from './bidHistory';
-import {getP2s} from "../../../auction/assembler";
 
 const override = css`
     display: block;
