@@ -31,6 +31,10 @@ export async function decodeString(encoded) {
     return toHexString((await ergolib).Constant.decode_from_base16(encoded).to_byte_array())
 }
 
+async function decodeStr(str) {
+    return new TextDecoder().decode((await ergolib).Constant.decode_from_base16(str).to_byte_array())
+}
+
 export async function decodeBox(box, height) {
     let info = Serializer.stringFromHex(
         await decodeString(box.additionalRegisters.R9)
@@ -72,13 +76,17 @@ export async function decodeBox(box, height) {
             console.log(err)
         });
     if (box.isArtwork) {
-        let code = Serializer.stringFromHex(await decodeString(box.artCode))
-        if (code !== "0101") {
+        try {
+            let code = await decodeStr(box.artCode)
+            if (code !== "0101") {
+                box.isArtwork = false
+            } else {
+                box.artHash = await decodeString(box.artHash)
+                box.tokenName = await decodeStr(box.tokenName)
+                box.tokenDescription = await decodeStr(box.tokenDescription)
+            }
+        } catch (e) {
             box.isArtwork = false
-        } else {
-            box.artHash = await decodeString(box.artHash)
-            box.tokenName = Serializer.stringFromHex(await decodeString(box.tokenName))
-            box.tokenDescription = Serializer.stringFromHex(box.tokenDescription)
         }
     }
 
