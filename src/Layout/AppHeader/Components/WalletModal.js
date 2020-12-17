@@ -312,7 +312,12 @@ class WalletModal extends React.Component {
                                         Invalid ergo address.
                                     </FormFeedback>
                                     <FormText>
-                                        Your funds and winning tokens will be sent to this address. <b>Make sure your wallet can take care of tokens!</b>
+                                        Your funds and winning tokens will be sent to this address. {' '}
+                                        <b>Make sure your wallet can take care of tokens!</b> {' '}
+                                        Currently, <a href="https://github.com/ergoplatform/ergo">Ergo Node</a>, {' '}
+                                        <a href="https://github.com/coinbarn/coinbarn-extension">Coinbarn</a>, {' '}
+                                        <a href="https://ergowallet.io/">Ergo Wallet</a> and {' '}
+                                        <a href="https://yoroi-wallet.com/">Yoroi</a> support tokens.
                                     </FormText>
                                 </FormGroup>
                             </TabPane>

@@ -91,7 +91,7 @@ export default class HistoryBox extends React.Component {
                             </span>
                             {this.props.box.isArtwork && <span
                                 onClick={() => this.setState({artDetail: true})}
-                                data-tip="Artwork NFT"
+                                data-tip="Artwork NFT Detail"
                                 className="icon-wrapper rounded-circle opacity-7 m-2 font-icon-wrapper">
                                 <i className="lnr-picture icon-gradient bg-plum-plate fsize-4"/>
                                 <ArtworkDetails
@@ -185,7 +185,7 @@ export default class HistoryBox extends React.Component {
                                     justifyContent: 'center',
                                     alignItems: 'center',
                                     height: '60px',
-                                    overflowY: 'auto',
+                                    overflowY: 'hidden',
                                     overflowX: 'hidden'
                                 }}
                             >
