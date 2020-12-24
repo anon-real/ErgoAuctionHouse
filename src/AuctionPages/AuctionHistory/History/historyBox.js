@@ -91,7 +91,7 @@ export default class HistoryBox extends React.Component {
                             </span>
                             {this.props.box.isArtwork && <span
                                 onClick={() => this.setState({artDetail: true})}
-                                data-tip="Artwork NFT Detail"
+                                data-tip="Artwork NFT"
                                 className="icon-wrapper rounded-circle opacity-7 m-2 font-icon-wrapper">
                                 <i className="lnr-picture icon-gradient bg-plum-plate fsize-4"/>
                                 <ArtworkDetails
@@ -101,6 +101,7 @@ export default class HistoryBox extends React.Component {
                                     tokenName={this.props.box.tokenName}
                                     tokenDescription={this.props.box.tokenDescription}
                                     artHash={this.props.box.artHash}
+                                    artworkUrl={this.props.box.artworkUrl}
                                 />
                             </span>}
                         </div>

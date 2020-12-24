@@ -64,12 +64,14 @@ export async function decodeBox(box, height) {
 
     await getIssuingBox(box.assets[0].tokenId)
         .then((res) => {
-            if(Object.keys(res[0].additionalRegisters).length === 5) {
+            if(Object.keys(res[0].additionalRegisters).length >= 5) {
                 box.isArtwork = true
                 box.artHash = res[0].additionalRegisters.R8
                 box.artCode = res[0].additionalRegisters.R7
                 box.tokenName = res[0].additionalRegisters.R4
                 box.tokenDescription = res[0].additionalRegisters.R5
+                if (Object.keys(res[0].additionalRegisters).length === 6)
+                    box.artworkUrl = res[0].additionalRegisters.R9
             }
         })
         .catch(err => {
@@ -84,11 +86,14 @@ export async function decodeBox(box, height) {
                 box.artHash = await decodeString(box.artHash)
                 box.tokenName = await decodeStr(box.tokenName)
                 box.tokenDescription = await decodeStr(box.tokenDescription)
+                if (box.artworkUrl)
+                    box.artworkUrl = await decodeStr(box.artworkUrl)
             }
         } catch (e) {
             box.isArtwork = false
         }
     }
+    console.log(box)
 
     return await box
 }
