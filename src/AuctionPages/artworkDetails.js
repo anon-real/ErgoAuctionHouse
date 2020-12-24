@@ -55,6 +55,20 @@ export default class ArtworkDetails extends React.Component {
                                 </Clipboard>{' '}
                             </Col>
                         </Row>
+
+                        <div className="divider text-muted bg-premium-dark opacity-1"/>
+                        <div style={{overflow: 'auto', display: 'flex',  justifyContent:'center', alignItems:'center'}}>
+                            {this.props.artworkUrl && <img
+                                style={{overflow: 'auto'}}
+                                src={this.props.artworkUrl}
+                                alt="new"
+                            />}
+                            {!this.props.artworkUrl && <p>
+                                No artwork image detected, see the Artwork Description above for more details.
+                            </p>}
+
+
+                        </div>
                     </Container>
                 </ModalBody>
             </Modal>
