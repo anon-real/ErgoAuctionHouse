@@ -1,7 +1,7 @@
 import React from 'react';
-import {Button, Container, Modal, ModalBody, ModalHeader} from 'reactstrap';
+import {Button, Container, Modal, ModalBody, ModalHeader, UncontrolledCarousel} from 'reactstrap';
 import {friendlyAddress, friendlyToken, getMyBids, getTxUrl, showMsg} from '../auction/helpers';
-import {Col, Row} from "react-bootstrap";
+import {Carousel, Col, Row} from "react-bootstrap";
 import Clipboard from "react-clipboard.js";
 import {auctionFee} from "../auction/explorer";
 
@@ -58,11 +58,14 @@ export default class ArtworkDetails extends React.Component {
 
                         <div className="divider text-muted bg-premium-dark opacity-1"/>
                         <div style={{overflow: 'auto', display: 'flex',  justifyContent:'center', alignItems:'center'}}>
-                            {this.props.artworkUrl && <img
-                                style={{overflow: 'auto'}}
-                                src={this.props.artworkUrl}
-                                alt="new"
-                            />}
+                            {this.props.artworkUrl && <Carousel>
+                                <Carousel.Item>
+                                    <img
+                                        className="d-block w-100"
+                                        src={this.props.artworkUrl}
+                                    />
+                                </Carousel.Item>
+                            </Carousel>}
                             {!this.props.artworkUrl && <p>
                                 No artwork image detected, see the Artwork Description above for more details.
                             </p>}
