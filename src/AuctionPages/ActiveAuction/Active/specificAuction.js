@@ -1,8 +1,8 @@
 import React, {Fragment, useRef} from 'react';
 
 import {
-    auctionFee,
-    currentHeight,
+    auctionFee, boxById,
+    currentHeight, followAuction,
     getAllActiveAuctions,
 } from '../../../auction/explorer';
 import {
@@ -49,18 +49,19 @@ import {
     isFloat,
     isNatural,
 } from '../../../auction/serializer';
-import {assembleFinishedAuctions} from '../../../auction/assembler';
+import {assembleFinishedAuctions, follow} from '../../../auction/assembler';
 import NewAuction from "./newAuction";
 import NewAuctionAssembler from "./newAuctionAssembler";
 import PlaceBidModal from "./placeBid";
 import ShowAuctions from "./showActives";
+import ShowHistories from "../../AuctionHistory/History/showHistories";
 
 const override = css`
     display: block;
     margin: 0 auto;
 `;
 
-export default class ActiveAuctions extends React.Component {
+export default class SpecificAuctions extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -71,6 +72,10 @@ export default class ActiveAuctions extends React.Component {
     }
 
     componentDidMount() {
+        let parts = window.location.href.split('/')
+        while (!parts[parts.length - 1]) parts.pop()
+        this.setState({boxId: parts[parts.length - 1]})
+
         this.refreshInfo(true, true);
         this.refreshTimer = setInterval(this.refreshInfo, 5000);
     }
@@ -90,17 +95,15 @@ export default class ActiveAuctions extends React.Component {
         currentHeight()
             .then((height) => {
                 this.setState({currentHeight: height});
-                getAllActiveAuctions()
+                followAuction(this.state.boxId)
+                    .then(res => [res])
                     .then((boxes) => {
                         decodeBoxes(boxes, height)
                             .then((boxes) => {
-                                console.log(boxes)
                                 this.setState({
                                     auctions: boxes,
                                     loading: false,
                                 });
-                                withdrawFinishedAuctions(boxes);
-                                if (firstTime) assembleFinishedAuctions(boxes);
                             })
                             .finally(() => {
                                 this.setState({loading: false});
@@ -124,6 +127,15 @@ export default class ActiveAuctions extends React.Component {
     }
 
     render() {
+        function getBoxDis(auctions) {
+            if (auctions && auctions[0].spentTransactionId)
+                return <ShowHistories
+                    boxes={auctions}
+                />
+            else return <ShowAuctions
+                auctions={auctions}
+            />
+        }
         return (
             <Fragment>
                 <div className="app-page-title">
@@ -137,16 +149,7 @@ export default class ActiveAuctions extends React.Component {
                                 <i className="pe-7s-volume2 icon-gradient bg-night-fade"/>
                             </div>
                             <div>
-                                Active Auctions
-                                <div
-                                    className={cx('page-title-subheading', {
-                                        'd-none': false,
-                                    })}
-                                >
-                                    Here you can see current active auctions.
-                                    Last updated {this.state.lastUpdated}{' '}
-                                    seconds ago.
-                                </div>
+                                Auction Details
                             </div>
                         </div>
                         <div className="page-title-actions">
@@ -179,9 +182,7 @@ export default class ActiveAuctions extends React.Component {
                         />
                     </div>
                 ) : (
-                    <ShowAuctions
-                        auctions={this.state.auctions}
-                    />
+                    getBoxDis(this.state.auctions)
                 )}
             </Fragment>
         );

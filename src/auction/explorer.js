@@ -109,6 +109,17 @@ export function boxById(id) {
     return getRequest(`/transactions/boxes/${id}`).then((res) => res.data);
 }
 
+export async function followAuction(id) {
+    let cur = await getRequest(`/transactions/boxes/${id}`).then((res) => res.data);
+    while (cur.spentTransactionId) {
+        let new_cur = (await txById(cur.spentTransactionId)).outputs[0]
+        if (allAuctionTrees.includes(new_cur.ergoTree))
+            cur = new_cur
+        else break
+    }
+    return cur
+}
+
 export function txById(id) {
     return getRequest(`/transactions/${id}`).then((res) => res.data);
 }

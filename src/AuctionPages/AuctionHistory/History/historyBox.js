@@ -1,6 +1,6 @@
 import React from 'react';
-import { Button, CardFooter, Col, Progress } from 'reactstrap';
 import {
+    copyToClipboard,
     friendlyAddress,
     friendlyToken,
     getAddrUrl,
@@ -12,12 +12,25 @@ import { ResponsiveContainer } from 'recharts';
 import SyncLoader from 'react-spinners/SyncLoader';
 import ReactTooltip from 'react-tooltip';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faAngleUp } from '@fortawesome/free-solid-svg-icons';
+import {faAngleUp, faEllipsisH, faEllipsisV} from '@fortawesome/free-solid-svg-icons';
 import { css } from '@emotion/core';
 import { getSpendingTx } from '../../../auction/explorer';
 import MyBidsModal from "../../ActiveAuction/Active/myBids";
 import BidHistory from "../../ActiveAuction/Active/bidHistory";
 import ArtworkDetails from "../../artworkDetails";
+
+import {
+    CardFooter,
+    Row, Col,
+    Button,
+    UncontrolledButtonDropdown,
+    DropdownToggle,
+    DropdownMenu,
+    Nav,
+    NavItem,
+    NavLink,
+    Progress, NavbarToggler
+} from 'reactstrap';
 
 const override = css`
     display: block;
@@ -75,6 +88,26 @@ export default class HistoryBox extends React.Component {
                 />
                 <BidHistory close={this.openDetails} box={this.props.box} isOpen={this.state.detailsModal} />
                 <div className="card mb-3 widget-chart">
+                    <div className="widget-chart-actions">
+                        <UncontrolledButtonDropdown direction='left'>
+                            <DropdownToggle color="link">
+                                <FontAwesomeIcon icon={faEllipsisV}/>
+                            </DropdownToggle>
+                            <DropdownMenu className="dropdown-menu-md-left">
+                                <Nav vertical>
+                                    <NavItem className="nav-item-header">
+                                        General
+                                    </NavItem>
+                                    <NavItem>
+                                        <NavLink
+                                            href={'#/auction/specific/' + this.props.box.id}
+                                        >Go to Auction's specific Link</NavLink>
+                                    </NavItem>
+                                </Nav>
+                            </DropdownMenu>
+                        </UncontrolledButtonDropdown>
+                    </div>
+
                     <div className="widget-chart-content">
                         <ResponsiveContainer height={20}>
                             <SyncLoader

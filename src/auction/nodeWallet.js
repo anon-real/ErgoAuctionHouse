@@ -297,7 +297,6 @@ export async function withdrawFinishedAuctions(boxes) {
                 return generateTx(request)
                     .then((res) => {
                         console.log(`Withdrawing finished auction`);
-                        console.log(res);
                         let tx = Transaction.formObject(res);
                         sendTx(tx);
                     })

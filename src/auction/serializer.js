@@ -93,7 +93,6 @@ export async function decodeBox(box, height) {
             box.isArtwork = false
         }
     }
-    console.log(box)
 
     return await box
 }

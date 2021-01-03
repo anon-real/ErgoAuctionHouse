@@ -40,7 +40,6 @@ export async function p2s(request) {
     return await post(getUrl(url) + '/compile', request).then((res) =>
         res.json()
     ).then(res => {
-        console.log(res)
         if (res.success === false) throw new Error()
         return res
     });

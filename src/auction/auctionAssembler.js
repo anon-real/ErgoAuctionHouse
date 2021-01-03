@@ -90,7 +90,6 @@ export async function registerAuction(
     };
     return await follow(request)
         .then((res) => {
-            console.log(res)
             if (res.id !== undefined) {
                 let bid = {
                     id: res.id,
@@ -105,7 +104,6 @@ export async function registerAuction(
                         isFirst: true,
                     },
                 };
-                console.log(bid)
                 addAssemblerBid(bid);
             }
             return res;
