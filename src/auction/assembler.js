@@ -126,7 +126,6 @@ export async function assembleFinishedAuctions(boxes) {
                     res.json()
                 }).then(res => {
                     console.log(`Withdrawing finished auction`);
-                    console.log(res)
                 })
 
         });

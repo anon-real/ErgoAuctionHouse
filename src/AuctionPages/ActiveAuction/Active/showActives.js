@@ -71,10 +71,7 @@ export default class ShowAuctions extends React.Component {
             currentHeight: 0,
             myBids: false,
         };
-        this.toggleModal = this.toggleModal.bind(this);
-        this.openAuction = this.openAuction.bind(this);
         this.closeMyBids = this.closeMyBids.bind(this);
-        this.toggleAssemblerModal = this.toggleAssemblerModal.bind(this);
     }
 
     componentDidMount() {
@@ -89,44 +86,6 @@ export default class ShowAuctions extends React.Component {
 
     closeMyBids() {
         this.setState(this.setState({myBids: false}));
-    }
-
-    openAuction() {
-        if (!isWalletSaved()) {
-            showMsg(
-                'In order to create a new auction, configure a wallet first.',
-                true
-            );
-        } else {
-            this.toggleModal();
-        }
-    }
-
-    toggleModal() {
-        if (isWalletNode()) {
-            this.setState({
-                modal: !this.state.modal,
-            });
-        } else {
-            this.setState({
-                modalAssembler: !this.state.modalAssembler,
-            });
-        }
-    }
-
-    toggle() {
-        this.setState({
-            tooltip: !this.state.tooltip,
-        });
-    }
-
-    toggleAssemblerModal(address = '', bid = 0, isAuction = false) {
-        this.setState({
-            assemblerModal: !this.state.assemblerModal,
-            bidAddress: address,
-            bidAmount: bid,
-            isAuction: isAuction
-        });
     }
 
     render() {
@@ -213,17 +172,6 @@ export default class ShowAuctions extends React.Component {
                         </Button>
                     </ModalFooter>
                 </Modal>
-
-                <NewAuction
-                    isOpen={this.state.modal}
-                    close={this.toggleModal}
-                />
-
-                <NewAuctionAssembler
-                    isOpen={this.state.modalAssembler}
-                    close={this.toggleModal}
-                    assemblerModal={this.toggleAssemblerModal}
-                />
 
                 {!this.state.loading && this.state.auctions.length === 0 && (
                     <strong

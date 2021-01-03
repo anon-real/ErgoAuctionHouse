@@ -53,7 +53,7 @@ export function showStickyMsg(message, isError = false) {
 }
 
 export function isWalletSaved() {
-    return sessionStorage.getItem('wallet') !== null;
+    return sessionStorage.getItem('wallet') !== null || localStorage.getItem('wallet') !== null;
 }
 
 export function isWalletNode() {
@@ -65,10 +65,13 @@ export function isAssembler() {
 }
 
 export function getWalletAddress() {
+    if (isAssembler()) return JSON.parse(localStorage.getItem('wallet')).address
     return JSON.parse(sessionStorage.getItem('wallet')).address
 }
 
 export function getWalletType() {
+    if (localStorage.getItem('wallet') !== null)
+        return JSON.parse(localStorage.getItem('wallet')).type
     return JSON.parse(sessionStorage.getItem('wallet')).type
 }
 

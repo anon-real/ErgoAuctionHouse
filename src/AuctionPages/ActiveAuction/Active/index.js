@@ -68,7 +68,44 @@ export default class ActiveAuctions extends React.Component {
             auctions: [],
         };
         this.refreshInfo = this.refreshInfo.bind(this);
+        this.openAuction = this.openAuction.bind(this);
+        this.toggleModal = this.toggleModal.bind(this);
+        this.toggleAssemblerModal = this.toggleAssemblerModal.bind(this);
     }
+
+    toggleModal() {
+        if (isWalletNode()) {
+            this.setState({
+                modal: !this.state.modal,
+            });
+        } else {
+            this.setState({
+                modalAssembler: !this.state.modalAssembler,
+            });
+        }
+    }
+
+    toggleAssemblerModal(address = '', bid = 0, isAuction = false) {
+        this.setState({
+            assemblerModal: !this.state.assemblerModal,
+            bidAddress: address,
+            bidAmount: bid,
+            isAuction: isAuction
+        });
+    }
+
+    openAuction() {
+        if (!isWalletSaved()) {
+            showMsg(
+                'In order to create a new auction, configure a wallet first.',
+                true
+            );
+        } else {
+            this.toggleModal();
+        }
+    }
+
+
 
     componentDidMount() {
         this.refreshInfo(true, true);
@@ -126,6 +163,17 @@ export default class ActiveAuctions extends React.Component {
     render() {
         return (
             <Fragment>
+                <NewAuction
+                    isOpen={this.state.modal}
+                    close={this.toggleModal}
+                />
+
+                <NewAuctionAssembler
+                    isOpen={this.state.modalAssembler}
+                    close={this.toggleModal}
+                    assemblerModal={this.toggleAssemblerModal}
+                />
+
                 <div className="app-page-title">
                     <div className="page-title-wrapper">
                         <div className="page-title-heading">
