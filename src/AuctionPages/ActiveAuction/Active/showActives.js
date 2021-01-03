@@ -53,6 +53,7 @@ import {assembleFinishedAuctions} from '../../../auction/assembler';
 import NewAuction from "./newAuction";
 import NewAuctionAssembler from "./newAuctionAssembler";
 import PlaceBidModal from "./placeBid";
+import SendModal from "./sendModal";
 
 const override = css`
     display: block;
@@ -72,6 +73,7 @@ export default class ShowAuctions extends React.Component {
             myBids: false,
         };
         this.closeMyBids = this.closeMyBids.bind(this);
+        this.toggleAssemblerModal = this.toggleAssemblerModal.bind(this);
     }
 
     componentDidMount() {
@@ -88,6 +90,15 @@ export default class ShowAuctions extends React.Component {
         this.setState(this.setState({myBids: false}));
     }
 
+    toggleAssemblerModal(address = '', bid = 0, isAuction = false) {
+        this.setState({
+            assemblerModal: !this.state.assemblerModal,
+            bidAddress: address,
+            bidAmount: bid,
+            isAuction: isAuction
+        });
+    }
+
     render() {
         const listItems = this.state.auctions.map((box) => {
             return (
@@ -99,79 +110,13 @@ export default class ShowAuctions extends React.Component {
         });
         return (
             <Fragment>
-                <Modal
+                <SendModal
                     isOpen={this.state.assemblerModal}
-                    backdrop="static"
-                    toggle={this.toggleAssemblerModal}
-                    className={this.props.className}
-                >
-                    <ModalHeader>
-                        <span className="fsize-1 text-muted">
-                            Click on the amount and the address to copy them!
-                        </span>
-                    </ModalHeader>
-                    <ModalBody>
-                        <Container>
-                            <p>
-                                Send{' '}
-                                <Clipboard
-                                    component="b"
-                                    data-clipboard-text={
-                                        (this.state.bidAmount + auctionFee) /
-                                        1e9
-                                    }
-                                    onSuccess={() => showMsg('Copied!')}
-                                >
-                                    exactly{' '}
-                                    {(this.state.bidAmount + auctionFee) / 1e9}{' '}
-                                    erg
-                                </Clipboard>{' '}
-                                {this.state.isAuction && <span>and the <b>token</b> you want to auction</span>}{' '}
-                                to{' '}
-                                <Clipboard
-                                    component="b"
-                                    data-clipboard-text={this.state.bidAddress}
-                                    onSuccess={() => showMsg('Copied!')}
-                                >
-                                    {friendlyAddress(this.state.bidAddress)}
-                                </Clipboard>
-                                <b
-                                    onClick={() =>
-                                        this.copyToClipboard(
-                                            this.state.bidAddress
-                                        )
-                                    }
-                                ></b>
-                                {!this.state.isAuction ?
-                                    <p>
-                                        You have a limited time to do that, your bid will be placed automatically
-                                        afterward.
-                                    </p> : <p>
-                                        You have a limited time to do that, your auction will be started automatically
-                                        afterward.
-                                    </p>}
-                            </p>
-                            <p>
-                                Your funds will be safe, find out more about how{' '}
-                                <a
-                                    target="_blank"
-                                    href="https://www.ergoforum.org/t/some-details-about-ergo-auction-house/428/6"
-                                >
-                                    here.
-                                </a>
-                            </p>
-                        </Container>
-                    </ModalBody>
-                    <ModalFooter>
-                        <Button
-                            className="ml-3 mr-3 btn-transition"
-                            color="secondary"
-                            onClick={this.toggleAssemblerModal}
-                        >
-                            OK
-                        </Button>
-                    </ModalFooter>
-                </Modal>
+                    close={this.toggleAssemblerModal}
+                    bidAmount={this.state.bidAmount}
+                    isAuction={this.state.isAuction}
+                    bidAddress={this.state.bidAddress}
+                />
 
                 {!this.state.loading && this.state.auctions.length === 0 && (
                     <strong

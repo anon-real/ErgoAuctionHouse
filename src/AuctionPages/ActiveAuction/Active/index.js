@@ -54,6 +54,7 @@ import NewAuction from "./newAuction";
 import NewAuctionAssembler from "./newAuctionAssembler";
 import PlaceBidModal from "./placeBid";
 import ShowAuctions from "./showActives";
+import SendModal from "./sendModal";
 
 const override = css`
     display: block;
@@ -172,6 +173,14 @@ export default class ActiveAuctions extends React.Component {
                     isOpen={this.state.modalAssembler}
                     close={this.toggleModal}
                     assemblerModal={this.toggleAssemblerModal}
+                />
+
+                <SendModal
+                    isOpen={this.state.assemblerModal}
+                    close={this.toggleAssemblerModal}
+                    bidAmount={this.state.bidAmount}
+                    isAuction={this.props.isAuction}
+                    bidAddress={this.state.bidAddress}
                 />
 
                 <div className="app-page-title">
