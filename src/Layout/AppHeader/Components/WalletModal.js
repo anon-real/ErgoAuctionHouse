@@ -46,7 +46,6 @@ class WalletModal extends React.Component {
         if (isWalletSaved()) walletState = 'Update';
         let userAddress = ''
         if (isAssembler()) userAddress = getWalletAddress()
-        console.log('ass', isAssembler())
         this.state = {
             modal: false,
             activeTab: type,
