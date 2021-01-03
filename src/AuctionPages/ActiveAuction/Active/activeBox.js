@@ -1,5 +1,14 @@
 import React from 'react';
-import {Button, CardFooter, Col, Progress} from 'reactstrap';
+import {
+    Button,
+    CardFooter,
+    Col,
+    DropdownMenu,
+    DropdownToggle,
+    Nav, NavItem, NavLink,
+    Progress,
+    UncontrolledButtonDropdown
+} from 'reactstrap';
 import {
     friendlyAddress,
     friendlyToken,
@@ -12,7 +21,7 @@ import {ResponsiveContainer} from 'recharts';
 import SyncLoader from 'react-spinners/SyncLoader';
 import ReactTooltip from 'react-tooltip';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faAngleUp} from '@fortawesome/free-solid-svg-icons';
+import {faAngleUp, faEllipsisV} from '@fortawesome/free-solid-svg-icons';
 import {css} from '@emotion/core';
 import {auctionWithExtensionTree, getSpendingTx} from '../../../auction/explorer';
 import PlaceBidModal from './placeBid';
@@ -102,6 +111,26 @@ export default class ActiveBox extends React.Component {
                 />
                 <BidHistory close={this.openDetails} box={this.props.box} isOpen={this.state.detailsModal}/>
                 <div className="card mb-3 widget-chart">
+                    <div className="widget-chart-actions">
+                        <UncontrolledButtonDropdown direction='left'>
+                            <DropdownToggle color="link">
+                                <FontAwesomeIcon icon={faEllipsisV}/>
+                            </DropdownToggle>
+                            <DropdownMenu className="dropdown-menu-md-left">
+                                <Nav vertical>
+                                    <NavItem className="nav-item-header">
+                                        General
+                                    </NavItem>
+                                    <NavItem>
+                                        <NavLink
+                                            href={'#/auction/specific/' + this.props.box.id}
+                                        >Go to Auction's specific Link</NavLink>
+                                    </NavItem>
+                                </Nav>
+                            </DropdownMenu>
+                        </UncontrolledButtonDropdown>
+                    </div>
+
                     <div className="widget-chart-content">
                         <ResponsiveContainer height={20}>
                             <SyncLoader

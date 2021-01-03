@@ -14,6 +14,7 @@ import {decodeBox} from '../../../auction/serializer';
 import { Row } from 'react-bootstrap';
 import { Button } from 'reactstrap';
 import { ResponsiveContainer } from 'recharts';
+import ShowHistories from "./showHistories";
 
 const pagination = 100;
 
@@ -106,12 +107,9 @@ export default class AuctionsHistory extends React.Component {
                     </strong>
                 )}
 
-                <Row>
-                    {this.state.boxes.map((box) => {
-                        return <HistoryBox box={box} />;
-                    })}
-                </Row>
-
+                <ShowHistories
+                    boxes={this.state.boxes}
+                />
                 <ResponsiveContainer height={70}>
                     <div
                         style={{
