@@ -2,7 +2,14 @@ import React from 'react';
 import yoroiWallet from '../../../assets/images/yoroi-logo-shape-blue.inline.svg';
 import nodeWallet from '../../../assets/images/symbol_bold__1080px__black.svg';
 import { getAddress, getInfo } from '../../../auction/nodeWallet';
-import {isAddressValid, isWalletNode, showMsg} from '../../../auction/helpers';
+import {
+    getWalletAddress,
+    isAddressValid,
+    isAssembler,
+    isWalletNode,
+    isWalletSaved,
+    showMsg
+} from '../../../auction/helpers';
 
 import {
     Button,
@@ -36,11 +43,14 @@ class WalletModal extends React.Component {
         let type = 'assembler'
         if (isWalletNode()) type = 'node'
         let walletState = 'Configure';
-        if (sessionStorage.getItem('wallet') != null) walletState = 'Update';
+        if (isWalletSaved()) walletState = 'Update';
+        let userAddress = ''
+        if (isAssembler()) userAddress = getWalletAddress()
+        console.log('ass', isAssembler())
         this.state = {
             modal: false,
             activeTab: type,
-            userAddress: '',
+            userAddress: userAddress,
             processing: false,
             nodeUrl: '',
             apiKey: '',
@@ -81,7 +91,8 @@ class WalletModal extends React.Component {
             processing: true,
         });
         if (this.state.activeTab === 'assembler') {
-            sessionStorage.setItem(
+            this.clearWallet(false)
+            localStorage.setItem(
                 'wallet',
                 JSON.stringify({
                     type: this.state.activeTab,
@@ -104,7 +115,7 @@ class WalletModal extends React.Component {
                             );
                             return;
                         }
-                        showMsg('Successfully configured the wallet.');
+                        this.clearWallet(false)
                         sessionStorage.setItem(
                             'wallet',
                             JSON.stringify({
@@ -116,6 +127,7 @@ class WalletModal extends React.Component {
                         );
                         this.setState({ walletState: 'Update' });
                         this.toggle();
+                        showMsg('Successfully configured the wallet.');
                     })
                     .catch((res) => {
                         showMsg('Wrong API key.', true);
@@ -134,11 +146,14 @@ class WalletModal extends React.Component {
             });
     }
 
-    clearWallet() {
+    clearWallet(showMsg=true) {
         sessionStorage.removeItem('wallet');
+        localStorage.removeItem('wallet');
         this.setState({ walletState: 'Configure' });
-        showMsg('Successfully cleared wallet info from local storage.');
-        this.toggle();
+        if (showMsg) {
+            showMsg('Successfully cleared wallet info from local storage.');
+            this.toggle();
+        }
     }
 
     render() {
