@@ -124,7 +124,7 @@ export default class ActiveBox extends React.Component {
                                     <NavItem>
                                         <NavLink
                                             href={'#/auction/specific/' + this.props.box.id}
-                                        >Go to Auction's specific Link</NavLink>
+                                        >Go to Auction's Specific Link</NavLink>
                                     </NavItem>
                                 </Nav>
                             </DropdownMenu>
