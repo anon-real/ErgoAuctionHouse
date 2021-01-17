@@ -98,7 +98,9 @@ export async function decodeBox(box, height) {
 }
 
 export async function decodeBoxes(boxes, height) {
-    return Promise.all(boxes.map((box) => decodeBox(box, height)))
+    let cur = await Promise.all(boxes.map((box) => decodeBox(box, height)))
+    cur.sort((a, b) => a.remBlock - b.remBlock)
+    return cur
 }
 
 export function ergToNano(erg) {

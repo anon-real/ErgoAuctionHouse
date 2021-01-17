@@ -1,4 +1,5 @@
 import React, {Fragment, useRef} from 'react';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 
 import {
     auctionFee,
@@ -18,7 +19,7 @@ import SyncLoader from 'react-spinners/SyncLoader';
 import {
     Button,
     Col,
-    Container,
+    Container, DropdownItem, DropdownMenu, DropdownToggle,
     Form,
     FormFeedback,
     FormGroup,
@@ -32,7 +33,7 @@ import {
     ModalBody,
     ModalFooter,
     ModalHeader,
-    Row,
+    Row, UncontrolledButtonDropdown,
 } from 'reactstrap';
 import cx from 'classnames';
 import TitleComponent2 from '../../../Layout/AppMain/PageTitleExamples/Variation2';
@@ -55,11 +56,19 @@ import NewAuctionAssembler from "./newAuctionAssembler";
 import PlaceBidModal from "./placeBid";
 import ShowAuctions from "./showActives";
 import SendModal from "./sendModal";
+import {faDollarSign} from "@fortawesome/free-solid-svg-icons";
 
 const override = css`
-    display: block;
-    margin: 0 auto;
+  display: block;
+  margin: 0 auto;
 `;
+
+const sortKeyToVal = {
+    '0': 'Lowest remaining time',
+    '1': 'Highest remaining time',
+    '2': 'Highest price',
+    '3': 'Lowest price',
+}
 
 export default class ActiveAuctions extends React.Component {
     constructor(props) {
@@ -67,10 +76,12 @@ export default class ActiveAuctions extends React.Component {
         this.state = {
             loading: true,
             auctions: [],
+            sortKey: '0'
         };
         this.refreshInfo = this.refreshInfo.bind(this);
         this.openAuction = this.openAuction.bind(this);
         this.toggleModal = this.toggleModal.bind(this);
+        this.sortAuctions = this.sortAuctions.bind(this);
         this.toggleAssemblerModal = this.toggleAssemblerModal.bind(this);
     }
 
@@ -106,8 +117,6 @@ export default class ActiveAuctions extends React.Component {
         }
     }
 
-
-
     componentDidMount() {
         this.refreshInfo(true, true);
         this.refreshTimer = setInterval(this.refreshInfo, 5000);
@@ -117,6 +126,18 @@ export default class ActiveAuctions extends React.Component {
         if (this.refreshTimer !== undefined) {
             clearInterval(this.refreshTimer);
         }
+    }
+
+    sortAuctions(auctions, key) {
+        if (key === '0')
+            auctions.sort((a, b) => a.remBlock - b.remBlock)
+        else if (key === '1')
+            auctions.sort((a, b) => b.remBlock - a.remBlock)
+        else if (key === '2')
+            auctions.sort((a, b) => b.value - a.value)
+        else if (key === '3')
+            auctions.sort((a, b) => a.value - b.value)
+        this.setState({auctions: auctions, sortKey: key})
     }
 
     refreshInfo(force = false, firstTime = false) {
@@ -134,9 +155,9 @@ export default class ActiveAuctions extends React.Component {
                             .then((boxes) => {
                                 console.log(boxes)
                                 this.setState({
-                                    auctions: boxes,
                                     loading: false,
                                 });
+                                this.sortAuctions(boxes, this.state.sortKey)
                                 withdrawFinishedAuctions(boxes);
                                 if (firstTime) assembleFinishedAuctions(boxes);
                             })
@@ -209,15 +230,40 @@ export default class ActiveAuctions extends React.Component {
                         <div className="page-title-actions">
                             <TitleComponent2/>
                         </div>
-                        <Button
-                            onClick={this.openAuction}
-                            outline
-                            className="btn-outline-lin m-2 border-0"
-                            color="primary"
-                        >
-                            <i className="nav-link-icon lnr-plus-circle"> </i>
-                            <span>New Auction</span>
-                        </Button>
+                        <Container>
+                            <Row>
+                                <Col md='8'/>
+                                <Col md='4' className='text-right'>
+                                    <Button
+                                        onClick={this.openAuction}
+                                        outline
+                                        className="btn-outline-lin m-2 border-0"
+                                        color="primary"
+                                    >
+                                        <i className="nav-link-icon lnr-plus-circle"> </i>
+                                        <span>New Auction</span>
+                                    </Button>
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col md='8'/>
+                                <Col md='4' className='text-right'>
+                                    <UncontrolledButtonDropdown>
+                                        <DropdownToggle caret outline className="mb-2 mr-2 border-0" color="primary">
+                                            <i className="nav-link-icon lnr-sort-amount-asc"> </i>
+                                            {sortKeyToVal[this.state.sortKey]}
+                                        </DropdownToggle>
+                                        <DropdownMenu>
+                                            {Object.keys(sortKeyToVal).map(sortKey => <DropdownItem
+                                                onClick={() => {
+                                                    this.sortAuctions([].concat(this.state.auctions), sortKey)
+                                                }}>{sortKeyToVal[sortKey]}</DropdownItem>)}
+                                        </DropdownMenu>
+                                    </UncontrolledButtonDropdown>
+                                </Col>
+                            </Row>
+                        </Container>
+
                     </div>
                 </div>
                 {this.state.loading ? (
