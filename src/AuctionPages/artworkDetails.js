@@ -57,15 +57,13 @@ export default class ArtworkDetails extends React.Component {
                         </Row>
 
                         <div className="divider text-muted bg-premium-dark opacity-1"/>
-                        <div style={{overflow: 'auto', display: 'flex',  justifyContent:'center', alignItems:'center'}}>
-                            {this.props.artworkUrl && <Carousel>
-                                <Carousel.Item>
-                                    <img
-                                        className="d-block w-100"
-                                        src={this.props.artworkUrl}
-                                    />
-                                </Carousel.Item>
-                            </Carousel>}
+                        <div
+                            style={{overflow: 'auto', display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
+                            {this.props.artworkUrl && <img
+                                className="d-block w-100"
+                                src={this.props.artworkUrl}
+                            />
+                            }
                             {!this.props.artworkUrl && <p>
                                 No artwork image detected, see the Artwork Description above for more details.
                             </p>}
