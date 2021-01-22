@@ -68,6 +68,7 @@ const sortKeyToVal = {
     '1': 'Highest remaining time',
     '2': 'Highest price',
     '3': 'Lowest price',
+    '4': 'Latest bids',
 }
 
 export default class ActiveAuctions extends React.Component {
@@ -137,6 +138,8 @@ export default class ActiveAuctions extends React.Component {
             auctions.sort((a, b) => b.value - a.value)
         else if (key === '3')
             auctions.sort((a, b) => a.value - b.value)
+        else if (key === '4')
+            auctions.sort((a, b) => b.creationHeight - a.creationHeight)
         this.setState({auctions: auctions, sortKey: key})
     }
 
