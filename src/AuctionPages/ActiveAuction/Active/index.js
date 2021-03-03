@@ -57,6 +57,7 @@ import PlaceBidModal from "./placeBid";
 import ShowAuctions from "./showActives";
 import SendModal from "./sendModal";
 import {faDollarSign} from "@fortawesome/free-solid-svg-icons";
+import {ResponsiveContainer} from "recharts";
 
 const override = css`
   display: block;
@@ -69,6 +70,8 @@ const sortKeyToVal = {
     '2': 'Highest price',
     '3': 'Lowest price',
     '4': 'Latest bids',
+    '5': 'Me As Seller First',
+    '6': 'Me As Bidder First',
 }
 
 export default class ActiveAuctions extends React.Component {
@@ -77,7 +80,8 @@ export default class ActiveAuctions extends React.Component {
         this.state = {
             loading: true,
             auctions: [],
-            sortKey: '0'
+            sortKey: '0',
+            end: 18
         };
         this.refreshInfo = this.refreshInfo.bind(this);
         this.openAuction = this.openAuction.bind(this);
@@ -140,6 +144,10 @@ export default class ActiveAuctions extends React.Component {
             auctions.sort((a, b) => a.value - b.value)
         else if (key === '4')
             auctions.sort((a, b) => b.creationHeight - a.creationHeight)
+        else if (key === '5' && isWalletSaved())
+            auctions.sort((a, b) => (b.seller === getWalletAddress()) - (a.seller === getWalletAddress()))
+        else if (key === '6' && isWalletSaved())
+            auctions.sort((a, b) => (b.bidder === getWalletAddress()) - (a.bidder === getWalletAddress()))
         this.setState({auctions: auctions, sortKey: key})
     }
 
@@ -286,9 +294,33 @@ export default class ActiveAuctions extends React.Component {
                     </div>
                 ) : (
                     <ShowAuctions
-                        auctions={this.state.auctions}
+                        auctions={this.state.auctions.slice(0, this.state.end)}
                     />
                 )}
+                <div
+                    style={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                    }}
+                >
+                    <Row>
+                        <Button
+                            onClick={() => this.setState({end: this.state.end + 18})}
+                            outline
+                            className="btn-outline-light bold m-2 border-0"
+                            color="primary"
+                        >
+                            {!this.state.loading && this.state.auctions.length >= this.state.end && (
+                                <span>
+                                        <i className="nav-link-icon lnr-plus-circle">
+                                            {' '}
+                                        </i>
+                                        Load More
+                                    </span>
+                            )}
+                        </Button>
+                    </Row>
+                </div>
             </Fragment>
         );
     }

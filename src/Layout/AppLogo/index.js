@@ -16,7 +16,12 @@ class HeaderLogo extends React.Component {
             mobile: false,
             activeSecondaryMenuMobile: false
         };
+    }
 
+    componentDidMount() {
+        this.props.setEnableMobileMenu(true)
+        this.props.setEnableMobileMenuSmall(true)
+        this.props.setEnableClosedSidebar(true)
     }
 
     toggleEnableClosedSidebar = () => {

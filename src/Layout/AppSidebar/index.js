@@ -14,6 +14,13 @@ import {setEnableMobileMenu} from '../../reducers/ThemeOptions';
 class AppSidebar extends Component {
 
     state = {};
+    constructor(props) {
+        super(props);
+    }
+
+    componentDidMount() {
+        this.props.setEnableMobileMenu(true)
+    }
 
     toggleMobileSidebar = () => {
         let {enableMobileMenu, setEnableMobileMenu} = this.props;
