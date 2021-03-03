@@ -5,30 +5,36 @@ import {
     Col,
     DropdownMenu,
     DropdownToggle,
-    Nav, NavItem, NavLink,
+    Nav,
+    NavItem,
+    NavLink,
     Progress,
-    UncontrolledButtonDropdown
+    UncontrolledButtonDropdown,
 } from 'reactstrap';
 import {
     friendlyAddress,
     friendlyToken,
     getAddrUrl,
-    getTxUrl, getWalletAddress,
+    getTxUrl,
+    getWalletAddress,
     isWalletSaved,
     showMsg,
 } from '../../../auction/helpers';
-import {ResponsiveContainer} from 'recharts';
+import { ResponsiveContainer } from 'recharts';
 import SyncLoader from 'react-spinners/SyncLoader';
 import ReactTooltip from 'react-tooltip';
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faAngleUp, faEllipsisV} from '@fortawesome/free-solid-svg-icons';
-import {css} from '@emotion/core';
-import {auctionWithExtensionTree, getSpendingTx} from '../../../auction/explorer';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faAngleUp, faEllipsisV } from '@fortawesome/free-solid-svg-icons';
+import { css } from '@emotion/core';
+import {
+    auctionWithExtensionTree,
+    getSpendingTx,
+} from '../../../auction/explorer';
 import PlaceBidModal from './placeBid';
 import MyBidsModal from './myBids';
 import BidHistory from './bidHistory';
-import {Row} from "react-bootstrap";
-import ArtworkDetails from "../../artworkDetails";
+import { Row } from 'react-bootstrap';
+import ArtworkDetails from '../../artworkDetails';
 
 const override = css`
     display: block;
@@ -49,12 +55,12 @@ export default class ActiveBox extends React.Component {
     }
 
     openDetails() {
-        this.setState({detailsModal: !this.state.detailsModal});
+        this.setState({ detailsModal: !this.state.detailsModal });
     }
 
     openBid() {
         if (this.state.bidModal) {
-            this.setState({bidModal: !this.state.bidModal});
+            this.setState({ bidModal: !this.state.bidModal });
             return;
         }
         if (!isWalletSaved()) {
@@ -64,16 +70,16 @@ export default class ActiveBox extends React.Component {
             );
         } else if (this.props.box.remBlock <= 0) {
             showMsg(
-                'This auction is finished! It is pending for withdrawal; If you configure your wallet, the app can use it to withdraw finished auctions.',
+                'This auction is finished! It is pending for withdrawal.',
                 true
             );
         } else {
-            this.setState({bidModal: !this.state.bidModal});
+            this.setState({ bidModal: !this.state.bidModal });
         }
     }
 
     openMyBids() {
-        this.setState({myBidsModal: !this.state.myBidsModal});
+        this.setState({ myBidsModal: !this.state.myBidsModal });
     }
 
     showIssuingTx(box) {
@@ -96,7 +102,7 @@ export default class ActiveBox extends React.Component {
     render() {
         let box = this.props.box;
         return (
-            <Col key={box.id} md="6">
+            <Col key={box.id} md="4">
                 <PlaceBidModal
                     isOpen={this.state.bidModal}
                     box={this.props.box}
@@ -109,12 +115,16 @@ export default class ActiveBox extends React.Component {
                     close={this.openMyBids}
                     highText="current active bid"
                 />
-                <BidHistory close={this.openDetails} box={this.props.box} isOpen={this.state.detailsModal}/>
+                <BidHistory
+                    close={this.openDetails}
+                    box={this.props.box}
+                    isOpen={this.state.detailsModal}
+                />
                 <div className="card mb-3 widget-chart">
                     <div className="widget-chart-actions">
-                        <UncontrolledButtonDropdown direction='left'>
+                        <UncontrolledButtonDropdown direction="left">
                             <DropdownToggle color="link">
-                                <FontAwesomeIcon icon={faEllipsisV}/>
+                                <FontAwesomeIcon icon={faEllipsisV} />
                             </DropdownToggle>
                             <DropdownMenu className="dropdown-menu-md-left">
                                 <Nav vertical>
@@ -123,8 +133,23 @@ export default class ActiveBox extends React.Component {
                                     </NavItem>
                                     <NavItem>
                                         <NavLink
-                                            href={'#/auction/specific/' + this.props.box.id}
-                                        >Go to Auction's Specific Link</NavLink>
+                                            href={
+                                                '#/auction/specific/' +
+                                                this.props.box.id
+                                            }
+                                        >
+                                            Link to Auction
+                                        </NavLink>
+                                        <NavLink
+                                            onClick={() => this.openMyBids()}
+                                        >
+                                            My Bids
+                                        </NavLink>
+                                        <NavLink
+                                            onClick={() => this.setState({detailsModal: true})}
+                                        >
+                                            Details
+                                        </NavLink>
                                     </NavItem>
                                 </Nav>
                             </DropdownMenu>
@@ -141,99 +166,114 @@ export default class ActiveBox extends React.Component {
                             />
                         </ResponsiveContainer>
 
-                        <div className="d-inline-flex">
-                            <span className="widget-numbers">
-                                {this.props.box.value / 1e9} ERG
-                            </span>
-                            {this.props.box.isArtwork && <span
-                                onClick={() => this.setState({artDetail: true})}
-                                data-tip="Artwork NFT"
-                                className="icon-wrapper rounded-circle opacity-7 m-2 font-icon-wrapper">
-                                <i className="lnr-picture icon-gradient bg-plum-plate fsize-4"/>
-                                <ArtworkDetails
-                                    isOpen={this.state.artDetail}
-                                    close={() => this.setState({artDetail: !this.state.artDetail})}
-                                    tokenId={this.props.box.assets[0].tokenId}
-                                    tokenName={this.props.box.tokenName}
-                                    tokenDescription={this.props.box.tokenDescription}
-                                    artHash={this.props.box.artHash}
-                                    artworkUrl={this.props.box.artworkUrl}
-                                />
-                            </span>}
+                        {/*<div className="d-inline-flex">*/}
+                        {/*    <span className="widget-numbers">*/}
+                        {/*        {this.props.box.value / 1e9} ERG*/}
+                        {/*    </span>*/}
+                        {/*    {this.props.box.isArtwork && <span*/}
+                        {/*        onClick={() => this.setState({artDetail: true})}*/}
+                        {/*        data-tip="Artwork NFT"*/}
+                        {/*        className="icon-wrapper rounded-circle opacity-7 m-2 font-icon-wrapper">*/}
+                        {/*        <i className="lnr-picture icon-gradient bg-plum-plate fsize-4"/>*/}
+                        {/*    </span>}*/}
+                        {/*</div>*/}
+                        <div style={{ cursor: 'pointer' }} className="imgDiv">
+                            <ArtworkDetails
+                                isOpen={this.state.artDetail}
+                                close={() =>
+                                    this.setState({
+                                        artDetail: !this.state.artDetail,
+                                    })
+                                }
+                                tokenId={this.props.box.assets[0].tokenId}
+                                tokenName={this.props.box.tokenName}
+                                tokenDescription={
+                                    this.props.box.tokenDescription
+                                }
+                                artHash={this.props.box.artHash}
+                                artworkUrl={this.props.box.artworkUrl}
+                            />
+                            <img
+                                onClick={() =>
+                                    this.setState({ artDetail: true })
+                                }
+                                className="auctionImg"
+                                src={this.props.box.artworkUrl ? this.props.box.artworkUrl : 'http://revisionmanufacture.com/assets/uploads/no-image.png'}
+                            />
                         </div>
-                        <div className="widget-chart-wrapper chart-wrapper-relative justify justify-content-lg-start">
-                            <div
-                                style={{
-                                    display: 'flex',
-                                    justifyContent: 'center',
-                                }}
-                                className="widget-subheading m-1"
-                            >
-                                <span
-                                    data-tip={this.props.box.assets[0].tokenId}
-                                >
-                                    {friendlyToken(this.props.box.assets[0])}
-                                </span>
-                                <i
-                                    onClick={() =>
-                                        this.showIssuingTx(this.props.box)
-                                    }
-                                    data-tip="see issuing transaction"
-                                    style={{
-                                        fontSize: '1.5rem',
-                                        marginLeft: '5px',
-                                    }}
-                                    className="pe-7s-help1 icon-gradient bg-night-sky"
-                                />
-                            </div>
-                            <div
-                                style={{
-                                    display: 'flex',
-                                    justifyContent: 'center',
-                                }}
-                                className="widget-subheading m-1"
-                            >
-                                <span data-tip={this.props.box.seller}>
-                                    Seller{' '}
-                                    {friendlyAddress(this.props.box.seller)}
-                                </span>
-                                <i
-                                    onClick={() =>
-                                        this.showAddress(this.props.box.seller)
-                                    }
-                                    data-tip="see seller's address"
-                                    style={{
-                                        fontSize: '1.5rem',
-                                        marginLeft: '5px',
-                                    }}
-                                    className="pe-7s-help1 icon-gradient bg-night-sky"
-                                />
-                            </div>
-                            <div
-                                style={{
-                                    display: 'flex',
-                                    justifyContent: 'center',
-                                }}
-                                className="widget-subheading m-1"
-                            >
-                                <span data-tip={this.props.box.bidder}>
-                                    Bidder{' '}
-                                    {friendlyAddress(this.props.box.bidder)}
-                                </span>
-                                <i
-                                    onClick={() =>
-                                        this.showAddress(this.props.box.bidder)
-                                    }
-                                    data-tip="see current bidder's address"
-                                    style={{
-                                        fontSize: '1.5rem',
-                                        marginLeft: '5px',
-                                    }}
-                                    className="pe-7s-help1 icon-gradient bg-night-sky"
-                                />
-                            </div>
-                        </div>
-                        <ReactTooltip effect="solid" place="bottom"/>
+                        {/*<div className="widget-chart-wrapper chart-wrapper-relative justify justify-content-lg-start">*/}
+                        {/*    <div*/}
+                        {/*        style={{*/}
+                        {/*            display: 'flex',*/}
+                        {/*            justifyContent: 'center',*/}
+                        {/*        }}*/}
+                        {/*        className="widget-subheading m-1"*/}
+                        {/*    >*/}
+                        {/*        <span*/}
+                        {/*            data-tip={this.props.box.assets[0].tokenId}*/}
+                        {/*        >*/}
+                        {/*            {friendlyToken(this.props.box.assets[0])}*/}
+                        {/*        </span>*/}
+                        {/*        <i*/}
+                        {/*            onClick={() =>*/}
+                        {/*                this.showIssuingTx(this.props.box)*/}
+                        {/*            }*/}
+                        {/*            data-tip="see issuing transaction"*/}
+                        {/*            style={{*/}
+                        {/*                fontSize: '1.5rem',*/}
+                        {/*                marginLeft: '5px',*/}
+                        {/*            }}*/}
+                        {/*            className="pe-7s-help1 icon-gradient bg-night-sky"*/}
+                        {/*        />*/}
+                        {/*    </div>*/}
+                        {/*    <div*/}
+                        {/*        style={{*/}
+                        {/*            display: 'flex',*/}
+                        {/*            justifyContent: 'center',*/}
+                        {/*        }}*/}
+                        {/*        className="widget-subheading m-1"*/}
+                        {/*    >*/}
+                        {/*        <span data-tip={this.props.box.seller}>*/}
+                        {/*            Seller{' '}*/}
+                        {/*            {friendlyAddress(this.props.box.seller)}*/}
+                        {/*        </span>*/}
+                        {/*        <i*/}
+                        {/*            onClick={() =>*/}
+                        {/*                this.showAddress(this.props.box.seller)*/}
+                        {/*            }*/}
+                        {/*            data-tip="see seller's address"*/}
+                        {/*            style={{*/}
+                        {/*                fontSize: '1.5rem',*/}
+                        {/*                marginLeft: '5px',*/}
+                        {/*            }}*/}
+                        {/*            className="pe-7s-help1 icon-gradient bg-night-sky"*/}
+                        {/*        />*/}
+                        {/*    </div>*/}
+                        {/*    <div*/}
+                        {/*        style={{*/}
+                        {/*            display: 'flex',*/}
+                        {/*            justifyContent: 'center',*/}
+                        {/*        }}*/}
+                        {/*        className="widget-subheading m-1"*/}
+                        {/*    >*/}
+                        {/*        <span data-tip={this.props.box.bidder}>*/}
+                        {/*            Bidder{' '}*/}
+                        {/*            {friendlyAddress(this.props.box.bidder)}*/}
+                        {/*        </span>*/}
+                        {/*        <i*/}
+                        {/*            onClick={() =>*/}
+                        {/*                this.showAddress(this.props.box.bidder)*/}
+                        {/*            }*/}
+                        {/*            data-tip="see current bidder's address"*/}
+                        {/*            style={{*/}
+                        {/*                fontSize: '1.5rem',*/}
+                        {/*                marginLeft: '5px',*/}
+                        {/*            }}*/}
+                        {/*            className="pe-7s-help1 icon-gradient bg-night-sky"*/}
+                        {/*        />*/}
+                        {/*    </div>*/}
+                        {/*</div>*/}
+                        <ReactTooltip effect="solid" place="bottom" />
 
                         <div className="widget-chart-wrapper chart-wrapper-relative">
                             <div
@@ -241,9 +281,10 @@ export default class ActiveBox extends React.Component {
                                     flex: 1,
                                     justifyContent: 'center',
                                     alignItems: 'center',
-                                    height: '60px',
+                                    height: '70px',
                                     overflowY: 'hidden',
-                                    overflowX: 'hidden'
+                                    overflowX: 'hidden',
+                                    fontSize: '12px',
                                 }}
                             >
                                 <p className="text-primary mr-2 ml-2">
@@ -252,47 +293,67 @@ export default class ActiveBox extends React.Component {
                             </div>
                         </div>
                     </div>
-                    <div className="widget-chart-wrapper chart-wrapper-relative">
-                        <Button
-                            onClick={() => this.openMyBids()}
-                            outline
-                            className="btn-outline-light m-2 border-0"
-                            color="primary"
-                        >
-                            <i className="nav-link-icon lnr-layers"> </i>
-                            <span>My Bids</span>
-                        </Button>
-                        <Button
-                            onClick={() => this.openBid()}
-                            outline
-                            className="btn-outline-light m-2 border-0"
-                            color="primary"
-                        >
-                            <i className="nav-link-icon lnr-pencil"> </i>
-                            <span>Place Bid</span>
-                        </Button>
-                        <Button
-                            onClick={() => {
-                                this.setState({detailsModal: true});
-                            }}
-                            outline
-                            className="btn-outline-light m-2 border-0"
-                            color="primary"
-                        >
-                            <i className="nav-link-icon lnr-chart-bars"> </i>
-                            <span>Details</span>
-                        </Button>
+                    <div className="widget-chart-wrapper chart-wrapper-relative mb-3">
+                        {/*<Button*/}
+                        {/*    onClick={() => this.openMyBids()}*/}
+                        {/*    outline*/}
+                        {/*    className="btn-outline-light m-2 border-0"*/}
+                        {/*    color="primary"*/}
+                        {/*>*/}
+                        {/*    <i className="nav-link-icon lnr-layers"> </i>*/}
+                        {/*    <span>My Bids</span>*/}
+                        {/*</Button>*/}
+                        {/*<Button*/}
+                        {/*    onClick={() => this.openBid()}*/}
+                        {/*    outline*/}
+                        {/*    className="btn-outline-light m-2 border-0"*/}
+                        {/*    color="primary"*/}
+                        {/*>*/}
+                        {/*    <i className="nav-link-icon lnr-pencil"> </i>*/}
+                        {/*    <span>Place Bid</span>*/}
+                        {/*</Button>*/}
+                        {/*<Button*/}
+                        {/*    onClick={() => {*/}
+                        {/*        this.setState({ detailsModal: true });*/}
+                        {/*    }}*/}
+                        {/*    outline*/}
+                        {/*    className="btn-outline-light m-2 border-0"*/}
+                        {/*    color="primary"*/}
+                        {/*>*/}
+                        {/*    <i className="nav-link-icon lnr-chart-bars"> </i>*/}
+                        {/*    <span>Details</span>*/}
+                        {/*</Button>*/}
+                        <a className='bold text-info' href="#" onClick={(e) => {
+                            e.preventDefault()
+                            this.openBid()
+                        }}>Place Bid</a> {' '}
+
+                        {/*<a href="#" onClick={() => console.log('ok')}>*/}
+                        {/*            Place Bid*/}
+                        {/*        </a>{' '}*/}
+                        <text>
+                            for{' '}
+                                <b>{(this.props.box.value +
+                                    this.props.box.minStep) /
+                                    1e9}{' '} ERG</b>
+                            </text>
                     </div>
                     <CardFooter>
                         <Col md={6} className="widget-description">
-                            Up by
-                            <span className="text-success pl-1 pr-1">
-                                <FontAwesomeIcon icon={faAngleUp}/>
-                                <span className="pl-1">
-                                    {this.props.box.increase}%
+                            <Row>
+                                <span>
+                                    <b className="fsize-1">
+                                        {(this.props.box.value / 1e9).toFixed(
+                                            2
+                                        )}{' '}
+                                        ERG
+                                    </b>{' '}
+                                    <text style={{fontSize: '10px'}} className="text-success pl-1 pr-1">
+                                        {this.props.box.increase}%
+                                        <FontAwesomeIcon icon={faAngleUp} />
+                                    </text>
                                 </span>
-                            </span>
-                            since the initial bid
+                            </Row>
                         </Col>
 
                         <Col md={6} className="justify-content-end ml-3">
@@ -300,16 +361,21 @@ export default class ActiveBox extends React.Component {
                                 <div className="widget-content-outer">
                                     <div className="widget-content-wrapper">
                                         <div className="widget-content-left mr-3">
-                                            <div className="widget-numbers fsize-2 text-muted">
+                                            <div className="widget-numbers fsize-1 text-muted">
                                                 {this.props.box.remBlock}
                                             </div>
                                         </div>
                                         <div className="widget-content-right">
                                             <div
-                                                data-tip={this.props.box.ergoTree === auctionWithExtensionTree ?
-                                                    "Auto Extend Enabled" : ""}
-                                                className="text-muted opacity-6">
-                                                Blocks Remaining
+                                                data-tip={
+                                                    this.props.box.ergoTree ===
+                                                    auctionWithExtensionTree
+                                                        ? 'Auto Extend Enabled'
+                                                        : ''
+                                                }
+                                                className="text-muted opacity-6"
+                                            >
+                                                Remaining
                                             </div>
                                         </div>
                                     </div>
