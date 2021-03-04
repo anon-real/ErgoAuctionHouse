@@ -8302,6 +8302,20 @@ button.bg-alternate:focus {
     margin-left: 0.5rem !important;
 }
 
+@media only screen and (max-width: 1000px) {
+    .ml-2,
+    .mx-2 {
+        margin-left: 0rem !important;
+    }
+  }
+
+  @media only screen and (max-width: 1200px) {
+    .ml-2,
+    .mx-2 {
+        margin-left: 0rem !important;
+    }
+  }
+
 .m-3 {
     margin: 1rem !important;
 }
@@ -10975,6 +10989,7 @@ button,
     margin-top: -60px;
     padding-top: 60px;
     transition: all .2s;
+    
 }
 
 .app-sidebar .app-sidebar__inner {
