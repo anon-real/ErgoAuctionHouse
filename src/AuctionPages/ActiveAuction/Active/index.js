@@ -74,6 +74,8 @@ const sortKeyToVal = {
     '6': 'Me As Bidder First',
 }
 
+const limit = 9
+
 export default class ActiveAuctions extends React.Component {
     constructor(props) {
         super(props);
@@ -81,7 +83,7 @@ export default class ActiveAuctions extends React.Component {
             loading: true,
             auctions: [],
             sortKey: '0',
-            end: 18
+            end: limit
         };
         this.refreshInfo = this.refreshInfo.bind(this);
         this.openAuction = this.openAuction.bind(this);
@@ -236,6 +238,13 @@ export default class ActiveAuctions extends React.Component {
                                     Last updated {this.state.lastUpdated}{' '}
                                     seconds ago.
                                 </div>
+                                <div
+                                    className={cx('page-title-subheading', {
+                                        'd-none': false,
+                                    })}
+                                >
+                                    <b>{this.state.auctions.length} active auctions with worth of {(this.state.auctions.map(auc => auc.value).reduce((a, b) => a + b, 0) / 1e9).toFixed(1)} ERG</b>
+                                </div>
                             </div>
                         </div>
                         <div className="page-title-actions">
@@ -305,7 +314,7 @@ export default class ActiveAuctions extends React.Component {
                 >
                     <Row>
                         <Button
-                            onClick={() => this.setState({end: this.state.end + 18})}
+                            onClick={() => this.setState({end: this.state.end + limit})}
                             outline
                             className="btn-outline-light bold m-2 border-0"
                             color="primary"

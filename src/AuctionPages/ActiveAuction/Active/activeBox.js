@@ -146,7 +146,11 @@ export default class ActiveBox extends React.Component {
                                             My Bids
                                         </NavLink>
                                         <NavLink
-                                            onClick={() => this.setState({detailsModal: true})}
+                                            onClick={() =>
+                                                this.setState({
+                                                    detailsModal: true,
+                                                })
+                                            }
                                         >
                                             Details
                                         </NavLink>
@@ -198,7 +202,11 @@ export default class ActiveBox extends React.Component {
                                     this.setState({ artDetail: true })
                                 }
                                 className="auctionImg"
-                                src={this.props.box.artworkUrl ? this.props.box.artworkUrl : 'http://revisionmanufacture.com/assets/uploads/no-image.png'}
+                                src={
+                                    this.props.box.artworkUrl
+                                        ? this.props.box.artworkUrl
+                                        : 'http://revisionmanufacture.com/assets/uploads/no-image.png'
+                                }
                             />
                         </div>
                         {/*<div className="widget-chart-wrapper chart-wrapper-relative justify justify-content-lg-start">*/}
@@ -323,20 +331,79 @@ export default class ActiveBox extends React.Component {
                         {/*    <i className="nav-link-icon lnr-chart-bars"> </i>*/}
                         {/*    <span>Details</span>*/}
                         {/*</Button>*/}
-                        <a className='bold text-info' href="#" onClick={(e) => {
-                            e.preventDefault()
-                            this.openBid()
-                        }}>Place Bid</a> {' '}
-
+                        <a
+                            className="bold text-info"
+                            href="#"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                this.openBid();
+                            }}
+                        >
+                            Place Bid
+                        </a>{' '}
                         {/*<a href="#" onClick={() => console.log('ok')}>*/}
                         {/*            Place Bid*/}
                         {/*        </a>{' '}*/}
                         <text>
                             for{' '}
-                                <b>{(this.props.box.value +
+                            <b>
+                                {(this.props.box.value +
                                     this.props.box.minStep) /
-                                    1e9}{' '} ERG</b>
-                            </text>
+                                    1e9}{' '}
+                                ERG
+                            </b>
+                        </text>
+                    </div>
+
+                    <div className='mb-2'>
+                        <div
+                            style={{
+                                display: 'flex',
+                                justifyContent: 'center',
+                                fontSize: '13px'
+                            }}
+                            className="widget-subheading m-1"
+                        >
+                            <span data-tip={this.props.box.seller}>
+                                Seller{' '}
+                                {friendlyAddress(this.props.box.seller, 9)}
+                            </span>
+                            <i
+                                onClick={() =>
+                                    this.showAddress(this.props.box.seller)
+                                }
+                                data-tip="see seller's address"
+                                style={{
+                                    fontSize: '1rem',
+                                    marginLeft: '5px',
+                                }}
+                                className="pe-7s-help1 icon-gradient bg-night-sky"
+                            />
+                        </div>
+                        <div
+                            style={{
+                                display: 'flex',
+                                justifyContent: 'center',
+                                fontSize: '13px'
+                            }}
+                            className="widget-subheading m-1"
+                        >
+                            <span data-tip={this.props.box.bidder}>
+                                Bidder{' '}
+                                {friendlyAddress(this.props.box.bidder, 9)}
+                            </span>
+                            <i
+                                onClick={() =>
+                                    this.showAddress(this.props.box.bidder)
+                                }
+                                data-tip="see current bidder's address"
+                                style={{
+                                    fontSize: '1rem',
+                                    marginLeft: '5px',
+                                }}
+                                className="pe-7s-help1 icon-gradient bg-night-sky"
+                            />
+                        </div>
                     </div>
                     <CardFooter>
                         <Col md={6} className="widget-description">
@@ -348,7 +415,10 @@ export default class ActiveBox extends React.Component {
                                         )}{' '}
                                         ERG
                                     </b>{' '}
-                                    <text style={{fontSize: '10px'}} className="text-success pl-1 pr-1">
+                                    <text
+                                        style={{ fontSize: '10px' }}
+                                        className="text-success pl-1 pr-1"
+                                    >
                                         {this.props.box.increase}%
                                         <FontAwesomeIcon icon={faAngleUp} />
                                     </text>
@@ -362,7 +432,7 @@ export default class ActiveBox extends React.Component {
                                     <div className="widget-content-wrapper">
                                         <div className="widget-content-left mr-3">
                                             <div className="widget-numbers fsize-1 text-muted">
-                                                {this.props.box.remBlock}
+                                                ~{this.props.box.remBlock * 2}
                                             </div>
                                         </div>
                                         <div className="widget-content-right">
@@ -375,7 +445,7 @@ export default class ActiveBox extends React.Component {
                                                 }
                                                 className="text-muted opacity-6"
                                             >
-                                                Remaining
+                                                Minutes
                                             </div>
                                         </div>
                                     </div>
