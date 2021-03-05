@@ -213,7 +213,7 @@ export default class ActiveAuctions extends React.Component {
                     isOpen={this.state.assemblerModal}
                     close={this.toggleAssemblerModal}
                     bidAmount={this.state.bidAmount}
-                    isAuction={this.props.isAuction}
+                    isAuction={this.state.isAuction}
                     bidAddress={this.state.bidAddress}
                 />
 
