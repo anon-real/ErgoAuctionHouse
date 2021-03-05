@@ -75,7 +75,7 @@ class NewAuctionAssembler extends React.Component {
                         this.state.auctionAutoExtend
                     ).then(res => {
                         this.props.close()
-                        this.props.assemblerModal(addr.address, ergToNano(this.state.initialBid), true)
+                        this.props.assemblerModal(addr.address, ergToNano(this.state.initialBid) - 10000000, true)
 
                     }).catch(err => {
                         showMsg('Error while registering the request to the assembler!', true);
