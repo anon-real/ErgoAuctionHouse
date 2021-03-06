@@ -58,6 +58,15 @@ export default class ActiveBox extends React.Component {
         this.setState({ detailsModal: !this.state.detailsModal });
     }
 
+    getTime(blockRem) {
+        let time = blockRem * 2
+        if (time <= 60) return [time, 'Minutes']
+        time = (time / 60).toFixed(0)
+        if (time <= 24) return [time, 'Hours']
+        time = (time / 24).toFixed(0)
+        return [time, 'Days']
+    }
+
     openBid() {
         if (this.state.bidModal) {
             this.setState({ bidModal: !this.state.bidModal });
@@ -101,6 +110,7 @@ export default class ActiveBox extends React.Component {
 
     render() {
         let box = this.props.box;
+        let time = this.getTime(box.remBlock)
         return (
             <Col key={box.id} md="4">
                 <PlaceBidModal
@@ -432,7 +442,7 @@ export default class ActiveBox extends React.Component {
                                     <div className="widget-content-wrapper">
                                         <div className="widget-content-left mr-3">
                                             <div className="widget-numbers fsize-1 text-muted">
-                                                ~{this.props.box.remBlock * 2}
+                                                ~{time[0]}
                                             </div>
                                         </div>
                                         <div className="widget-content-right">
@@ -445,7 +455,7 @@ export default class ActiveBox extends React.Component {
                                                 }
                                                 className="text-muted opacity-6"
                                             >
-                                                Minutes
+                                                {time[1]}
                                             </div>
                                         </div>
                                     </div>
