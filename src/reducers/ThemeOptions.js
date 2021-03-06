@@ -116,7 +116,7 @@ export default function reducer(state = {
     enableBackgroundImage: false,
     enableClosedSidebar: false,
     enableFixedHeader: false,
-    enableHeaderShadow: true,
+    enableHeaderShadow: false,
     enableSidebarShadow: true,
     enableFixedFooter: true,
     enableFixedSidebar: true,
