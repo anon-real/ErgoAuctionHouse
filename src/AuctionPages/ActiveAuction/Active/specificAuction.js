@@ -236,7 +236,13 @@ export default class SpecificAuctions extends React.Component {
                         />
                     </div>
                 ) : (
-                    getBoxDis(this.state.auctions)
+                    <div>
+                        {getBoxDis(this.state.auctions)}
+                        {/*<audio controls="controls">*/}
+                        {/*    <source src="https://docs.google.com/u/0/uc?export=download&confirm=Kz6r&id=1h0acJ12eYCw3XWMKM83vdblkxcvyjHnm"/>*/}
+                        {/*</audio>*/}
+
+                    </div>
                 )}
             </Fragment>
         );
