@@ -75,7 +75,7 @@ class NewAuctionAssembler extends React.Component {
                         this.state.auctionAutoExtend
                     ).then(res => {
                         this.props.close()
-                        this.props.assemblerModal(addr.address, ergToNano(this.state.initialBid), true)
+                        this.props.assemblerModal(addr.address, ergToNano(this.state.initialBid) - 10000000, true)
 
                     }).catch(err => {
                         showMsg('Error while registering the request to the assembler!', true);
@@ -283,7 +283,7 @@ class NewAuctionAssembler extends React.Component {
                                     invalid={
                                         this.state.description !==
                                         undefined &&
-                                        this.state.description.length > 150
+                                        this.state.description.length > 250
                                     }
                                     value={this.state.description}
                                     onChange={(event) =>
@@ -296,7 +296,7 @@ class NewAuctionAssembler extends React.Component {
                                     id="description"
                                 />
                                 <FormFeedback invalid>
-                                    At most 150 characters!
+                                    At most 250 characters!
                                 </FormFeedback>
                                 <FormText>
                                     You can explain about the token you are

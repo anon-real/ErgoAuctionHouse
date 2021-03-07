@@ -79,8 +79,7 @@ export async function decodeBox(box, height) {
         });
     if (box.isArtwork) {
         try {
-            let code = await decodeStr(box.artCode)
-            if (code !== "0101") {
+            if (box.artCode !== "0e020101" && box.artCode !== "0e0430313031") {
                 box.isArtwork = false
             } else {
                 box.artHash = await decodeString(box.artHash)
@@ -98,7 +97,9 @@ export async function decodeBox(box, height) {
 }
 
 export async function decodeBoxes(boxes, height) {
-    return Promise.all(boxes.map((box) => decodeBox(box, height)))
+    let cur = await Promise.all(boxes.map((box) => decodeBox(box, height)))
+    cur.sort((a, b) => a.remBlock - b.remBlock)
+    return cur
 }
 
 export function ergToNano(erg) {

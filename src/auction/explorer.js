@@ -76,15 +76,6 @@ export function getAllActiveAuctions() {
     let all = activeAuctionAddresses.map((addr) => getActiveAuctions(addr));
     return Promise.all(all)
         .then((res) => [].concat.apply([], res))
-        .then((boxes) => {
-            boxes.sort((a, b) => {
-                if (a.assets[0].tokenId > b.assets[0].tokenId) return 1;
-                else if (a.assets[0].tokenId < b.assets[0].tokenId) return -1;
-                else if (a.assets[0].amount === b.assets[0].amount) return b.value - a.value
-                else return a.assets[0].amount - b.assets[0].amount;
-            });
-            return boxes;
-        });
 }
 
 export function getAuctionHistory(limit, offset, auctionAddr) {

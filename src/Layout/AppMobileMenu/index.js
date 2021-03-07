@@ -24,6 +24,11 @@ class AppMobileMenu extends React.Component {
 
     }
 
+    componentDidMount() {
+        this.props.setEnableMobileMenu(true)
+        this.props.setEnableMobileMenuSmall(true)
+    }
+
     toggleMobileSidebar = () => {
         let {enableMobileMenu, setEnableMobileMenu} = this.props;
         setEnableMobileMenu(!enableMobileMenu);

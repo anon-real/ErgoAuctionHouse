@@ -16,7 +16,12 @@ class HeaderLogo extends React.Component {
             mobile: false,
             activeSecondaryMenuMobile: false
         };
+    }
 
+    componentDidMount() {
+        this.props.setEnableMobileMenu(true)
+        this.props.setEnableMobileMenuSmall(true)
+        this.props.setEnableClosedSidebar(true)
     }
 
     toggleEnableClosedSidebar = () => {
@@ -50,7 +55,7 @@ class HeaderLogo extends React.Component {
                             style={{ height: '40px', width: '40px' }}
                             src={nodeWallet}
                         />
-                        <strong className="ml-2 text-white">Auction House</strong>
+                        <strong className="ml-2 text-white">  Auction House</strong>
                     </a>
                     <div  className="header__pane ml-auto">
                         <div onClick={this.toggleEnableClosedSidebar}>
