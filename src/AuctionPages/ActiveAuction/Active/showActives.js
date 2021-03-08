@@ -42,7 +42,7 @@ import {
     withdrawFinishedAuctions,
 } from '../../../auction/nodeWallet';
 import number from 'd3-scale/src/number';
-import ActiveBox from './activeBox';
+import ActivePicture from './activePicture';
 import {
     decodeBoxes,
     ergToNano,
@@ -54,6 +54,8 @@ import NewAuction from "./newAuction";
 import NewAuctionAssembler from "./newAuctionAssembler";
 import PlaceBidModal from "./placeBid";
 import SendModal from "./sendModal";
+import ActiveAudio from "./activeAudio";
+import ActiveOther from "./activeOther";
 
 const override = css`
     display: block;
@@ -101,12 +103,28 @@ export default class ShowAuctions extends React.Component {
 
     render() {
         const listItems = this.state.auctions.map((box) => {
-            return (
-                <ActiveBox
-                    box={box}
-                    assemblerModal={this.toggleAssemblerModal}
-                />
-            );
+            if (box.isPicture) {
+                return (
+                    <ActivePicture
+                        box={box}
+                        assemblerModal={this.toggleAssemblerModal}
+                    />
+                );
+            } else if (box.isAudio) {
+                return (
+                    <ActiveAudio
+                        box={box}
+                        assemblerModal={this.toggleAssemblerModal}
+                    />
+                );
+            } else {
+                return (
+                    <ActiveOther
+                        box={box}
+                        assemblerModal={this.toggleAssemblerModal}
+                    />
+                );
+            }
         });
         return (
             <Fragment>

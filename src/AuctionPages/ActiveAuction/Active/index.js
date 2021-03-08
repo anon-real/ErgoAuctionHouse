@@ -43,7 +43,7 @@ import {
     withdrawFinishedAuctions,
 } from '../../../auction/nodeWallet';
 import number from 'd3-scale/src/number';
-import ActiveBox from './activeBox';
+import ActivePicture from './activePicture';
 import {
     decodeBoxes,
     ergToNano,
@@ -125,8 +125,25 @@ export default class ActiveAuctions extends React.Component {
     }
 
     componentDidMount() {
-        this.refreshInfo(true, true);
+        let type = 'picture'
+        try {
+            type = this.props.location.search.split('=')[1]
+        } catch (e) {
+        }
+        this.refreshInfo(true, true, type);
         this.refreshTimer = setInterval(this.refreshInfo, 5000);
+    }
+
+    componentWillReceiveProps(nextProps, nextContext) {
+        let type = 'picture'
+        try {
+            type = nextProps.location.search.split('=')[1]
+        } catch (e) {
+        }
+        if (this.props.location.search !== nextProps.location.search) {
+            this.setState({loading: true})
+            this.refreshInfo(true, true, type);
+        }
     }
 
     componentWillUnmount() {
@@ -153,7 +170,9 @@ export default class ActiveAuctions extends React.Component {
         this.setState({auctions: auctions, sortKey: key})
     }
 
-    refreshInfo(force = false, firstTime = false) {
+    refreshInfo(force = false, firstTime = false, type = null) {
+        if (type === null)
+            type = this.state.type
         if (!force) {
             this.setState({lastUpdated: this.state.lastUpdated + 5});
             if (this.state.lastUpdated < 40) return;
@@ -165,10 +184,15 @@ export default class ActiveAuctions extends React.Component {
                 getAllActiveAuctions()
                     .then((boxes) => {
                         decodeBoxes(boxes, height)
+                            .then(boxes => {
+                                if (type === 'picture') return boxes.filter(box => box.isPicture)
+                                if (type === 'audio') return boxes.filter(box => box.isAudio)
+                                if (type === 'other') return boxes.filter(box => !box.isArtwork)
+                            })
                             .then((boxes) => {
-                                console.log(boxes)
                                 this.setState({
                                     loading: false,
+                                    type: type
                                 });
                                 this.sortAuctions(boxes, this.state.sortKey)
                                 withdrawFinishedAuctions(boxes);
@@ -228,7 +252,7 @@ export default class ActiveAuctions extends React.Component {
                                 <i className="pe-7s-volume2 icon-gradient bg-night-fade"/>
                             </div>
                             <div>
-                                Active Auctions
+                                Active Auctions - {this.state.type}
                                 <div
                                     className={cx('page-title-subheading', {
                                         'd-none': false,
@@ -243,7 +267,8 @@ export default class ActiveAuctions extends React.Component {
                                         'd-none': false,
                                     })}
                                 >
-                                    <b>{this.state.auctions.length} active auctions with worth of {(this.state.auctions.map(auc => auc.value).reduce((a, b) => a + b, 0) / 1e9).toFixed(1)} ERG</b>
+                                    <b>{this.state.auctions.length} active auctions with worth
+                                        of {(this.state.auctions.map(auc => auc.value).reduce((a, b) => a + b, 0) / 1e9).toFixed(1)} ERG</b>
                                 </div>
                             </div>
                         </div>

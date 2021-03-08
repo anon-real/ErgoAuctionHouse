@@ -11,8 +11,22 @@ export const HistoryNav = [
 export const ActiveNav = [
     {
         icon: 'pe-7s-volume2',
-        label: 'Active Auctions',
-        to: '#/auction/active',
+        label: 'Auctions',
+        content: [
+            {
+                to: '#/auction/active?type=picture',
+                label: "Picture NFTs"
+            },
+            {
+                to: '#/auction/active?type=audio',
+                label: "Audio NFTs"
+            },
+            {
+                to: '#/auction/active?type=other',
+                label: "Other tokens"
+            },
+
+        ]
     },
 ];
 
