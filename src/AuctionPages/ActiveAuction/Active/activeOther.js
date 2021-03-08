@@ -1,10 +1,19 @@
 import React from 'react';
 import {
-    copyToClipboard,
+    Button,
+    CardFooter,
+    Col,
+    DropdownMenu,
+    DropdownToggle,
+    Nav, NavItem, NavLink,
+    Progress,
+    UncontrolledButtonDropdown
+} from 'reactstrap';
+import {
     friendlyAddress,
     friendlyToken,
     getAddrUrl,
-    getTxUrl,
+    getTxUrl, getWalletAddress,
     isWalletSaved,
     showMsg,
 } from '../../../auction/helpers';
@@ -12,40 +21,59 @@ import {ResponsiveContainer} from 'recharts';
 import SyncLoader from 'react-spinners/SyncLoader';
 import ReactTooltip from 'react-tooltip';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faAngleUp, faEllipsisH, faEllipsisV} from '@fortawesome/free-solid-svg-icons';
+import {faAngleUp, faEllipsisV} from '@fortawesome/free-solid-svg-icons';
 import {css} from '@emotion/core';
-import {getSpendingTx} from '../../../auction/explorer';
-import MyBidsModal from "../../ActiveAuction/Active/myBids";
-import BidHistory from "../../ActiveAuction/Active/bidHistory";
+import {auctionWithExtensionTree, getSpendingTx} from '../../../auction/explorer';
+import PlaceBidModal from './placeBid';
+import MyBidsModal from './myBids';
+import BidHistory from './bidHistory';
+import {Row} from "react-bootstrap";
 import ArtworkDetails from "../../artworkDetails";
-
-import {
-    CardFooter,
-    Row, Col,
-    Button,
-    UncontrolledButtonDropdown,
-    DropdownToggle,
-    DropdownMenu,
-    Nav,
-    NavItem,
-    NavLink,
-    Progress, NavbarToggler
-} from 'reactstrap';
 
 const override = css`
   display: block;
   margin: 0 auto;
 `;
 
-export default class HistoryBox extends React.Component {
-    constructor() {
-        super();
+export default class ActiveOther extends React.Component {
+    constructor(props) {
+        super(props);
         this.state = {
+            bidModal: false,
             myBidsModal: false,
-            detailsModal: false
+            detailsModal: false,
         };
-        this.openMyBids = this.openMyBids.bind(this)
-        this.openDetails = this.openDetails.bind(this)
+        this.openBid = this.openBid.bind(this);
+        this.openMyBids = this.openMyBids.bind(this);
+        this.openDetails = this.openDetails.bind(this);
+    }
+
+    openDetails() {
+        this.setState({detailsModal: !this.state.detailsModal});
+    }
+
+    openBid() {
+        if (this.state.bidModal) {
+            this.setState({bidModal: !this.state.bidModal});
+            return;
+        }
+        if (!isWalletSaved()) {
+            showMsg(
+                'In order to place bids, you have to configure the wallet first.',
+                true
+            );
+        } else if (this.props.box.remBlock <= 0) {
+            showMsg(
+                'This auction is finished! It is pending for withdrawal; If you configure your wallet, the app can use it to withdraw finished auctions.',
+                true
+            );
+        } else {
+            this.setState({bidModal: !this.state.bidModal});
+        }
+    }
+
+    openMyBids() {
+        this.setState({myBidsModal: !this.state.myBidsModal});
     }
 
     showIssuingTx(box) {
@@ -53,7 +81,7 @@ export default class HistoryBox extends React.Component {
         this.forceUpdate();
         getSpendingTx(box.assets[0].tokenId)
             .then((res) => {
-                this.showTx(res);
+                window.open(getTxUrl(res), '_blank');
             })
             .finally(() => {
                 box.loader = false;
@@ -61,30 +89,25 @@ export default class HistoryBox extends React.Component {
             });
     }
 
-    openMyBids() {
-        this.setState({myBidsModal: !this.state.myBidsModal});
-    }
-
-    showTx(txId) {
-        window.open(getTxUrl(txId), '_blank');
-    }
-
     showAddress(addr) {
         window.open(getAddrUrl(addr), '_blank');
     }
 
-    openDetails() {
-        this.setState({detailsModal: !this.state.detailsModal});
-    }
-
     render() {
+        let box = this.props.box;
         return (
-            <Col key={this.props.box.id} md="4">
+            <Col key={box.id} md="4">
+                <PlaceBidModal
+                    isOpen={this.state.bidModal}
+                    box={this.props.box}
+                    close={this.openBid}
+                    assemblerModal={this.props.assemblerModal}
+                />
                 <MyBidsModal
                     isOpen={this.state.myBidsModal}
                     box={this.props.box}
                     close={this.openMyBids}
-                    highText='winner'
+                    highText="current active bid"
                 />
                 <BidHistory close={this.openDetails} box={this.props.box} isOpen={this.state.detailsModal}/>
                 <div className="card mb-3 widget-chart">
@@ -101,7 +124,7 @@ export default class HistoryBox extends React.Component {
                                     <NavItem>
                                         <NavLink
                                             href={'#/auction/specific/' + this.props.box.id}
-                                        >Go to Auction's specific Link</NavLink>
+                                        >Go to Auction's Specific Link</NavLink>
                                     </NavItem>
                                 </Nav>
                             </DropdownMenu>
@@ -122,21 +145,6 @@ export default class HistoryBox extends React.Component {
                             <span className="widget-numbers">
                                 {this.props.box.value / 1e9} ERG
                             </span>
-                            {this.props.box.isArtwork && <span
-                                onClick={() => this.setState({artDetail: true})}
-                                data-tip="Artwork NFT"
-                                className="icon-wrapper rounded-circle opacity-7 m-2 font-icon-wrapper">
-                                <i className="lnr-picture icon-gradient bg-plum-plate fsize-4"/>
-                                <ArtworkDetails
-                                    isOpen={this.state.artDetail}
-                                    close={() => this.setState({artDetail: !this.state.artDetail})}
-                                    tokenId={this.props.box.assets[0].tokenId}
-                                    tokenName={this.props.box.tokenName}
-                                    tokenDescription={this.props.box.tokenDescription}
-                                    artHash={this.props.box.artHash}
-                                    artworkUrl={this.props.box.artworkUrl}
-                                />
-                            </span>}
                         </div>
                         <div className="widget-chart-wrapper chart-wrapper-relative justify justify-content-lg-start">
                             <div
@@ -194,14 +202,14 @@ export default class HistoryBox extends React.Component {
                                 className="widget-subheading m-1"
                             >
                                 <span data-tip={this.props.box.bidder}>
-                                    Winner{' '}
+                                    Bidder{' '}
                                     {friendlyAddress(this.props.box.bidder, 8)}
                                 </span>
                                 <i
                                     onClick={() =>
                                         this.showAddress(this.props.box.bidder)
                                     }
-                                    data-tip="see winner's address"
+                                    data-tip="see current bidder's address"
                                     style={{
                                         fontSize: '1.5rem',
                                         marginLeft: '5px',
@@ -240,13 +248,13 @@ export default class HistoryBox extends React.Component {
                             <span>My Bids</span>
                         </Button>
                         <Button
-                            onClick={() => this.showTx(this.props.box.finalTx)}
+                            onClick={() => this.openBid()}
                             outline
                             className="btn-outline-light m-2 border-0"
                             color="primary"
                         >
-                            <i className="nav-link-icon lnr-exit-up"> </i>
-                            <span>Final Transaction</span>
+                            <i className="nav-link-icon lnr-pencil"> </i>
+                            <span>Place Bid</span>
                         </Button>
                         <Button
                             onClick={() => {
@@ -261,18 +269,44 @@ export default class HistoryBox extends React.Component {
                         </Button>
                     </div>
                     <CardFooter>
-                        <ResponsiveContainer height={60}>
-                            <Col className="widget-description">
-                                Up by
-                                <span className="text-success pl-1 pr-1">
+                        <Col md={6} className="widget-description">
+                            Up by
+                            <span className="text-success pl-1 pr-1">
                                 <FontAwesomeIcon icon={faAngleUp}/>
                                 <span className="pl-1">
                                     {this.props.box.increase}%
                                 </span>
                             </span>
-                                in comparision to the initial bid
-                            </Col>
-                        </ResponsiveContainer>
+                            since the initial bid
+                        </Col>
+
+                        <Col md={6} className="justify-content-end ml-3">
+                            <div className="widget-content">
+                                <div className="widget-content-outer">
+                                    <div className="widget-content-wrapper">
+                                        <div className="widget-content-left mr-3">
+                                            <div className="widget-numbers fsize-2 text-muted">
+                                                {this.props.box.remBlock}
+                                            </div>
+                                        </div>
+                                        <div className="widget-content-right">
+                                            <div
+                                                data-tip={this.props.box.ergoTree === auctionWithExtensionTree ?
+                                                    "Auto Extend Enabled" : ""}
+                                                className="text-muted opacity-6">
+                                                Blocks Remaining
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="widget-progress-wrapper">
+                                        <Progress
+                                            className="progress-bar-xs progress-bar-animated-alt"
+                                            value={this.props.box.doneBlock}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </Col>
                     </CardFooter>
                 </div>
             </Col>

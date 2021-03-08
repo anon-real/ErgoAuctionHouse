@@ -41,7 +41,7 @@ const override = css`
     margin: 0 auto;
 `;
 
-export default class ActiveBox extends React.Component {
+export default class ActiveAudio extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -89,19 +89,6 @@ export default class ActiveBox extends React.Component {
 
     openMyBids() {
         this.setState({ myBidsModal: !this.state.myBidsModal });
-    }
-
-    showIssuingTx(box) {
-        box.loader = true;
-        this.forceUpdate();
-        getSpendingTx(box.assets[0].tokenId)
-            .then((res) => {
-                window.open(getTxUrl(res), '_blank');
-            })
-            .finally(() => {
-                box.loader = false;
-                this.forceUpdate();
-            });
     }
 
     showAddress(addr) {
@@ -180,18 +167,7 @@ export default class ActiveBox extends React.Component {
                             />
                         </ResponsiveContainer>
 
-                        {/*<div className="d-inline-flex">*/}
-                        {/*    <span className="widget-numbers">*/}
-                        {/*        {this.props.box.value / 1e9} ERG*/}
-                        {/*    </span>*/}
-                        {/*    {this.props.box.isArtwork && <span*/}
-                        {/*        onClick={() => this.setState({artDetail: true})}*/}
-                        {/*        data-tip="Artwork NFT"*/}
-                        {/*        className="icon-wrapper rounded-circle opacity-7 m-2 font-icon-wrapper">*/}
-                        {/*        <i className="lnr-picture icon-gradient bg-plum-plate fsize-4"/>*/}
-                        {/*    </span>}*/}
-                        {/*</div>*/}
-                        <div style={{ cursor: 'pointer' }} className="imgDiv">
+                        <div style={{ cursor: 'pointer' }}>
                             <ArtworkDetails
                                 isOpen={this.state.artDetail}
                                 close={() =>
@@ -207,90 +183,12 @@ export default class ActiveBox extends React.Component {
                                 artHash={this.props.box.artHash}
                                 artworkUrl={this.props.box.artworkUrl}
                             />
-                            <img
-                                onClick={() =>
-                                    this.setState({ artDetail: true })
-                                }
-                                className="auctionImg"
-                                src={
-                                    this.props.box.artworkUrl
-                                        ? this.props.box.artworkUrl
-                                        : 'http://revisionmanufacture.com/assets/uploads/no-image.png'
-                                }
-                            />
+
+                            <audio controls="controls">
+                                <source src={box.artworkUrl}/>
+                            </audio>
+
                         </div>
-                        {/*<div className="widget-chart-wrapper chart-wrapper-relative justify justify-content-lg-start">*/}
-                        {/*    <div*/}
-                        {/*        style={{*/}
-                        {/*            display: 'flex',*/}
-                        {/*            justifyContent: 'center',*/}
-                        {/*        }}*/}
-                        {/*        className="widget-subheading m-1"*/}
-                        {/*    >*/}
-                        {/*        <span*/}
-                        {/*            data-tip={this.props.box.assets[0].tokenId}*/}
-                        {/*        >*/}
-                        {/*            {friendlyToken(this.props.box.assets[0])}*/}
-                        {/*        </span>*/}
-                        {/*        <i*/}
-                        {/*            onClick={() =>*/}
-                        {/*                this.showIssuingTx(this.props.box)*/}
-                        {/*            }*/}
-                        {/*            data-tip="see issuing transaction"*/}
-                        {/*            style={{*/}
-                        {/*                fontSize: '1.5rem',*/}
-                        {/*                marginLeft: '5px',*/}
-                        {/*            }}*/}
-                        {/*            className="pe-7s-help1 icon-gradient bg-night-sky"*/}
-                        {/*        />*/}
-                        {/*    </div>*/}
-                        {/*    <div*/}
-                        {/*        style={{*/}
-                        {/*            display: 'flex',*/}
-                        {/*            justifyContent: 'center',*/}
-                        {/*        }}*/}
-                        {/*        className="widget-subheading m-1"*/}
-                        {/*    >*/}
-                        {/*        <span data-tip={this.props.box.seller}>*/}
-                        {/*            Seller{' '}*/}
-                        {/*            {friendlyAddress(this.props.box.seller)}*/}
-                        {/*        </span>*/}
-                        {/*        <i*/}
-                        {/*            onClick={() =>*/}
-                        {/*                this.showAddress(this.props.box.seller)*/}
-                        {/*            }*/}
-                        {/*            data-tip="see seller's address"*/}
-                        {/*            style={{*/}
-                        {/*                fontSize: '1.5rem',*/}
-                        {/*                marginLeft: '5px',*/}
-                        {/*            }}*/}
-                        {/*            className="pe-7s-help1 icon-gradient bg-night-sky"*/}
-                        {/*        />*/}
-                        {/*    </div>*/}
-                        {/*    <div*/}
-                        {/*        style={{*/}
-                        {/*            display: 'flex',*/}
-                        {/*            justifyContent: 'center',*/}
-                        {/*        }}*/}
-                        {/*        className="widget-subheading m-1"*/}
-                        {/*    >*/}
-                        {/*        <span data-tip={this.props.box.bidder}>*/}
-                        {/*            Bidder{' '}*/}
-                        {/*            {friendlyAddress(this.props.box.bidder)}*/}
-                        {/*        </span>*/}
-                        {/*        <i*/}
-                        {/*            onClick={() =>*/}
-                        {/*                this.showAddress(this.props.box.bidder)*/}
-                        {/*            }*/}
-                        {/*            data-tip="see current bidder's address"*/}
-                        {/*            style={{*/}
-                        {/*                fontSize: '1.5rem',*/}
-                        {/*                marginLeft: '5px',*/}
-                        {/*            }}*/}
-                        {/*            className="pe-7s-help1 icon-gradient bg-night-sky"*/}
-                        {/*        />*/}
-                        {/*    </div>*/}
-                        {/*</div>*/}
                         <ReactTooltip effect="solid" place="bottom" />
 
                         <div className="widget-chart-wrapper chart-wrapper-relative">
@@ -312,35 +210,6 @@ export default class ActiveBox extends React.Component {
                         </div>
                     </div>
                     <div className="widget-chart-wrapper chart-wrapper-relative mb-3">
-                        {/*<Button*/}
-                        {/*    onClick={() => this.openMyBids()}*/}
-                        {/*    outline*/}
-                        {/*    className="btn-outline-light m-2 border-0"*/}
-                        {/*    color="primary"*/}
-                        {/*>*/}
-                        {/*    <i className="nav-link-icon lnr-layers"> </i>*/}
-                        {/*    <span>My Bids</span>*/}
-                        {/*</Button>*/}
-                        {/*<Button*/}
-                        {/*    onClick={() => this.openBid()}*/}
-                        {/*    outline*/}
-                        {/*    className="btn-outline-light m-2 border-0"*/}
-                        {/*    color="primary"*/}
-                        {/*>*/}
-                        {/*    <i className="nav-link-icon lnr-pencil"> </i>*/}
-                        {/*    <span>Place Bid</span>*/}
-                        {/*</Button>*/}
-                        {/*<Button*/}
-                        {/*    onClick={() => {*/}
-                        {/*        this.setState({ detailsModal: true });*/}
-                        {/*    }}*/}
-                        {/*    outline*/}
-                        {/*    className="btn-outline-light m-2 border-0"*/}
-                        {/*    color="primary"*/}
-                        {/*>*/}
-                        {/*    <i className="nav-link-icon lnr-chart-bars"> </i>*/}
-                        {/*    <span>Details</span>*/}
-                        {/*</Button>*/}
                         <a
                             className="bold text-info"
                             href="#"
@@ -351,9 +220,6 @@ export default class ActiveBox extends React.Component {
                         >
                             Place Bid
                         </a>{' '}
-                        {/*<a href="#" onClick={() => console.log('ok')}>*/}
-                        {/*            Place Bid*/}
-                        {/*        </a>{' '}*/}
                         <text>
                             for{' '}
                             <b>

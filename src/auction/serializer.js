@@ -79,9 +79,12 @@ export async function decodeBox(box, height) {
         });
     if (box.isArtwork) {
         try {
-            if (box.artCode !== "0e020101" && box.artCode !== "0e0430313031") {
-                box.isArtwork = false
-            } else {
+            if (box.artCode === "0e020101" || box.artCode === "0e0430313031") {
+                box.isPicture = true
+            } else if (box.artCode === '0e020102') {
+                box.isAudio = true
+            } else box.isArtwork = false
+            if (box.isArtwork) {
                 box.artHash = await decodeString(box.artHash)
                 box.tokenName = await decodeStr(box.tokenName)
                 box.tokenDescription = await decodeStr(box.tokenDescription)

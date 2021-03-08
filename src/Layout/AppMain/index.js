@@ -77,8 +77,13 @@ const AppMain = () => {
             <Route
                 exact
                 path="/"
-                render={() => <Redirect to="/auction/active" />}
+                render={() => <Redirect to="/auction/active?type=picture" />}
             />
+            {/*<Route*/}
+            {/*    exact*/}
+            {/*    path="/auction/active"*/}
+            {/*    render={() => <Redirect to="/auction/active?type=picture" />}*/}
+            {/*/>*/}
             <ToastContainer />
         </Fragment>
     );
