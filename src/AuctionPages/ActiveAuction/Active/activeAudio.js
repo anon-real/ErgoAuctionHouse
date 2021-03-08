@@ -184,9 +184,10 @@ export default class ActiveAudio extends React.Component {
                                 artworkUrl={this.props.box.artworkUrl}
                             />
 
-                            <audio controls="controls">
+                            <audio controls="controls" preload='none'>
                                 <source src={box.artworkUrl}/>
                             </audio>
+
 
                         </div>
                         <ReactTooltip effect="solid" place="bottom" />
