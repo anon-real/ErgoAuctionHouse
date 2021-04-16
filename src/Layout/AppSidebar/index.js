@@ -18,10 +18,6 @@ class AppSidebar extends Component {
         super(props);
     }
 
-    componentDidMount() {
-        this.props.setEnableMobileMenu(true)
-    }
-
     toggleMobileSidebar = () => {
         let {enableMobileMenu, setEnableMobileMenu} = this.props;
         setEnableMobileMenu(!enableMobileMenu);
