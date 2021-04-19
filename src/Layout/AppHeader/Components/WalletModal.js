@@ -1,13 +1,13 @@
 import React from 'react';
 import yoroiWallet from '../../../assets/images/yoroi-logo-shape-blue.inline.svg';
 import nodeWallet from '../../../assets/images/symbol_bold__1080px__black.svg';
-import { getAddress, getInfo } from '../../../auction/nodeWallet';
+import {getAddress, getInfo} from '../../../auction/nodeWallet';
 import {
-    getWalletAddress,
+    getWalletAddress, getWalletType,
     isAddressValid,
     isAssembler,
     isWalletNode,
-    isWalletSaved,
+    isWalletSaved, isWalletYoroi,
     showMsg
 } from '../../../auction/helpers';
 
@@ -28,20 +28,20 @@ import {
 } from 'reactstrap';
 import classnames from 'classnames';
 import SyncLoader from 'react-spinners/SyncLoader';
-import { css } from '@emotion/core';
-import { Address } from '@coinbarn/ergo-ts';
+import {css} from '@emotion/core';
+import {Address} from '@coinbarn/ergo-ts';
+import {getYoroiAddress, setupYoroi} from "../../../auction/yoroiUtils";
 
 const override = css`
-    display: block;
-    margin: 0 auto;
+  display: block;
+  margin: 0 auto;
 `;
 
 class WalletModal extends React.Component {
     constructor(props) {
         super(props);
 
-        let type = 'assembler'
-        if (isWalletNode()) type = 'node'
+        let type = getWalletType()
         let walletState = 'Configure';
         if (isWalletSaved()) walletState = 'Update';
         let userAddress = ''
@@ -66,8 +66,9 @@ class WalletModal extends React.Component {
             modal: !this.state.modal,
         });
 
-        let type = 'assembler'
-        if (isWalletNode()) type = 'node'
+        let type = 'yoroi'
+        if (isWalletSaved()) type = getWalletType()
+
 
         this.setState({
             activeTab: type,
@@ -85,7 +86,7 @@ class WalletModal extends React.Component {
         }
     }
 
-    saveWallet() {
+    async saveWallet() {
         this.setState({
             processing: true,
         });
@@ -100,8 +101,25 @@ class WalletModal extends React.Component {
             );
             showMsg('Successfully configured the wallet.');
             this.toggle();
-            this.setState({ walletState: 'Update' });
+            this.setState({walletState: 'Update'});
             return;
+        }
+        if (this.state.activeTab === 'yoroi') {
+            this.clearWallet(false)
+            let res = setupYoroi(true)
+            let address = await getYoroiAddress()
+            if (res && address) {
+                localStorage.setItem(
+                    'wallet',
+                    JSON.stringify({
+                        type: this.state.activeTab,
+                        address: address,
+                    })
+                );
+                this.setState({walletState: 'Update'});
+            }
+            this.toggle();
+            return
         }
         getInfo(this.state.nodeUrl)
             .then(() => {
@@ -124,7 +142,7 @@ class WalletModal extends React.Component {
                                 address: res,
                             })
                         );
-                        this.setState({ walletState: 'Update' });
+                        this.setState({walletState: 'Update'});
                         this.toggle();
                         showMsg('Successfully configured the wallet.');
                     })
@@ -145,11 +163,11 @@ class WalletModal extends React.Component {
             });
     }
 
-    clearWallet(showMsg=true) {
+    clearWallet(show = true) {
         sessionStorage.removeItem('wallet');
         localStorage.removeItem('wallet');
-        this.setState({ walletState: 'Configure' });
-        if (showMsg) {
+        this.setState({walletState: 'Configure'});
+        if (show) {
             showMsg('Successfully cleared wallet info from local storage.');
             this.toggle();
         }
@@ -165,7 +183,7 @@ class WalletModal extends React.Component {
                     className="mr-2 btn-transition"
                     color="secondary"
                 >
-                    <i className="nav-link-icon pe-7s-cash mr-2" />
+                    <i className="nav-link-icon pe-7s-cash mr-2"/>
                     <span>{this.state.walletState} Wallet</span>
                 </Button>
                 <Modal
@@ -175,6 +193,26 @@ class WalletModal extends React.Component {
                 >
                     <ModalHeader toggle={this.toggle}>
                         <div className="btn-actions-pane-right">
+                            <Button
+                                outline
+                                className={
+                                    'mr-2 ml-2 btn-wide btn-pill ' +
+                                    classnames({
+                                        active:
+                                            this.state.activeTab === 'yoroi',
+                                    })
+                                }
+                                color="light"
+                                onClick={() => {
+                                    this.toggleTab('yoroi');
+                                }}
+                            >
+                                <img
+                                    style={{height: '20px', width: '20px'}}
+                                    src={yoroiWallet}
+                                />
+                                <span className="ml-2">Yoroi Wallet</span>
+                            </Button>
                             <Button
                                 outline
                                 className={
@@ -206,30 +244,10 @@ class WalletModal extends React.Component {
                                 }}
                             >
                                 <img
-                                    style={{ height: '20px', width: '20px' }}
+                                    style={{height: '20px', width: '20px'}}
                                     src={nodeWallet}
                                 />
                                 <span className="ml-2">Node Wallet</span>
-                            </Button>
-                            <Button
-                                outline
-                                className={
-                                    'mr-2 ml-2 btn-wide btn-pill ' +
-                                    classnames({
-                                        active:
-                                            this.state.activeTab === 'yoroi',
-                                    })
-                                }
-                                color="light"
-                                onClick={() => {
-                                    this.toggleTab('yoroi');
-                                }}
-                            >
-                                <img
-                                    style={{ height: '20px', width: '20px' }}
-                                    src={yoroiWallet}
-                                />
-                                <span className="ml-2">Yoroi Wallet</span>
                             </Button>
                         </div>
                     </ModalHeader>
@@ -282,8 +300,7 @@ class WalletModal extends React.Component {
                             </TabPane>
                             <TabPane tabId="yoroi">
                                 <p>
-                                    Support for Yoroi will be added in the
-                                    future.
+                                    Connects to your Yoroi wallet.
                                 </p>
                             </TabPane>
                             <TabPane tabId="assembler">
@@ -301,7 +318,8 @@ class WalletModal extends React.Component {
                                     </a>
                                     . Your funds will be safe, find out more
                                     about how{' '}
-                                    <a target="_blank" href="https://www.ergoforum.org/t/some-details-about-ergo-auction-house/428/6">
+                                    <a target="_blank"
+                                       href="https://www.ergoforum.org/t/some-details-about-ergo-auction-house/428/6">
                                         here
                                     </a>
                                     .
@@ -363,13 +381,12 @@ class WalletModal extends React.Component {
                             className="mr-2 btn-transition"
                             color="secondary"
                             disabled={
-                                this.state.activeTab === 'yoroi' ||
                                 this.state.processing ||
                                 (this.state.activeTab === 'assembler' && !isAddressValid(this.state.userAddress))
                             }
-                            onClick={this.saveWallet}
+                            onClick={() => this.saveWallet()}
                         >
-                            Save {this.state.processing}
+                            {this.state.activeTab !== 'yoroi' ? 'Save' : 'Connect'} {this.state.processing}
                         </Button>
                     </ModalFooter>
                 </Modal>

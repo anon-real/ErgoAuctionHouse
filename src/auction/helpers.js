@@ -60,12 +60,16 @@ export function isWalletNode() {
     return isWalletSaved() && getWalletType() === 'node';
 }
 
+export function isWalletYoroi() {
+    return isWalletSaved() && getWalletType() === 'yoroi';
+}
+
 export function isAssembler() {
     return isWalletSaved() && getWalletType() === 'assembler';
 }
 
 export function getWalletAddress() {
-    if (isAssembler()) return JSON.parse(localStorage.getItem('wallet')).address
+    if (!isWalletNode()) return JSON.parse(localStorage.getItem('wallet')).address
     return JSON.parse(sessionStorage.getItem('wallet')).address
 }
 

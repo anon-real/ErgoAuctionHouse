@@ -20,7 +20,7 @@ import {
     friendlyAddress,
     friendlyToken,
     getWalletAddress,
-    isWalletNode,
+    isWalletNode, isWalletYoroi,
     showMsg,
 } from '../../../auction/helpers';
 import SyncLoader from 'react-spinners/SyncLoader';
@@ -29,6 +29,7 @@ import { bidTxRequest, getAssets } from '../../../auction/nodeWallet';
 import { auctionFee, currentHeight } from '../../../auction/explorer';
 import { ergToNano, isFloat } from '../../../auction/serializer';
 import {getBidP2s, registerBid} from "../../../auction/bidAssembler";
+import {placeBid} from "../../../auction/bidYoroi";
 
 const override = css`
     display: block;
@@ -103,6 +104,12 @@ export default class PlaceBidModal extends React.Component {
                             );
                         })
                         .finally((_) => this.setState({ modalLoading: false }));
+                } else if (isWalletYoroi()) {
+                    placeBid(height, ergToNano(this.state.bidAmount), this.props.box).then(res => {
+                        console.log(res)
+                    }).catch(err => {
+                        showMsg(err.message, true)
+                    })
                 } else {
                     getBidP2s(ergToNano(this.state.bidAmount), this.props.box)
                         .then((addr) => {
