@@ -36,6 +36,7 @@ async function decodeStr(str) {
 }
 
 export async function decodeBox(box, height) {
+    if (box.additionalRegisters.R9 === undefined) return undefined
     let info = Serializer.stringFromHex(
         await decodeString(box.additionalRegisters.R9)
     );
@@ -101,6 +102,7 @@ export async function decodeBox(box, height) {
 
 export async function decodeBoxes(boxes, height) {
     let cur = await Promise.all(boxes.map((box) => decodeBox(box, height)))
+    cur = cur.filter(res => res !== undefined)
     cur.sort((a, b) => a.remBlock - b.remBlock)
     return cur
 }
