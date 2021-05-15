@@ -120,7 +120,6 @@ export async function assembleFinishedAuctions(boxes) {
                     dataInputs: [dataInput.id],
                 }
             };
-            console.log(request)
 
             return post(getUrl(url) + '/follow', request)
                 .then((res) => {
