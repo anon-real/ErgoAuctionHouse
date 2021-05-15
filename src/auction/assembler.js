@@ -95,7 +95,7 @@ export async function assembleFinishedAuctions(boxes) {
     boxes
         .filter((box) => box.remBlock === 0)
         .forEach((box) => {
-            let feeAmount = box.value / percentage;
+            let feeAmount = parseInt(box.value / percentage);
             let winner = {
                 value: winnerVal,
                 address: box.bidder,
@@ -120,6 +120,7 @@ export async function assembleFinishedAuctions(boxes) {
                     dataInputs: [dataInput.id],
                 }
             };
+            console.log(request)
 
             return post(getUrl(url) + '/follow', request)
                 .then((res) => {
