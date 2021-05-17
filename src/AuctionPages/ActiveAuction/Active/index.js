@@ -127,7 +127,7 @@ export default class ActiveAuctions extends React.Component {
     componentDidMount() {
         let type = 'picture'
         try {
-            type = this.props.location.search.split('=')[1]
+            type = (this.props.location.search.split('=')[1]) ? this.props.location.search.split('=')[1] : 'picture'
         } catch (e) {
         }
         this.refreshInfo(true, true, type);
