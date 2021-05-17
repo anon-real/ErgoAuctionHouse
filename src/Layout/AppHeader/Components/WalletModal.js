@@ -209,7 +209,7 @@ class WalletModal extends React.Component {
                                     style={{ height: '20px', width: '20px' }}
                                     src={nodeWallet}
                                 />
-                                <span className="ml-2">Node Wallet</span>
+                                <span className="px-2">Node Wallet</span>
                             </Button>
                             <Button
                                 outline
@@ -229,7 +229,7 @@ class WalletModal extends React.Component {
                                     style={{ height: '20px', width: '20px' }}
                                     src={yoroiWallet}
                                 />
-                                <span className="ml-2">Yoroi Wallet</span>
+                                <span className="px-2">Yoroi Wallet</span>
                             </Button>
                         </div>
                     </ModalHeader>
