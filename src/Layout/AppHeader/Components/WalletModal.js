@@ -178,7 +178,7 @@ class WalletModal extends React.Component {
                             <Button
                                 outline
                                 className={
-                                    'mr-2 ml-2 btn-wide btn-pill ' +
+                                    'mx-2 btn-wide btn-pill ' +
                                     classnames({
                                         active:
                                             this.state.activeTab ===
@@ -195,7 +195,7 @@ class WalletModal extends React.Component {
                             <Button
                                 outline
                                 className={
-                                    'btn-wide btn-pill ' +
+                                    'mx-2 btn-wide btn-pill ' +
                                     classnames({
                                         active: this.state.activeTab === 'node',
                                     })
@@ -214,7 +214,7 @@ class WalletModal extends React.Component {
                             <Button
                                 outline
                                 className={
-                                    'mr-2 ml-2 btn-wide btn-pill ' +
+                                    'mx-2 btn-wide btn-pill ' +
                                     classnames({
                                         active:
                                             this.state.activeTab === 'yoroi',
