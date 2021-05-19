@@ -178,7 +178,7 @@ class WalletModal extends React.Component {
                             <Button
                                 outline
                                 className={
-                                    'mr-2 ml-2 btn-wide btn-pill ' +
+                                    'mx-2 btn-wide btn-pill ' +
                                     classnames({
                                         active:
                                             this.state.activeTab ===
@@ -195,7 +195,7 @@ class WalletModal extends React.Component {
                             <Button
                                 outline
                                 className={
-                                    'btn-wide btn-pill ' +
+                                    'mx-2 btn-wide btn-pill ' +
                                     classnames({
                                         active: this.state.activeTab === 'node',
                                     })
@@ -209,12 +209,12 @@ class WalletModal extends React.Component {
                                     style={{ height: '20px', width: '20px' }}
                                     src={nodeWallet}
                                 />
-                                <span className="ml-2">Node Wallet</span>
+                                <span className="px-2">Node Wallet</span>
                             </Button>
                             <Button
                                 outline
                                 className={
-                                    'mr-2 ml-2 btn-wide btn-pill ' +
+                                    'mx-2 btn-wide btn-pill ' +
                                     classnames({
                                         active:
                                             this.state.activeTab === 'yoroi',
@@ -229,7 +229,7 @@ class WalletModal extends React.Component {
                                     style={{ height: '20px', width: '20px' }}
                                     src={yoroiWallet}
                                 />
-                                <span className="ml-2">Yoroi Wallet</span>
+                                <span className="px-2">Yoroi Wallet</span>
                             </Button>
                         </div>
                     </ModalHeader>
