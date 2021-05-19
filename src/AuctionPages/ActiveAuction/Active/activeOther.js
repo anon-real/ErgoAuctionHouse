@@ -96,7 +96,7 @@ export default class ActiveOther extends React.Component {
     render() {
         let box = this.props.box;
         return (
-            <Col key={box.id} md="4">
+            <Col key={box.id} lg="6" xl="4" md="6">
                 <PlaceBidModal
                     isOpen={this.state.bidModal}
                     box={this.props.box}
