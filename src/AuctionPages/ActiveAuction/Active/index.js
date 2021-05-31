@@ -126,7 +126,7 @@ export default class ActiveAuctions extends React.Component {
     }
     
     isBottom(el) {
-        return el.getBoundingClientRect().bottom <= window.innerHeight; // bottom reached
+        return el.getBoundingClientRect().bottom <= window.innerHeight+1600; // bottom reached
     }
 
     trackScrolling = () => {
