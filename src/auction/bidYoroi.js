@@ -37,11 +37,14 @@ export async function placeBid(currentHeight, bidAmount, box) {
     let oldBid = wasm.ErgoBox.from_json(JSON.stringify(box))
 
     const utxos = await ergo.get_utxos(bidAmount + auctionFee);
+    utxos.push(oldBid.to_json())
     const selector = new wasm.SimpleBoxSelector();
+    let dataIns = new wasm.DataInputs()
+    dataIns.add(new wasm.DataInput(wasm.BoxId.from_str(additionalData.dataInput.id)))
     let ins = wasm.ErgoBoxes.from_boxes_json(utxos)
     let needTokens = new wasm.Tokens()
     needTokens.add(oldBid.tokens().get(0))
-    ins.add(oldBid)
+    // ins.add(oldBid)
     const boxSelection = selector.select(
         ins,
         wasm.BoxValue.from_i64(wasm.I64.from_str(bidAmount.toString())
@@ -51,13 +54,12 @@ export async function placeBid(currentHeight, bidAmount, box) {
 
     const returnBidder = new wasm.ErgoBoxCandidateBuilder(
         oldBid.value(),
-        wasm.Contract.pay_to_address(wasm.Address.from_base58(box.bidder),
-            currentHeight))
+        wasm.Contract.pay_to_address(wasm.Address.from_base58(box.bidder)),
+            currentHeight)
 
     const bid = new wasm.ErgoBoxCandidateBuilder(
         wasm.BoxValue.from_i64(wasm.I64.from_str(bidAmount.toString())),
-        wasm.Contract.pay_to_address(wasm.Address.from_base58(box.address),
-            currentHeight))
+        wasm.Contract.pay_to_address(wasm.Address.from_base58(box.address)), currentHeight)
     bid.add_token(oldBid.tokens().get(0).id(), oldBid.tokens().get(0).amount())
 
     let nextEndTime =
@@ -78,7 +80,8 @@ export async function placeBid(currentHeight, bidAmount, box) {
     if (oldBid.register_value(9) !== undefined)
         bid.set_register_value(9, oldBid.register_value(9))
 
-    let outs = new wasm.ErgoBoxCandidates(bid.build())
+    let outs = wasm.ErgoBoxCandidates.empty()
+    outs.add(bid.build())
     outs.add(returnBidder.build())
 
     const txBuilder = wasm.TxBuilder.new(
@@ -88,16 +91,34 @@ export async function placeBid(currentHeight, bidAmount, box) {
         wasm.BoxValue.from_i64(wasm.I64.from_str(auctionFee.toString())),
         wasm.Address.from_base58(ourAddr),
         wasm.BoxValue.SAFE_USER_MIN());
-    txBuilder.d
+    txBuilder.set_data_inputs(dataIns)
+    let tx = txBuilder.build().to_json()
 
+    let correctTx = wasm.UnsignedTransaction.from_json(JSON.stringify(tx)).to_json();
+    console.log(`new id: ${correctTx.id}`);
+    // correctTx.id = correctTx.tx_id
+    // correctTx.tx_id = undefined
+    // correctTx = JSON.parse(JSON.stringify(correctTx))
+    // we must use the exact order chosen as after 0.4.3 in sigma-rust
+    // this can change and might not use all the utxos as the coin selection
+    // might choose a more optimal amount
+    correctTx.inputs = correctTx.inputs.map(box => {
+        const fullBoxInfo = utxos.find(utxo => utxo.boxId === box.boxId);
+        return {
+            ...fullBoxInfo,
+            extension: {}
+        };
+    });
+
+
+    console.log('tx: ', correctTx)
     try {
-        txBuilder.build()
+        let signed = await ergo.sign_tx(correctTx)
+        console.log('done', signed)
+        console.log(JSON.parse(signed))
     } catch (e) {
-        console.log(e)
+        console.log('err', JSON.stringify(e))
     }
-    console.log('here')
-    console.log(box)
-    console.log(txBuilder.build().to_json())
 
 
     return
