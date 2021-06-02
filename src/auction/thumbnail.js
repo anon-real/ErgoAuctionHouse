@@ -1,7 +1,7 @@
 const thumbnailUrlPrefix = 'https://absole.io/cache/';
 
  function thumbnailUrl(tokenId, imgUrl){
-     const fileExtension = imgUrl.split('.').pop().replace('gif', 'jpg')
+     const fileExtension = imgUrl.split('.').pop()
     return thumbnailUrlPrefix + tokenId + '.' + fileExtension
 }
 
@@ -16,7 +16,7 @@ async function hasThumbnail(tokenId, imgUrl){
 }
 
 export async function getThumbnail(tokenId, imgUrl){
-    if(imgUrl && hasThumbnail(tokenId, imgUrl)){
+    if(imgUrl && await hasThumbnail(tokenId, imgUrl)){
         return thumbnailUrl(tokenId, imgUrl)
     }else{
         return imgUrl
