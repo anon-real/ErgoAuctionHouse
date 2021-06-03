@@ -4,9 +4,10 @@ import PageTitle from '../../../Layout/AppMain/PageTitle';
 import {
     allAuctionTrees,
     boxById,
-    getAuctionHistory, getCompleteAuctionHistory,
+    // getAuctionHistory,
+    getCompleteAuctionHistory,
 } from '../../../auction/explorer';
-import HistoryBox from './historyBox';
+// import HistoryBox from './historyBox';
 import PropagateLoader from 'react-spinners/PropagateLoader';
 import { css } from '@emotion/core';
 import { showMsg } from '../../../auction/helpers';

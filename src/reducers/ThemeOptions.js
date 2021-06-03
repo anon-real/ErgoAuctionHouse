@@ -229,6 +229,8 @@ export default function reducer(state = {
                 ...state,
                 backgroundImageOpacity: action.backgroundImageOpacity
             };
+        default:
+            break;
     }
     return state;
 }

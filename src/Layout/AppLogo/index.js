@@ -41,8 +41,8 @@ class HeaderLogo extends React.Component {
             enableClosedSidebar,
         } = this.props;
 
-        const {
-        } = this.state;
+        // const {
+        // } = this.state;
 
         return (
             <Fragment>
@@ -52,6 +52,7 @@ class HeaderLogo extends React.Component {
                         <img
                             style={{ height: '40px', width: '40px' }}
                             src={nodeWallet}
+                            alt=""
                         />
                         <strong className="ml-2 text-white">  Auction House</strong>
                     </a>

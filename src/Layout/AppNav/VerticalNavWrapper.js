@@ -3,7 +3,7 @@ import {withRouter} from 'react-router-dom';
 
 import MetisMenu from 'react-metismenu';
 
-import {About, ActiveNav, HistoryNav, Home} from './NavItems';
+import {About, ActiveNav, HistoryNav} from './NavItems';
 
 class Nav extends Component {
 

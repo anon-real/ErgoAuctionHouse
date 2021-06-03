@@ -4,9 +4,9 @@ import AuctionHistory from '../../AuctionPages/AuctionHistory';
 import ActiveAuction from '../../AuctionPages/ActiveAuction';
 
 import { ToastContainer } from 'react-toastify';
-import Homepage from "../../Home";
+// import Homepage from "../../Home";
 import FaqPage from "../../Faq";
-import SpecificAuctions from "../../AuctionPages/ActiveAuction/Active/specificAuction";
+// import SpecificAuctions from "../../AuctionPages/ActiveAuction/Active/specificAuction";
 
 const AppMain = () => {
     return (

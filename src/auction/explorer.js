@@ -2,7 +2,7 @@ import {Address, Explorer, Transaction} from '@coinbarn/ergo-ts';
 import {
     friendlyToken,
     getMyBids, isWalletNode,
-    isWalletSaved,
+    // isWalletSaved,
     setMyBids,
     showStickyMsg,
 } from './helpers';
