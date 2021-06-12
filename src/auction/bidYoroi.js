@@ -44,7 +44,6 @@ export async function placeBid(currentHeight, bidAmount, box) {
     let ins = wasm.ErgoBoxes.from_boxes_json(utxos)
     let needTokens = new wasm.Tokens()
     needTokens.add(oldBid.tokens().get(0))
-    // ins.add(oldBid)
     const boxSelection = selector.select(
         ins,
         wasm.BoxValue.from_i64(wasm.I64.from_str(bidAmount.toString())
@@ -95,6 +94,7 @@ export async function placeBid(currentHeight, bidAmount, box) {
     let tx = txBuilder.build().to_json()
 
     let correctTx = wasm.UnsignedTransaction.from_json(JSON.stringify(tx)).to_json();
+    // correctTx.id = correctTx.tx_id
     console.log(`new id: ${correctTx.id}`);
     // correctTx.id = correctTx.tx_id
     // correctTx.tx_id = undefined
@@ -110,12 +110,20 @@ export async function placeBid(currentHeight, bidAmount, box) {
         };
     });
 
+    // correctTx.outputs = correctTx.outputs.map((box, ind) => {
+    //     box.index = ind
+    //     box.boxId = correctTx.inputs[0].boxId
+    //     box.transactionId = correctTx.id
+    //     return box
+    // });
 
-    console.log('tx: ', correctTx)
+
+    // console.log('txjs: ', correctTx)
+    // console.log('tx: ', JSON.stringify(correctTx))
     try {
         let signed = await ergo.sign_tx(correctTx)
-        console.log('done', signed)
-        console.log(JSON.parse(signed))
+        console.log('singed', signed)
+        console.log('signed:', JSON.stringify(signed))
     } catch (e) {
         console.log('err', JSON.stringify(e))
     }
