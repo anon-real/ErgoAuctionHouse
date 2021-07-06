@@ -145,11 +145,11 @@ class WalletModal extends React.Component {
             });
     }
 
-    clearWallet(showMsg=true) {
+    clearWallet(showMsgg=true) {
         sessionStorage.removeItem('wallet');
         localStorage.removeItem('wallet');
         this.setState({ walletState: 'Configure' });
-        if (showMsg) {
+        if (showMsgg) {
             showMsg('Successfully cleared wallet info from local storage.');
             this.toggle();
         }
