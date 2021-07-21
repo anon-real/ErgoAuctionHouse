@@ -120,13 +120,16 @@ export async function placeBid(currentHeight, bidAmount, box) {
 
     // console.log('txjs: ', correctTx)
     // console.log('tx: ', JSON.stringify(correctTx))
-    try {
+    console.log(correctTx, 'yay')
+    // try {
         let signed = await ergo.sign_tx(correctTx)
-        console.log('singed', signed)
+        console.log('here', signed)
         console.log('signed:', JSON.stringify(signed))
-    } catch (e) {
-        console.log('err', JSON.stringify(e))
-    }
+    // } catch (e) {
+    //     console.log('here', signed)
+    //     console.log('err', JSON.stringify(e))
+    // }
+    console.log('done')
 
 
     return

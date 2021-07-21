@@ -76,7 +76,8 @@ export function getWalletAddress() {
 export function getWalletType() {
     if (localStorage.getItem('wallet') !== null)
         return JSON.parse(localStorage.getItem('wallet')).type
-    return JSON.parse(sessionStorage.getItem('wallet')).type
+    if (sessionStorage.getItem('wallet') !== null) return JSON.parse(sessionStorage.getItem('wallet')).type
+    return null
 }
 
 export function getMyBids() {
