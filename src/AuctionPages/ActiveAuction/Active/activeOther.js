@@ -42,6 +42,7 @@ export default class ActiveOther extends React.Component {
             bidModal: false,
             myBidsModal: false,
             detailsModal: false,
+            infoModal: false
         };
         this.openBid = this.openBid.bind(this);
         this.openMyBids = this.openMyBids.bind(this);
@@ -109,6 +110,20 @@ export default class ActiveOther extends React.Component {
                     close={this.openMyBids}
                     highText="current active bid"
                 />
+                <ArtworkDetails
+                    isOpen={this.state.infoModal}
+                    close={() =>
+                        this.setState({
+                            infoModal: !this.state.infoModal,
+                        })
+                    }
+                    tokenId={this.props.box.assets[0].tokenId}
+                    tokenName={this.props.box.tokenName}
+                    tokenDescription={
+                        this.props.box.tokenDescription
+                    }
+                    simple={true}
+                />
                 <BidHistory close={this.openDetails} box={this.props.box} isOpen={this.state.detailsModal}/>
                 <div className="card mb-3 widget-chart">
                     <div className="widget-chart-actions">
@@ -125,6 +140,13 @@ export default class ActiveOther extends React.Component {
                                         <NavLink
                                             href={'#/auction/specific/' + this.props.box.id}
                                         >Go to Auction's Specific Link</NavLink>
+                                        <NavLink
+                                            onClick={() => {
+                                                this.setState({infoModal: true})
+                                            }}
+                                        >
+                                            Details
+                                        </NavLink>
                                     </NavItem>
                                 </Nav>
                             </DropdownMenu>
