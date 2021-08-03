@@ -90,6 +90,7 @@ export default class ActiveAuctions extends React.Component {
         this.toggleModal = this.toggleModal.bind(this);
         this.sortAuctions = this.sortAuctions.bind(this);
         this.toggleAssemblerModal = this.toggleAssemblerModal.bind(this);
+        this.trackScrolling = this.trackScrolling.bind(this);
     }
 
     toggleModal() {
@@ -123,15 +124,29 @@ export default class ActiveAuctions extends React.Component {
             this.toggleModal();
         }
     }
+    
+    isBottom(el) {
+        return el.getBoundingClientRect().bottom <= window.innerHeight; // bottom reached
+    }
+
+    trackScrolling = () => {
+        if(!this.state.loading && this.state.auctions.length >= this.state.end && document.getElementsByClassName('page-list-container') !== undefined){
+            const wrappedElement = document.getElementsByClassName('page-list-container')[0]
+            if (this.isBottom(wrappedElement)) { 
+                this.setState({end: this.state.end + limit})
+            }
+        }
+    };
 
     componentDidMount() {
         let type = 'picture'
         try {
-            type = this.props.location.search.split('=')[1]
+            type = (this.props.location.search.split('=')[1]) ? this.props.location.search.split('=')[1] : 'picture'
         } catch (e) {
         }
         this.refreshInfo(true, true, type);
         this.refreshTimer = setInterval(this.refreshInfo, 5000);
+        document.addEventListener('scroll', this.trackScrolling); // add event listener
     }
 
     componentWillReceiveProps(nextProps, nextContext) {
@@ -147,6 +162,7 @@ export default class ActiveAuctions extends React.Component {
     }
 
     componentWillUnmount() {
+        document.removeEventListener('scroll', this.trackScrolling); // removing event listener
         if (this.refreshTimer !== undefined) {
             clearInterval(this.refreshTimer);
         }
@@ -327,34 +343,12 @@ export default class ActiveAuctions extends React.Component {
                         />
                     </div>
                 ) : (
-                    <ShowAuctions
-                        auctions={this.state.auctions.slice(0, this.state.end)}
-                    />
+                    <div className="page-list-container">
+                        <ShowAuctions
+                            auctions={this.state.auctions.slice(0, this.state.end)}
+                        />
+                    </div>
                 )}
-                <div
-                    style={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                    }}
-                >
-                    <Row>
-                        <Button
-                            onClick={() => this.setState({end: this.state.end + limit})}
-                            outline
-                            className="btn-outline-light bold m-2 border-0"
-                            color="primary"
-                        >
-                            {!this.state.loading && this.state.auctions.length >= this.state.end && (
-                                <span>
-                                        <i className="nav-link-icon lnr-plus-circle">
-                                            {' '}
-                                        </i>
-                                        Load More
-                                    </span>
-                            )}
-                        </Button>
-                    </Row>
-                </div>
             </Fragment>
         );
     }

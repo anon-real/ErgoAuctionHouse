@@ -72,6 +72,13 @@ export default class PlaceBidModal extends React.Component {
     }
 
     placeBid() {
+        if (!isWalletSaved()) {
+            showMsg(
+                `Please configure the wallet first!`,
+                true
+            );
+            return;
+        }
         if (
             isWalletNode() &&
             ergToNano(this.state.bidAmount) + auctionFee > this.state.ergBalance

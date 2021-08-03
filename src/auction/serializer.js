@@ -1,7 +1,8 @@
-import { Serializer } from '@coinbarn/ergo-ts/dist/serializer';
+import {Serializer} from '@coinbarn/ergo-ts/dist/serializer';
 import {Address} from "@coinbarn/ergo-ts/dist/models/address";
 import {getIssuingBox, getSpendingTx} from "./explorer";
 import {getTxUrl} from "./helpers";
+
 let ergolib = import('ergo-lib-wasm-browser')
 
 const floatRe = new RegExp('^([0-9]*[.])?[0-9]*$')
@@ -22,7 +23,7 @@ export async function encodeHex(reg) {
 }
 
 function toHexString(byteArray) {
-    return Array.from(byteArray, function(byte) {
+    return Array.from(byteArray, function (byte) {
         return ('0' + (byte & 0xFF).toString(16)).slice(-2);
     }).join('')
 }
@@ -36,6 +37,7 @@ async function decodeStr(str) {
 }
 
 export async function decodeBox(box, height) {
+    if (box.additionalRegisters.R9 === undefined) return undefined
     let info = Serializer.stringFromHex(
         await decodeString(box.additionalRegisters.R9)
     );
@@ -64,7 +66,7 @@ export async function decodeBox(box, height) {
 
     await getIssuingBox(box.assets[0].tokenId)
         .then((res) => {
-            if(Object.keys(res[0].additionalRegisters).length >= 5) {
+            if (Object.keys(res[0].additionalRegisters).length >= 5) {
                 box.isArtwork = true
                 box.artHash = res[0].additionalRegisters.R8
                 box.artCode = res[0].additionalRegisters.R7
@@ -72,6 +74,11 @@ export async function decodeBox(box, height) {
                 box.tokenDescription = res[0].additionalRegisters.R5
                 if (Object.keys(res[0].additionalRegisters).length === 6)
                     box.artworkUrl = res[0].additionalRegisters.R9
+            } else if (Object.keys(res[0].additionalRegisters).length >= 1) {
+                box.tokenName = res[0].additionalRegisters.R4
+            }
+            if (Object.keys(res[0].additionalRegisters).length >= 2) {
+                box.tokenDescription = res[0].additionalRegisters.R5
             }
         })
         .catch(err => {
@@ -94,6 +101,13 @@ export async function decodeBox(box, height) {
         } catch (e) {
             box.isArtwork = false
         }
+    } else {
+        if (box.tokenName) {
+            box.tokenName = await decodeStr(box.tokenName)
+        }
+        if (box.tokenDescription) {
+            box.tokenDescription = await decodeStr(box.tokenDescription)
+        }
     }
 
     return await box
@@ -101,6 +115,7 @@ export async function decodeBox(box, height) {
 
 export async function decodeBoxes(boxes, height) {
     let cur = await Promise.all(boxes.map((box) => decodeBox(box, height)))
+    cur = cur.filter(res => res !== undefined)
     cur.sort((a, b) => a.remBlock - b.remBlock)
     return cur
 }

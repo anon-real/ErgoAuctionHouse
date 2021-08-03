@@ -3,6 +3,7 @@ import {Button, Container, Modal, ModalBody, ModalFooter, ModalHeader} from 'rea
 import {friendlyAddress, friendlyToken, getMyBids, getTxUrl, showMsg} from '../../../auction/helpers';
 import Clipboard from "react-clipboard.js";
 import {auctionFee} from "../../../auction/explorer";
+import QRCode from "react-qr-code";
 
 const statusToBadge = {
     'pending mining': 'info',
@@ -79,6 +80,8 @@ export default class SendModal extends React.Component {
                                 here.
                             </a>
                         </p>
+                        <QRCode value={"https://explorer.ergoplatform.com/payment-request?address=" + this.props.bidAddress +
+                        "&amount=" + (this.props.bidAmount + auctionFee) / 1e9}/>
                     </Container>
                 </ModalBody>
                 <ModalFooter>

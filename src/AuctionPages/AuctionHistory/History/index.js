@@ -51,7 +51,7 @@ export default class AuctionsHistory extends React.Component {
                         .map((tx) => {
                             return boxById(tx.inputs[0].id)
                                 .then(res => decodeBox(res))
-                        });
+                        }).filter(res => res !== undefined);
                     Promise.all(boxes)
                         .then((res) => {
                             res.forEach((box) => {

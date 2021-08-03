@@ -22,6 +22,7 @@ import {
 import {decodeNum, decodeString, encodeHex, encodeNum} from './serializer';
 
 const url = 'https://assembler.ergoauctions.org/';
+// const url = 'https://assm.sigmausd.io/';
 
 export async function follow(request) {
     return await post(getUrl(url) + '/follow', request).then((res) =>
@@ -95,7 +96,7 @@ export async function assembleFinishedAuctions(boxes) {
     boxes
         .filter((box) => box.remBlock === 0)
         .forEach((box) => {
-            let feeAmount = box.value / percentage;
+            let feeAmount = parseInt(box.value / percentage);
             let winner = {
                 value: winnerVal,
                 address: box.bidder,

@@ -99,7 +99,7 @@ export default class ActiveAudio extends React.Component {
         let box = this.props.box;
         let time = this.getTime(box.remBlock)
         return (
-            <Col key={box.id} md="4">
+            <Col key={box.id} lg="6" xl="4" md="6">
                 <PlaceBidModal
                     isOpen={this.state.bidModal}
                     box={this.props.box}
