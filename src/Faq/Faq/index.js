@@ -67,9 +67,9 @@ export default class Faqs extends React.Component {
                 <Faq
                     data={data}
                     styles={{
-                        bgColor: '#f1f4f6',
+                        bgColor: '#fff',
                         titleTextColor: '#48482a',
-                        rowTitleColor: '#78789a',
+                        rowTitleColor: '#444457',
                         rowTitleTextSize: 'large',
                         rowContentColor: '#48484a',
                         rowContentTextSize: '16px',
