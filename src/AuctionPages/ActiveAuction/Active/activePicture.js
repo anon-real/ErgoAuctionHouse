@@ -35,6 +35,7 @@ import MyBidsModal from './myBids';
 import BidHistory from './bidHistory';
 import { Row } from 'react-bootstrap';
 import ArtworkDetails from '../../artworkDetails';
+import  { getThumbnail } from "../../../auction/thumbnail.js"
 
 const override = css`
     display: block;
@@ -49,6 +50,8 @@ export default class ActivePicture extends React.Component {
             myBidsModal: false,
             detailsModal: false,
         };
+
+        getThumbnail(props.box.assets[0].tokenId, props.box.artworkUrl).then(url => this.imageSrc = url)
         this.openBid = this.openBid.bind(this);
         this.openMyBids = this.openMyBids.bind(this);
         this.openDetails = this.openDetails.bind(this);
@@ -189,8 +192,8 @@ export default class ActivePicture extends React.Component {
                                 }
                                 className="auctionImg"
                                 src={
-                                    this.props.box.artworkUrl
-                                        ? this.props.box.artworkUrl
+                                    this.imageSrc
+                                        ? this.imageSrc
                                         : 'http://revisionmanufacture.com/assets/uploads/no-image.png'
                                 }
                             />
