@@ -20,6 +20,13 @@ export function friendlyAddress(addr, tot=13) {
     return addr.slice(0, tot) + '...' + addr.slice(-tot);
 }
 
+export function friendlyName(name, tot=80) {
+    if (name === undefined || name.slice === undefined) return ''
+    else if (name.length < tot) return name
+    return name.slice(0, tot) + '...';
+
+}
+
 export function getTxUrl(txId) {
     return explorerUrl + 'transactions/' + txId;
 }

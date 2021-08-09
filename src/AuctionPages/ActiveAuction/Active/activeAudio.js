@@ -162,7 +162,7 @@ export default class ActiveAudio extends React.Component {
                             <SyncLoader
                                 css={override}
                                 size={8}
-                                color={'#0b473e'}
+                                color={'#0086d3'}
                                 loading={this.props.box.loader}
                             />
                         </ResponsiveContainer>

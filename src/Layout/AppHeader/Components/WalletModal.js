@@ -161,9 +161,8 @@ class WalletModal extends React.Component {
                 {/*{this.walletOk() ? <p>ok</p> : <p>fuck no</p>}*/}
                 <Button
                     onClick={this.toggle}
-                    outline
                     className="mr-2 btn-transition"
-                    color="secondary"
+                    color="light"
                 >
                     <i className="nav-link-icon pe-7s-cash mr-2" />
                     <span>{this.state.walletState} Wallet</span>
@@ -342,7 +341,7 @@ class WalletModal extends React.Component {
                         <SyncLoader
                             css={override}
                             size={8}
-                            color={'#0b473e'}
+                            color={'#0086d3'}
                             loading={this.state.processing}
                         />
                         <Button
