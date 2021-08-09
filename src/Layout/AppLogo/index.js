@@ -6,7 +6,7 @@ import Hamburger from 'react-hamburgers';
 import AppMobileMenu from '../AppMobileMenu';
 
 import {setEnableClosedSidebar, setEnableMobileMenu, setEnableMobileMenuSmall,} from '../../reducers/ThemeOptions';
-import nodeWallet from "../../assets/images/symbol_bold__1080px__white.png";
+import nodeWallet from "../../assets/images/symbol_bold__1080px__black.svg";
 
 class HeaderLogo extends React.Component {
     constructor(props) {
