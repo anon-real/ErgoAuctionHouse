@@ -363,7 +363,6 @@ button.bg-alternate:focus {
     --white: #fff;
     --gray: #6c757d;
     --gray-dark: #343a40;
-    /* --primary: #033C73; */
     --primary: #0086d3;
     --secondary: #ced4da;
     --success: #73A839;
@@ -12278,9 +12277,9 @@ button,
 .bg-transparent {
     background: transparent !important;
 }
-.bg-primary {
+.bg-primary-header {
     /* background-image: linear-gradient(120deg, white 0%, white 100%) !important; */
-    background-image: linear-gradient(120deg, var(--primary) 0%, var(--primary) 100%) !important;
+    background-image: linear-gradient(120deg, #fff 0%, #fff 100%) !important;
 }
 
 /*!

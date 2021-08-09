@@ -162,7 +162,9 @@ class WalletModal extends React.Component {
                 <Button
                     onClick={this.toggle}
                     className="mr-2 btn-transition"
-                    color="light"
+                    color="primary"
+                    outline
+                    size="lg"
                 >
                     <i className="nav-link-icon pe-7s-cash mr-2" />
                     <span>{this.state.walletState} Wallet</span>
