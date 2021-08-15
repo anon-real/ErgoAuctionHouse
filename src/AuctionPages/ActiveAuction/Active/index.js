@@ -83,7 +83,8 @@ export default class ActiveAuctions extends React.Component {
             loading: true,
             auctions: [],
             sortKey: '0',
-            end: limit
+            end: limit,
+            lastLoaded: []
         };
         this.refreshInfo = this.refreshInfo.bind(this);
         this.openAuction = this.openAuction.bind(this);
@@ -124,40 +125,57 @@ export default class ActiveAuctions extends React.Component {
             this.toggleModal();
         }
     }
-    
+
     isBottom(el) {
         return el.getBoundingClientRect().bottom <= window.innerHeight; // bottom reached
     }
 
     trackScrolling = () => {
-        if(!this.state.loading && this.state.auctions.length >= this.state.end && document.getElementsByClassName('page-list-container') !== undefined){
+        if (!this.state.loading && this.state.auctions.length >= this.state.end && document.getElementsByClassName('page-list-container') !== undefined) {
             const wrappedElement = document.getElementsByClassName('page-list-container')[0]
-            if (this.isBottom(wrappedElement)) { 
+            if (this.isBottom(wrappedElement)) {
                 this.setState({end: this.state.end + limit})
             }
         }
     };
 
+    parseQueries(query) {
+        let queries = query.slice(1).split('&')
+        let queryMp = {}
+        queries.forEach(query => {
+            let cur = query.split('=')
+            queryMp[cur[0]] = cur[1]
+        })
+        return queryMp
+    }
+
     componentDidMount() {
         let type = 'picture'
+        let artist = null
         try {
-            type = (this.props.location.search.split('=')[1]) ? this.props.location.search.split('=')[1] : 'picture'
+            const mp = this.parseQueries(this.props.location.search)
+            if (mp['type'] !== undefined) type = mp['type']
+            if (mp['artist'] !== undefined) artist = mp['artist']
         } catch (e) {
         }
-        this.refreshInfo(true, true, type);
+        this.refreshInfo(true, true, type, artist);
         this.refreshTimer = setInterval(this.refreshInfo, 5000);
         document.addEventListener('scroll', this.trackScrolling); // add event listener
     }
 
     componentWillReceiveProps(nextProps, nextContext) {
         let type = 'picture'
+        let artist = ''
         try {
-            type = nextProps.location.search.split('=')[1]
+            const mp = this.parseQueries(nextProps.location.search)
+            if (mp['type'] !== undefined) type = mp['type']
+            if (mp['artist'] !== undefined) artist = mp['artist']
         } catch (e) {
+            console.log(e)
         }
         if (this.props.location.search !== nextProps.location.search) {
             this.setState({loading: true})
-            this.refreshInfo(true, true, type);
+            this.refreshInfo(true, true, type, artist);
         }
     }
 
@@ -186,9 +204,11 @@ export default class ActiveAuctions extends React.Component {
         this.setState({auctions: auctions, sortKey: key})
     }
 
-    refreshInfo(force = false, firstTime = false, type = null) {
+    refreshInfo(force = false, firstTime = false, type = null, artist = null) {
         if (type === null)
             type = this.state.type
+        if (artist === null)
+            artist = this.state.artist
         if (!force) {
             this.setState({lastUpdated: this.state.lastUpdated + 5});
             if (this.state.lastUpdated < 40) return;
@@ -204,11 +224,17 @@ export default class ActiveAuctions extends React.Component {
                                 if (type === 'picture') return boxes.filter(box => box.isPicture)
                                 if (type === 'audio') return boxes.filter(box => box.isAudio)
                                 if (type === 'other') return boxes.filter(box => !box.isArtwork)
-                            })
+                            }).then(boxes => {
+                            if (artist) {
+                                return boxes.filter(box => artist.split(',').includes(box.artist))
+                            }
+                            else return boxes
+                        })
                             .then((boxes) => {
                                 this.setState({
                                     loading: false,
-                                    type: type
+                                    type: type,
+                                    artist: artist
                                 });
                                 this.sortAuctions(boxes, this.state.sortKey)
                                 withdrawFinishedAuctions(boxes);
@@ -233,6 +259,11 @@ export default class ActiveAuctions extends React.Component {
                 if (!force) setTimeout(() => this.refreshInfo(true), 4000);
                 else setTimeout(() => this.refreshInfo(true), 20000);
             });
+    }
+
+    friendlyArtist() {
+        return this.state.artist.split(',').map(artist => friendlyAddress(artist, 3))
+            .join(' - ')
     }
 
     render() {
@@ -278,6 +309,13 @@ export default class ActiveAuctions extends React.Component {
                                     Last updated {this.state.lastUpdated}{' '}
                                     seconds ago.
                                 </div>
+                                {this.state.artist && <div
+                                    className={cx('page-title-subheading', {
+                                        'd-none': false,
+                                    })}
+                                >
+                                    <b>Artist: {this.friendlyArtist()}</b>
+                                </div>}
                                 <div
                                     className={cx('page-title-subheading', {
                                         'd-none': false,

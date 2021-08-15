@@ -1,6 +1,6 @@
 import {Serializer} from '@coinbarn/ergo-ts/dist/serializer';
-import {Address} from "@coinbarn/ergo-ts/dist/models/address";
-import {getIssuingBox, getSpendingTx} from "./explorer";
+import {Address, AddressKind} from "@coinbarn/ergo-ts/dist/models/address";
+import {boxById, getIssuingBox, getSpendingTx, txById} from "./explorer";
 import {getTxUrl} from "./helpers";
 
 let ergolib = import('ergo-lib-wasm-browser')
@@ -101,6 +101,7 @@ export async function decodeBox(box, height) {
         } catch (e) {
             box.isArtwork = false
         }
+
     } else {
         if (box.tokenName) {
             box.tokenName = await decodeStr(box.tokenName)
@@ -108,6 +109,20 @@ export async function decodeBox(box, height) {
         if (box.tokenDescription) {
             box.tokenDescription = await decodeStr(box.tokenDescription)
         }
+    }
+
+    try {
+        box.artist = 'Unknown'
+        const tokBox = await boxById(box.assets[0].tokenId)
+        if (AddressKind.P2PK === new Address(tokBox.address).getType())
+            box.artist = tokBox.address
+        else {
+            const tokTx = await txById(tokBox.txId)
+            if (AddressKind.P2PK === new Address(tokTx.inputs[0].address).getType())
+                box.artist = tokTx.inputs[0].address
+        }
+    } catch (e) {
+        console.log(e)
     }
 
     return await box
