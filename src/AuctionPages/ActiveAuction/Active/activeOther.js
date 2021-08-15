@@ -29,6 +29,7 @@ import MyBidsModal from './myBids';
 import BidHistory from './bidHistory';
 import {Row} from "react-bootstrap";
 import ArtworkDetails from "../../artworkDetails";
+import {Link} from "react-router-dom";
 
 const override = css`
   display: block;
@@ -123,6 +124,7 @@ export default class ActiveOther extends React.Component {
                         this.props.box.tokenDescription
                     }
                     simple={true}
+                    artist={this.props.box.artist}
                 />
                 <BidHistory close={this.openDetails} box={this.props.box} isOpen={this.state.detailsModal}/>
                 <div className="card mb-3 widget-chart">
@@ -244,17 +246,30 @@ export default class ActiveOther extends React.Component {
 
                         <div className="widget-chart-wrapper chart-wrapper-relative">
                             <div
+                                onClick={() => {
+                                    this.setState({infoModal: true})
+                                }}
                                 style={{
                                     flex: 1,
+                                    cursor: 'pointer',
                                     justifyContent: 'center',
                                     alignItems: 'center',
-                                    height: '60px',
+                                    height: '100px',
                                     overflowY: 'hidden',
-                                    overflowX: 'hidden'
+                                    overflowX: 'hidden',
+                                    fontSize: '12px',
                                 }}
                             >
                                 <p className="text-primary mr-2 ml-2">
                                     {this.props.box.description}
+
+                                    <Link
+                                        to={'/auction/active?type=other&artist=' + this.props.box.artist}
+                                    >
+                                        <b
+                                        >
+                                            {' '}- By {friendlyAddress(this.props.box.artist, 4)}
+                                        </b></Link>
                                 </p>
                             </div>
                         </div>
