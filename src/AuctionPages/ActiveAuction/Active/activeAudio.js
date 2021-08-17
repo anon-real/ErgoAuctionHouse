@@ -35,6 +35,7 @@ import MyBidsModal from './myBids';
 import BidHistory from './bidHistory';
 import { Row } from 'react-bootstrap';
 import ArtworkDetails from '../../artworkDetails';
+import {Link} from "react-router-dom";
 
 const override = css`
     display: block;
@@ -117,6 +118,21 @@ export default class ActiveAudio extends React.Component {
                     box={this.props.box}
                     isOpen={this.state.detailsModal}
                 />
+                <ArtworkDetails
+                    isOpen={this.state.infoModal}
+                    close={() =>
+                        this.setState({
+                            infoModal: !this.state.infoModal,
+                        })
+                    }
+                    tokenId={this.props.box.assets[0].tokenId}
+                    tokenName={this.props.box.tokenName}
+                    tokenDescription={
+                        this.props.box.tokenDescription
+                    }
+                    artist={this.props.box.artist}
+                    artHash={this.props.box.artHash}
+                />
                 <div className="card mb-3 widget-chart">
                     <div className="widget-chart-actions">
                         <UncontrolledButtonDropdown direction="left">
@@ -194,11 +210,15 @@ export default class ActiveAudio extends React.Component {
 
                         <div className="widget-chart-wrapper chart-wrapper-relative">
                             <div
+                                onClick={() => {
+                                    this.setState({infoModal: true})
+                                }}
                                 style={{
                                     flex: 1,
+                                    cursor: 'pointer',
                                     justifyContent: 'center',
                                     alignItems: 'center',
-                                    height: '70px',
+                                    height: '100px',
                                     overflowY: 'hidden',
                                     overflowX: 'hidden',
                                     fontSize: '12px',
@@ -206,6 +226,14 @@ export default class ActiveAudio extends React.Component {
                             >
                                 <p className="text-primary mr-2 ml-2">
                                     {this.props.box.description}
+
+                                    <Link
+                                        to={'/auction/active?type=audio&artist=' + this.props.box.artist}
+                                    >
+                                        <b
+                                        >
+                                            {' '}- By {friendlyAddress(this.props.box.artist, 4)}
+                                        </b></Link>
                                 </p>
                             </div>
                         </div>

@@ -60,6 +60,20 @@ export default class ArtworkDetails extends React.Component {
                                 </Clipboard>{' '}
                             </Col>
                         </Row>}
+                        {this.props.artist && <Row>
+                            <Col md="4">
+                                Artist Address:
+                            </Col>
+                            <Col md="8">
+                                <Clipboard
+                                    component="b"
+                                    data-clipboard-text={this.props.artist}
+                                    onSuccess={() => showMsg('Copied!')}
+                                >
+                                    {friendlyAddress(this.props.artist, 10)}
+                                </Clipboard>{' '}
+                            </Col>
+                        </Row>}
 
                         <div className="divider text-muted bg-premium-dark opacity-1"/>
                         <div
