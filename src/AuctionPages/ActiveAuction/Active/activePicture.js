@@ -36,6 +36,7 @@ import MyBidsModal from './myBids';
 import BidHistory from './bidHistory';
 import { Row } from 'react-bootstrap';
 import ArtworkDetails from '../../artworkDetails';
+import {Link} from "react-router-dom";
 
 const override = css`
     display: block;
@@ -213,8 +214,15 @@ export default class ActivePicture extends React.Component {
                                     fontSize: '12px',
                                 }}
                             >
-                                <p className="text-primary mr-2 ml-2 text-truncate">
-                                    {this.props.box.description ? this.props.box.description : " "}
+                                <p className="text-primary mr-2 ml-2">
+                                    <div className="text-truncate">{this.props.box.description}</div>
+                                    <Link
+                                        to={'/auction/active?type=picture&artist=' + this.props.box.artist}
+                                    >
+                                        <b
+                                        >
+                                            {' '}- By {friendlyAddress(this.props.box.artist, 4)}
+                                        </b></Link>
                                 </p>
                             </div>
                         </div>
