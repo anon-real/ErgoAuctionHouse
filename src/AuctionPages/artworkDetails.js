@@ -18,16 +18,19 @@ export default class ArtworkDetails extends React.Component {
                 toggle={this.props.close}
             >
                 <ModalHeader toggle={this.props.close}>
-                    <span className="fsize-1 text-muted">
+                    {!this.props.simple && <span className="fsize-1 text-muted">
                         Artwork details for NFT {' '}
                         {friendlyAddress(this.props.tokenId, 5)}.
-                    </span>
+                    </span>}
+                    {this.props.simple && <span className="fsize-1 text-muted">
+                        Details for {' '} {friendlyAddress(this.props.tokenId, 5)}.
+                    </span>}
                 </ModalHeader>
                 <ModalBody>
                     <Container>
                         <Row>
                             <Col md="4">
-                                Artwork Name:
+                                {!this.props.simple && <span>Artwork</span>} Name:
                             </Col>
                             <Col md="8">
                                 <b>{this.props.tokenName}</b>
@@ -35,13 +38,15 @@ export default class ArtworkDetails extends React.Component {
                         </Row>
                         <Row>
                             <Col md="4">
-                                Artwork Description:
+                                {!this.props.simple && <span>Artwork</span>} Description:
                             </Col>
                             <Col md="8" style={{overflowY: "auto"}}>
-                                <b>{this.props.tokenDescription}</b>
+                                <b>
+                                    <pre>{this.props.tokenDescription}</pre>
+                                </b>
                             </Col>
                         </Row>
-                        <Row>
+                        {!this.props.simple && <Row>
                             <Col md="4">
                                 Artwork Checksum:
                             </Col>
@@ -54,7 +59,21 @@ export default class ArtworkDetails extends React.Component {
                                     {friendlyAddress(this.props.artHash, 15)}
                                 </Clipboard>{' '}
                             </Col>
-                        </Row>
+                        </Row>}
+                        {this.props.artist && <Row>
+                            <Col md="4">
+                                Artist Address:
+                            </Col>
+                            <Col md="8">
+                                <Clipboard
+                                    component="b"
+                                    data-clipboard-text={this.props.artist}
+                                    onSuccess={() => showMsg('Copied!')}
+                                >
+                                    {friendlyAddress(this.props.artist, 10)}
+                                </Clipboard>{' '}
+                            </Col>
+                        </Row>}
 
                         <div className="divider text-muted bg-premium-dark opacity-1"/>
                         <div

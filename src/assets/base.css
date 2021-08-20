@@ -16932,3 +16932,8 @@ a.badge-alternate:hover, a.badge-alternate:focus {
     margin-left: auto;
     margin-right: auto;
 }
+
+svg {
+    display: block;
+    margin: auto;
+}

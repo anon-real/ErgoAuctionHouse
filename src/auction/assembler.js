@@ -22,6 +22,7 @@ import {
 import {decodeNum, decodeString, encodeHex, encodeNum} from './serializer';
 
 const url = 'https://assembler.ergoauctions.org/';
+// const url = 'https://assm.sigmausd.io/';
 
 export async function follow(request) {
     return await post(getUrl(url) + '/follow', request).then((res) =>

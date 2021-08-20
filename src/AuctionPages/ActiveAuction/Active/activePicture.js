@@ -20,12 +20,12 @@ import {
     isWalletSaved,
     showMsg,
 } from '../../../auction/helpers';
-import { ResponsiveContainer } from 'recharts';
+import {ResponsiveContainer} from 'recharts';
 import SyncLoader from 'react-spinners/SyncLoader';
 import ReactTooltip from 'react-tooltip';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faAngleUp, faEllipsisV } from '@fortawesome/free-solid-svg-icons';
-import { css } from '@emotion/core';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {faAngleUp, faEllipsisV} from '@fortawesome/free-solid-svg-icons';
+import {css} from '@emotion/core';
 import {
     auctionWithExtensionTree,
     getSpendingTx,
@@ -33,12 +33,14 @@ import {
 import PlaceBidModal from './placeBid';
 import MyBidsModal from './myBids';
 import BidHistory from './bidHistory';
-import { Row } from 'react-bootstrap';
+import {Row} from 'react-bootstrap';
 import ArtworkDetails from '../../artworkDetails';
+import Clipboard from "react-clipboard.js";
+import {Link} from "react-router-dom";
 
 const override = css`
-    display: block;
-    margin: 0 auto;
+  display: block;
+  margin: 0 auto;
 `;
 
 export default class ActivePicture extends React.Component {
@@ -55,7 +57,7 @@ export default class ActivePicture extends React.Component {
     }
 
     openDetails() {
-        this.setState({ detailsModal: !this.state.detailsModal });
+        this.setState({detailsModal: !this.state.detailsModal});
     }
 
     getTime(blockRem) {
@@ -69,7 +71,7 @@ export default class ActivePicture extends React.Component {
 
     openBid() {
         if (this.state.bidModal) {
-            this.setState({ bidModal: !this.state.bidModal });
+            this.setState({bidModal: !this.state.bidModal});
             return;
         }
         if (!isWalletSaved()) {
@@ -83,12 +85,12 @@ export default class ActivePicture extends React.Component {
                 true
             );
         } else {
-            this.setState({ bidModal: !this.state.bidModal });
+            this.setState({bidModal: !this.state.bidModal});
         }
     }
 
     openMyBids() {
-        this.setState({ myBidsModal: !this.state.myBidsModal });
+        this.setState({myBidsModal: !this.state.myBidsModal});
     }
 
     showAddress(addr) {
@@ -121,7 +123,7 @@ export default class ActivePicture extends React.Component {
                     <div className="widget-chart-actions">
                         <UncontrolledButtonDropdown direction="left">
                             <DropdownToggle color="link">
-                                <FontAwesomeIcon icon={faEllipsisV} />
+                                <FontAwesomeIcon icon={faEllipsisV}/>
                             </DropdownToggle>
                             <DropdownMenu className="dropdown-menu-md-left">
                                 <Nav vertical>
@@ -167,7 +169,7 @@ export default class ActivePicture extends React.Component {
                             />
                         </ResponsiveContainer>
 
-                        <div style={{ cursor: 'pointer' }} className="imgDiv">
+                        <div style={{cursor: 'pointer'}} className="imgDiv">
                             <ArtworkDetails
                                 isOpen={this.state.artDetail}
                                 close={() =>
@@ -182,10 +184,11 @@ export default class ActivePicture extends React.Component {
                                 }
                                 artHash={this.props.box.artHash}
                                 artworkUrl={this.props.box.artworkUrl}
+                                artist={this.props.box.artist}
                             />
                             <img
                                 onClick={() =>
-                                    this.setState({ artDetail: true })
+                                    this.setState({artDetail: true})
                                 }
                                 className="auctionImg"
                                 src={
@@ -195,7 +198,7 @@ export default class ActivePicture extends React.Component {
                                 }
                             />
                         </div>
-                        <ReactTooltip effect="solid" place="bottom" />
+                        <ReactTooltip effect="solid" place="bottom"/>
 
                         <div className="widget-chart-wrapper chart-wrapper-relative">
                             <div
@@ -203,7 +206,7 @@ export default class ActivePicture extends React.Component {
                                     flex: 1,
                                     justifyContent: 'center',
                                     alignItems: 'center',
-                                    height: '70px',
+                                    height: '100px',
                                     overflowY: 'hidden',
                                     overflowX: 'hidden',
                                     fontSize: '12px',
@@ -211,6 +214,14 @@ export default class ActivePicture extends React.Component {
                             >
                                 <p className="text-primary mr-2 ml-2">
                                     {this.props.box.description}
+
+                                    <Link
+                                        to={'/auction/active?type=picture&artist=' + this.props.box.artist}
+                                    >
+                                        <b
+                                        >
+                                            {' '}- By {friendlyAddress(this.props.box.artist, 4)}
+                                        </b></Link>
                                 </p>
                             </div>
                         </div>
@@ -231,7 +242,7 @@ export default class ActivePicture extends React.Component {
                             <b>
                                 {(this.props.box.value +
                                     this.props.box.minStep) /
-                                    1e9}{' '}
+                                1e9}{' '}
                                 ERG
                             </b>
                         </text>
@@ -298,11 +309,11 @@ export default class ActivePicture extends React.Component {
                                         ERG
                                     </b>{' '}
                                     <text
-                                        style={{ fontSize: '10px' }}
+                                        style={{fontSize: '10px'}}
                                         className="text-success pl-1 pr-1"
                                     >
                                         {this.props.box.increase}%
-                                        <FontAwesomeIcon icon={faAngleUp} />
+                                        <FontAwesomeIcon icon={faAngleUp}/>
                                     </text>
                                 </span>
                             </Row>

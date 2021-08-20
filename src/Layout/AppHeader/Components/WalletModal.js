@@ -145,11 +145,11 @@ class WalletModal extends React.Component {
             });
     }
 
-    clearWallet(showMsg=true) {
+    clearWallet(showMsgg=true) {
         sessionStorage.removeItem('wallet');
         localStorage.removeItem('wallet');
         this.setState({ walletState: 'Configure' });
-        if (showMsg) {
+        if (showMsgg) {
             showMsg('Successfully cleared wallet info from local storage.');
             this.toggle();
         }
@@ -213,6 +213,7 @@ class WalletModal extends React.Component {
                             </Button>
                             <Button
                                 outline
+                                disabled={true}
                                 className={
                                     'mx-2 btn-wide btn-pill ' +
                                     classnames({
@@ -288,11 +289,11 @@ class WalletModal extends React.Component {
                             </TabPane>
                             <TabPane tabId="assembler">
                                 <p>
-                                    You can use any wallet to place bids by using the assembler service.
+                                    You can use <b>any wallet</b> including <b>Yoroi</b> to place bid and start new auctions.
                                 </p>
                                 <p>
-                                    The assembler service is an intermediate
-                                    step which you can find out more about{' '}
+                                    This uses the assembler service which is an intermediate
+                                    step; you can find out more about it{' '}
                                     <a
                                         target="_blank"
                                         href="https://www.ergoforum.org/t/tx-assembler-service-bypassing-node-requirement-for-dapps/443"
@@ -327,7 +328,7 @@ class WalletModal extends React.Component {
                                     </FormFeedback>
                                     <FormText>
                                         Your funds and winning tokens will be sent to this address. {' '}
-                                        <b>Make sure your wallet can take care of tokens!</b> {' '}
+                                        <b>Make sure your wallet supports custom tokens!</b> {' '}
                                         Currently, <a href="https://github.com/ergoplatform/ergo">Ergo Node</a>, {' '}
                                         <a href="https://github.com/coinbarn/coinbarn-extension">Coinbarn</a>, {' '}
                                         <a href="https://ergowallet.io/">Ergo Wallet</a> and {' '}
