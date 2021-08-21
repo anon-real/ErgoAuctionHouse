@@ -103,7 +103,7 @@ export default class ActivePicture extends React.Component {
         let box = this.props.box;
         let time = this.getTime(box.remBlock)
         return (
-            <Col key={box.id} sm="12" md="6" lg="4" xl="3">
+            <Col key={box.id} xs="12" md="6" lg="6" xl="4">
                 <PlaceBidModal
                     isOpen={this.state.bidModal}
                     box={this.props.box}
@@ -211,7 +211,7 @@ export default class ActivePicture extends React.Component {
                                     flex: 1,
                                     justifyContent: 'center',
                                     alignItems: 'center',
-                                    height: '100px',
+                                    // height: '100px',
                                     overflowY: 'hidden',
                                     overflowX: 'hidden',
                                     fontSize: '12px',
@@ -229,28 +229,6 @@ export default class ActivePicture extends React.Component {
                                 </p>
                             </div>
                         </div>
-                    </div>
-
-                    <div className="widget-chart-wrapper chart-wrapper-relative mb-3">
-                        <a
-                            className="bold text-info"
-                            href="#"
-                            onClick={(e) => {
-                                e.preventDefault();
-                                this.openBid();
-                            }}
-                        >
-                            Place Bid
-                        </a>{' '}
-                        <text>
-                            for{' '}
-                            <b>
-                                {(this.props.box.value +
-                                    this.props.box.minStep) /
-                                1e9}{' '}
-                                ERG
-                            </b>
-                        </text>
                     </div>
 
                     <div className='mb-2'>
