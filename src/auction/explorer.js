@@ -10,6 +10,7 @@ import {broadcast} from './nodeWallet';
 import {get} from "./rest";
 
 const explorer = Explorer.mainnet;
+export const auctionContract = `2Xkwxkru3G1YvgXutH794X6SoTXMkZjiVXt3P7jaMvvJ8Fo7M3n4rUhTD66E3KiRwNDBeUnbe144Dbsct8rw1hjaUuFsRsEEWGaZWN7bhZjJrom2FaM3BRqGB4aESZwKNtuuQ6vPiLKdJUf4GiKdiHDEzYNxfjguJAconLTB2Yoj2xwZ73tU5ftLco7gfLXvGutNJ7LpmzPfrG3nNhsfk2ECruVQ94zUHCpK324aoPLspmd5s9Nm9Av4vSnp11vQ29KtTHRjprKCzQfJBGjSxdUgDyyWZKfi4JLbqPtB2AS47U79gwaBsreTmKeG67syeMRwA5c27og7KFDbNAWPBxtJQQfaJpZHHfRQccfAKeNyRQovrPT46G7W2rvuVijiBQsAq5BgdQsapUd28FrMWn29UBTGnyRmbYy2goR9sTQNfKjdgsYeBRaFqducsyw7YzDHwDwB2WFe37tP7U9WtsGrqM31r9N7mB7s1EsXHJmGRGTQpTkjFQz4RwhZGpp9NKUN5QJEoYsQtzFwSjjU3bZrJJ1a5qRuaGvJPfRAX5TmPv3ahVKA9PpvWQfM7DDK7mTdy98KWfATnV2h8VGzUJCdBVu4Wetj2jhzhVGoaVWYoPQCLchcZRGhGrvnKdKJGBPXQ4EKPWw8uWjE9sJQCrGQfDQwXJxtE8jdgww1Jf8v`
 
 // auction contract protocol with time extending functionality
 export const auctionWithExtensionAddr =
@@ -130,7 +131,8 @@ export async function getIssuingBox(tokenId) {
         .catch((_) => null);
 }
 
-export function handlePendingBids(height) { let bids = getMyBids().filter((bid) => bid.status === 'pending mining');
+export function handlePendingBids(height) {
+    let bids = getMyBids().filter((bid) => bid.status === 'pending mining');
     if (bids !== null) {
         let res = bids.map((bid) => {
             let txs = bid.tx.inputs
@@ -197,11 +199,13 @@ export function handlePendingBids(height) { let bids = getMyBids().filter((bid) 
                                 console.log(`broadcasting using node: ${r}`)
                             );
                         }
-                    } catch (_) {}
+                    } catch (_) {
+                    }
                 }
                 return bid;
             });
-            return getSpendingTx(bid.boxId).then((res) => {});
+            return getSpendingTx(bid.boxId).then((res) => {
+            });
         });
         Promise.all(res).then((res) => {
             let curBids = getMyBids();
