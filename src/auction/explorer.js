@@ -10,7 +10,7 @@ import {broadcast} from './nodeWallet';
 import {get} from "./rest";
 
 const explorer = Explorer.mainnet;
-export const auctionContract = `2Xkwxkru3G1YvgXutH794X6SoTXMkZjiVXt3P7jaMvvJ8Fo7M3n4rUhTD66E3KiRwNDBeUnbe144Dbsct8rw1hjaUuFsRsEEWGaZWN7bhZjJrom2FaM3BRqGB4aESZwKNtuuQ6vPiLKdJUf4GiKdiHDEzYNxfjguJAconLTB2Yoj2xwZ73tU5ftLco7gfLXvGutNJ7LpmzPfrG3nNhsfk2ECruVQ94zUHCpK324aoPLspmd5s9Nm9Av4vSnp11vQ29KtTHRjprKCzQfJBGjSxdUgDyyWZKfi4JLbqPtB2AS47U79gwaBsreTmKeG67syeMRwA5c27og7KFDbNAWPBxtJQQfaJpZHHfRQccfAKeNyRQovrPT46G7W2rvuVijiBQsAq5BgdQsapUd28FrMWn29UBTGnyRmbYy2goR9sTQNfKjdgsYeBRaFqducsyw7YzDHwDwB2WFe37tP7U9WtsGrqM31r9N7mB7s1EsXHJmGRGTQpTkjFQz4RwhZGpp9NKUN5QJEoYsQtzFwSjjU3bZrJJ1a5qRuaGvJPfRAX5TmPv3ahVKA9PpvWQfM7DDK7mTdy98KWfATnV2h8VGzUJCdBVu4Wetj2jhzhVGoaVWYoPQCLchcZRGhGrvnKdKJGBPXQ4EKPWw8uWjE9sJQCrGQfDQwXJxtE8jdgww1Jf8v`
+export const latestAddr = `2Xkwxkru3G1YvgXutH794X6SoTXMkZjiVXt3P7jaMvvJ8Fo7M3n4rUhTD66E3KiRwNDBeUnbe144Dbsct8rw1hjaUuFsRsEEWGaZWN7bhZjJrom2FaM3BRqGB4aESZwKNtuuQ6vPiLKdJUf4GiKdiHDEzYNxfjguJAconLTB2Yoj2xwZ73tU5ftLco7gfLXvGutNJ7LpmzPfrG3nNhsfk2ECruVQ94zUHCpK324aoPLspmd5s9Nm9Av4vSnp11vQ29KtTHRjprKCzQfJBGjSxdUgDyyWZKfi4JLbqPtB2AS47U79gwaBsreTmKeG67syeMRwA5c27og7KFDbNAWPBxtJQQfaJpZHHfRQccfAKeNyRQovrPT46G7W2rvuVijiBQsAq5BgdQsapUd28FrMWn29UBTGnyRmbYy2goR9sTQNfKjdgsYeBRaFqducsyw7YzDHwDwB2WFe37tP7U9WtsGrqM31r9N7mB7s1EsXHJmGRGTQpTkjFQz4RwhZGpp9NKUN5QJEoYsQtzFwSjjU3bZrJJ1a5qRuaGvJPfRAX5TmPv3ahVKA9PpvWQfM7DDK7mTdy98KWfATnV2h8VGzUJCdBVu4Wetj2jhzhVGoaVWYoPQCLchcZRGhGrvnKdKJGBPXQ4EKPWw8uWjE9sJQCrGQfDQwXJxtE8jdgww1Jf8v`
 
 // auction contract protocol with time extending functionality
 export const auctionWithExtensionAddr =
@@ -24,6 +24,30 @@ export const auctionOrdinaryAddr =
     '9RN5yYHW3AfFvU65Zo5KXpwrmYMEx549dtTTB8Bq5PSwyPQ1je35jAQrwvM9xLkxMS1Tp4if3DvaXfduY6Us7CNu4xsZMCZYjD5V33p8Znu7PyNxx2qtSduL2nK64tREtH2e7isDCueZHJCmfQbVaZEw6EidRtg9tDusXb963wKaV43GVSgF2i2tt6UtNBskmQA1RzYwjXGWXCtTnE7kYN68w34Yt3yAhxtArxKTcr48GxfT1raTDaytB8AGLa3Bq7GGZVRmPtpJCzSKUsAYveQ94FCwfCd1fbJfY3af42ec4GGfnrwLj3iuPsuTggh5x5bLFzZpW8uKTf5VCyWv9MoBhBjtBGhuchMnpHqNUJrA993f2APVXUwdTfgCHRvtsUawg4mWBjT8c5iojvnY863x9TxuxQ1Kp9UJVcc1783jZsrZCbHRZnuEqkHwG3nom8i1TCT4rxpVcGqmtUjSDbofjg4K';
 export const auctionOrdinaryTree = new Address(auctionOrdinaryAddr).ergoTree;
 
+export let contracts = {}
+contracts[latestAddr] = {
+    isActive: true,
+    extendThreshold: 30 * 60 * 1000,
+    extendNum: 40 * 60 * 1000,
+    loyalty: true,
+    customToken: true
+}
+contracts[auctionWithExtensionAddr] = {
+    isActive: false,
+    extendThreshold: 15,
+    extendNum: 20,
+    loyalty: false,
+    customToken: false
+}
+contracts[auctionOrdinaryAddr] = {
+    isActive: false,
+    extendThreshold: 0,
+    extendNum: 0,
+    loyalty: false,
+    customToken: false
+}
+
+
 export const activeAuctionAddresses = [
     auctionWithExtensionAddr, auctionOrdinaryAddr
 ];
@@ -32,7 +56,7 @@ export const inactiveAuctionAddresses = [
     'sLjd9UUGa3nhh58YLReDqyZb695v91tKLyaV5Lifpw9uTKyJEGdcF7Z5MJsEgnPMyQycASAaBtSfLQdzw6HkZgAXTTZQtruZw3dFLC3MZrVYG14Gyjw7Twf2pYXzWLqauNqiCVrVq6bs8dEg7UycdnGUKEdP6a7HvtdtLZoaRRsK9hf8Jhx9TUnVjaGhYFjMRKnDEhXzDsKBpvmXnKyAJok89gqbspWbzhvnJPat2SgGXU3t4RTxRvYZyV2UJkcS2JVpB9jZ26pAcG55PAgxDNsmuXgDUGRnqutbFaigpTZWSpkTeP9yUFCfYFD4g4pJLvFGwY8knARVLoGADPAPRvs7EbPTFTYde8RxMFyPYdh6gtGmJ7Lz3QTve2ufCXTasAEZ5tJini8sip9zj2yHbATmeXC789wgjinSYmEaPvUF3T9JUxLG7Eb2575tpGdbN2sQotSAXdqFbtcw3V',
 ];
 export const allAuctionTrees = activeAuctionAddresses // array of trees of all auction addresses until now.
-    .concat(inactiveAuctionAddresses)
+    .concat([inactiveAuctionAddresses, latestAddr])
     .map((addr) => new Address(addr).ergoTree)
     .concat([auctionWithExtensionTree, auctionOrdinaryTree]);
 
