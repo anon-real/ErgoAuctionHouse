@@ -211,7 +211,6 @@ export default class ActivePicture extends React.Component {
                                     flex: 1,
                                     justifyContent: 'center',
                                     alignItems: 'center',
-                                    // height: '100px',
                                     overflowY: 'hidden',
                                     overflowX: 'hidden',
                                     fontSize: '12px',
