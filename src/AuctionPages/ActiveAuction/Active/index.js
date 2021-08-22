@@ -387,11 +387,11 @@ export default class ActiveAuctions extends React.Component {
                         />
                     </div>
                 ) : (
-                    <Container className="page-list-container">
+                    <div className="page-list-container">
                         <ShowAuctions
                             auctions={this.state.auctions.slice(0, this.state.end)}
                         />
-                    </Container>
+                    </div>
                 )}
             </Fragment>
         );
