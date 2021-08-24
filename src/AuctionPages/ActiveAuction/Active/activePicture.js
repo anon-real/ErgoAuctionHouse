@@ -13,6 +13,7 @@ import {
 } from 'reactstrap';
 import {
     friendlyAddress,
+    friendlyName,
     friendlyToken,
     getAddrUrl,
     getTxUrl,
@@ -23,8 +24,9 @@ import {
 import {ResponsiveContainer} from 'recharts';
 import SyncLoader from 'react-spinners/SyncLoader';
 import ReactTooltip from 'react-tooltip';
+
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faAngleUp, faEllipsisV} from '@fortawesome/free-solid-svg-icons';
+import {faAngleUp, faEllipsisV, faEllipsisH} from '@fortawesome/free-solid-svg-icons';
 import {css} from '@emotion/core';
 import {
     auctionWithExtensionTree,
@@ -101,7 +103,7 @@ export default class ActivePicture extends React.Component {
         let box = this.props.box;
         let time = this.getTime(box.remBlock)
         return (
-            <Col key={box.id} lg="6" xl="4" md="6">
+            <Col key={box.id} xs="12" md="6" lg="6" xl="4">
                 <PlaceBidModal
                     isOpen={this.state.bidModal}
                     box={this.props.box}
@@ -119,11 +121,14 @@ export default class ActivePicture extends React.Component {
                     box={this.props.box}
                     isOpen={this.state.detailsModal}
                 />
-                <div className="card mb-3 widget-chart">
+                <div className="card mb-3 bg-white widget-chart">
+                    
+                    <b class="fsize-1 text-truncate" style={{marginTop: 8}}>{this.props.box.tokenName}</b>
+
                     <div className="widget-chart-actions">
                         <UncontrolledButtonDropdown direction="left">
                             <DropdownToggle color="link">
-                                <FontAwesomeIcon icon={faEllipsisV}/>
+                                <FontAwesomeIcon icon={faEllipsisH} />
                             </DropdownToggle>
                             <DropdownMenu className="dropdown-menu-md-left">
                                 <Nav vertical>
@@ -160,11 +165,11 @@ export default class ActivePicture extends React.Component {
                     </div>
 
                     <div className="widget-chart-content">
-                        <ResponsiveContainer height={20}>
+                        <ResponsiveContainer height={10}>
                             <SyncLoader
                                 css={override}
                                 size={8}
-                                color={'#0b473e'}
+                                color={'#0086d3'}
                                 loading={this.props.box.loader}
                             />
                         </ResponsiveContainer>
@@ -206,15 +211,13 @@ export default class ActivePicture extends React.Component {
                                     flex: 1,
                                     justifyContent: 'center',
                                     alignItems: 'center',
-                                    height: '100px',
                                     overflowY: 'hidden',
                                     overflowX: 'hidden',
                                     fontSize: '12px',
                                 }}
                             >
                                 <p className="text-primary mr-2 ml-2">
-                                    {this.props.box.description}
-
+                                    <div className="text-truncate">{this.props.box.description}</div>
                                     <Link
                                         to={'/auction/active?type=picture&artist=' + this.props.box.artist}
                                     >
@@ -225,27 +228,6 @@ export default class ActivePicture extends React.Component {
                                 </p>
                             </div>
                         </div>
-                    </div>
-                    <div className="widget-chart-wrapper chart-wrapper-relative mb-3">
-                        <a
-                            className="bold text-info"
-                            href="#"
-                            onClick={(e) => {
-                                e.preventDefault();
-                                this.openBid();
-                            }}
-                        >
-                            Place Bid
-                        </a>{' '}
-                        <text>
-                            for{' '}
-                            <b>
-                                {(this.props.box.value +
-                                    this.props.box.minStep) /
-                                1e9}{' '}
-                                ERG
-                            </b>
-                        </text>
                     </div>
 
                     <div className='mb-2'>
@@ -351,7 +333,29 @@ export default class ActivePicture extends React.Component {
                                 </div>
                             </div>
                         </Col>
+
+
                     </CardFooter>
+
+                    <button type="button" class="btn btn-outline-primary btn-lg" style={{fontSize: 14}} 
+                    onClick={(e) => {
+                        e.preventDefault();
+                        this.openBid();
+                    }}>
+                        <text>
+                            Place Bid
+                        </text>{' '}
+                        <text>
+                            for{' '}
+                            <b>
+                                {(this.props.box.value +
+                                    this.props.box.minStep) /
+                                    1e9}{' '}
+                                ERG
+                            </b>
+                        </text>
+                    </button>
+
                 </div>
             </Col>
         );
