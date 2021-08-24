@@ -296,7 +296,13 @@ export default class ActiveAuctions extends React.Component {
                                     'd-none': false,
                                 })}
                             >
-                                <i className="pe-7s-volume2 icon-gradient bg-night-fade"/>
+                                {
+                                    this.state.type === "audio" ?
+                                <i className="pe-7s-volume2  icon-gradient bg-night-fade" style={{fontSize: 56}}/>
+                                :
+                                <i className="pe-7s-photo  icon-gradient bg-night-fade" style={{fontSize: 56}}/>
+                                    
+                                }
                             </div>
                             <div>
                                 Active Auctions - {this.state.type}
@@ -376,7 +382,7 @@ export default class ActiveAuctions extends React.Component {
                         <PropagateLoader
                             css={override}
                             size={20}
-                            color={'#0b473e'}
+                            color={'#0086d3'}
                             loading={this.state.loading}
                         />
                     </div>

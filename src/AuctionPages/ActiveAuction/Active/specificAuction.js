@@ -231,7 +231,7 @@ export default class SpecificAuctions extends React.Component {
                         <PropagateLoader
                             css={override}
                             size={20}
-                            color={'#0b473e'}
+                            color={'#0086d3'}
                             loading={this.state.loading}
                         />
                     </div>
