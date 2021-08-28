@@ -1,6 +1,5 @@
 import React, {Fragment, useRef} from 'react';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-
 import {
     auctionFee,
     currentHeight,
@@ -84,7 +83,9 @@ export default class ActiveAuctions extends React.Component {
             auctions: [],
             sortKey: '0',
             end: limit,
-            lastLoaded: []
+            lastLoaded: [],
+            searchValue:'',
+            selectedAuctions:[]
         };
         this.refreshInfo = this.refreshInfo.bind(this);
         this.openAuction = this.openAuction.bind(this);
@@ -92,6 +93,9 @@ export default class ActiveAuctions extends React.Component {
         this.sortAuctions = this.sortAuctions.bind(this);
         this.toggleAssemblerModal = this.toggleAssemblerModal.bind(this);
         this.trackScrolling = this.trackScrolling.bind(this);
+        this.SubmitSearch = this.SubmitSearch.bind(this);
+        this.clearSearch = this.clearSearch.bind(this);
+        this.setSelectedAuctions = this.setSelectedAuctions.bind(this);
     }
 
     toggleModal() {
@@ -266,6 +270,25 @@ export default class ActiveAuctions extends React.Component {
             .join(' - ')
     }
 
+    SubmitSearch(){
+        let SelectedAuctions = [];
+        var re = new RegExp(this.state.searchValue, 'i');
+        this.state.auctions.map((data)=>{
+            if(data.description.match(re)  !== null || data.artist.search(this.state.searchValue) !== -1)
+                SelectedAuctions.push(data)
+        })
+        this.setSelectedAuctions(SelectedAuctions)
+    }
+
+    setSelectedAuctions(selectedAuctions){
+        this.setState({loading:true})
+        setTimeout(()=>this.setState({selectedAuctions: selectedAuctions,loading:false}),1000) // SetTimeout For better UX 
+    }
+
+    clearSearch(){
+        this.setState({selectedAuctions: [],loading:false,searchValue:''})
+    }
+
     render() {
         return (
             <Fragment>
@@ -362,7 +385,37 @@ export default class ActiveAuctions extends React.Component {
                                 </Col>
                             </Row>
                         </Container>
-
+                    </div>
+                </div>
+                <div className="search-container">
+                    <div className="search-box">
+                        <form className="d-flex justify-content-between align-items-center" onSubmit={(e)=>{
+                            e.preventDefault();
+                            this.SubmitSearch();
+                        }}>
+                            <input 
+                                disabled={this.state.auctions.length === 0} 
+                                className="search-input ml-1" 
+                                placeholder="Search by Description or Artist Address" 
+                                value={this.state.searchValue} 
+                                onChange={(e)=>this.setState({searchValue:e.target.value})}
+                            />
+                            <button className="search-icon-container" type="submit">
+                                <i className="lnr lnr-magnifier search-icon"/>
+                            </button>
+                        </form>
+                    </div>
+                    <div
+                        className={cx('page-title-subheading', {
+                            'd-none': true,
+                            'd-md-flex align-items-center': this.state.selectedAuctions.length !== 0,
+                        })}
+                    >
+                        <b>{this.state.selectedAuctions.length} active auctions Found with worth of {(this.state.selectedAuctions.map(auc => auc.value).reduce((a, b) => a + b, 0) / 1e9).toFixed(1)} ERG</b>
+                        <button type="button" class="btn-outline-lin m-2 border-0 btn btn-outline-primary" onClick={this.clearSearch}>
+                            <i class="lnr lnr-cross mr-2"/>
+                            <span>Clear Search</span>
+                        </button>
                     </div>
                 </div>
                 {this.state.loading ? (
@@ -381,11 +434,13 @@ export default class ActiveAuctions extends React.Component {
                         />
                     </div>
                 ) : (
-                    <div className="page-list-container">
-                        <ShowAuctions
-                            auctions={this.state.auctions.slice(0, this.state.end)}
-                        />
-                    </div>
+                    <>
+                        <div className="page-list-container">
+                            <ShowAuctions
+                                auctions={(this.state.selectedAuctions.length === 0)? this.state.auctions.slice(0, this.state.end):this.state.selectedAuctions.slice(0, this.state.end)}
+                            />
+                        </div>
+                    </>
                 )}
             </Fragment>
         );
