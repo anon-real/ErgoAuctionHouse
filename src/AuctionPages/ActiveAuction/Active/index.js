@@ -408,10 +408,19 @@ export default class ActiveAuctions extends React.Component {
                     <div
                         className={cx('page-title-subheading', {
                             'd-none': true,
-                            'd-md-flex align-items-center': this.state.selectedAuctions.length !== 0,
+                            'd-md-flex flex-column flex-md-row align-items-center': this.state.selectedAuctions.length !== 0,
                         })}
                     >
                         <b>{this.state.selectedAuctions.length} active auctions Found with worth of {(this.state.selectedAuctions.map(auc => auc.value).reduce((a, b) => a + b, 0) / 1e9).toFixed(1)} ERG</b>
+                        <button type="button" class="btn-outline-lin m-2 border-0 btn btn-outline-primary" onClick={this.clearSearch}>
+                            <i class="lnr lnr-cross mr-2"/>
+                            <span>Clear Search</span>
+                        </button>
+                    </div>
+                    <div className={cx('d-md-none d-flex', {
+                            'invisible': this.state.selectedAuctions.length === 0,
+                    })}>
+                        <b className="d-flex d-md- align-items-center">{this.state.selectedAuctions.length} active auctions Found!</b>
                         <button type="button" class="btn-outline-lin m-2 border-0 btn btn-outline-primary" onClick={this.clearSearch}>
                             <i class="lnr lnr-cross mr-2"/>
                             <span>Clear Search</span>
