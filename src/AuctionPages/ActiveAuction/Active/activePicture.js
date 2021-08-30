@@ -103,7 +103,7 @@ export default class ActivePicture extends React.Component {
         let box = this.props.box;
         let time = this.getTime(box.remBlock)
         return (
-            <Col key={box.id} xs="12" md="6" lg="6" xl="4">
+            <Col key={box.id} lg="6" xl="4" md="6">
                 <PlaceBidModal
                     isOpen={this.state.bidModal}
                     box={this.props.box}
@@ -123,7 +123,7 @@ export default class ActivePicture extends React.Component {
                 />
                 <div className="card mb-3 bg-white widget-chart">
                     
-                    <b class="fsize-1 text-truncate" style={{marginTop: 8}}>{this.props.box.tokenName}</b>
+                    <b className="fsize-1 text-truncate" style={{marginTop: 8}}>{this.props.box.tokenName}</b>
 
                     <div className="widget-chart-actions">
                         <UncontrolledButtonDropdown direction="left">
