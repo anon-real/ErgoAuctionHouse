@@ -11513,7 +11513,7 @@ button,
 
 .app-main {
     flex: 1;
-    display: flex;
+    /* display: flex; */
     z-index: 8;
     position: relative;
 }
@@ -11523,6 +11523,7 @@ button,
     flex-direction: column;
     display: flex;
     z-index: 12;
+    min-height: 90vh;
 }
 
 .app-main .app-main__inner {
@@ -11552,7 +11553,7 @@ button,
 
 .app-theme-white .app-footer .app-footer__inner,
 .app-theme-white .app-header {
-    background: #fafbfc;
+    background: #FFFFFF;
 }
 
 .app-theme-white.fixed-header .app-header__logo {
