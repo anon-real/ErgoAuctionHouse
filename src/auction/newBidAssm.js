@@ -1,8 +1,8 @@
 import {addAssemblerBid, getWalletAddress,} from './helpers';
 import {Address} from '@coinbarn/ergo-ts';
-import {additionalData, auctionFee} from './explorer';
 import {encodeHex, encodeNum} from './serializer';
 import {follow, p2s} from "./assembler";
+import {additionalData, txFee} from "./consts";
 
 const template = `{
   val userAddress = PK("$userAddress")
@@ -56,11 +56,11 @@ export async function registerBid(currentHeight, bidAmount, box, address) {
         address: address,
         returnTo: ourAddr,
         startWhen: {
-            erg: bidAmount + auctionFee,
+            erg: bidAmount + txFee,
         },
         txSpec: {
             requests: [newBox, returnBidder],
-            fee: auctionFee,
+            fee: txFee,
             inputs: ['$userIns', box.id],
             dataInputs: [additionalData.dataInput.id],
         },

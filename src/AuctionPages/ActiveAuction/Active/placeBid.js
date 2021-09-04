@@ -18,9 +18,10 @@ import {
 import {friendlyToken, isWalletNode, isWalletSaved, showMsg,} from '../../../auction/helpers';
 import SyncLoader from 'react-spinners/SyncLoader';
 import {css} from '@emotion/core';
-import {auctionFee, currentHeight} from '../../../auction/explorer';
-import {ergToNano, isFloat} from '../../../auction/serializer';
-import {getBidP2s, registerBid} from "../../../auction/bidAssembler";
+import {currentHeight} from '../../../auction/explorer';
+import {currencyToLong, isFloat} from '../../../auction/serializer';
+import {getBidP2s, registerBid} from "../../../auction/newBidAssm";
+import {txFee} from "../../../auction/consts";
 
 const override = css`
   display: block;
@@ -56,7 +57,7 @@ export default class PlaceBidModal extends React.Component {
         }
         if (
             isWalletNode() &&
-            ergToNano(this.state.bidAmount) + auctionFee > this.state.ergBalance
+            currencyToLong(this.state.bidAmount) + txFee > this.state.ergBalance
         ) {
             showMsg(
                 `Not enough balance to place ${this.state.bidAmount} ERG bid.`,
@@ -67,18 +68,18 @@ export default class PlaceBidModal extends React.Component {
         this.setState({modalLoading: true});
         currentHeight()
             .then((height) => {
-                getBidP2s(ergToNano(this.state.bidAmount), this.props.box)
+                getBidP2s(currencyToLong(this.state.bidAmount), this.props.box)
                     .then((addr) => {
                         registerBid(
                             height,
-                            ergToNano(this.state.bidAmount),
+                            currencyToLong(this.state.bidAmount),
                             this.props.box,
                             addr.address
                         )
                             .then((r) => {
                                 if (r.id !== undefined) {
                                     this.props.close()
-                                    this.props.assemblerModal(addr.address, ergToNano(this.state.bidAmount))
+                                    this.props.assemblerModal(addr.address, currencyToLong(this.state.bidAmount))
                                 } else {
                                     showMsg(
                                         'Could not contact the assembler service.',
@@ -143,7 +144,7 @@ export default class PlaceBidModal extends React.Component {
                                         type="number"
                                         value={this.state.bidAmount}
                                         invalid={
-                                            ergToNano(this.state.bidAmount) <
+                                            currencyToLong(this.state.bidAmount) <
                                             this.props.box.value +
                                             this.props.box.minStep
                                         }
@@ -183,7 +184,7 @@ export default class PlaceBidModal extends React.Component {
                             className="mr-2 btn-transition"
                             color="secondary"
                             disabled={
-                                ergToNano(this.state.bidAmount) <
+                                currencyToLong(this.state.bidAmount) <
                                 this.props.box.value +
                                 this.props.box.minStep ||
                                 this.state.modalLoading

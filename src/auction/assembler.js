@@ -1,8 +1,8 @@
 import {get, post} from './rest';
 import {addBid, getAssemblerBids, getUrl, setAssemblerBids, showStickyMsg,} from './helpers';
 import {Address} from '@coinbarn/ergo-ts';
-import {additionalData, auctionFee, trueAddress,} from './explorer';
 import {decodeNum, decodeString} from './serializer';
+import {additionalData, trueAddress, txFee} from "./consts";
 
 const url = 'https://assembler.ergoauctions.org/';
 
@@ -68,6 +68,7 @@ export async function bidFollower() {
 }
 
 export async function assembleFinishedAuctions(boxes) {
+    return
     let dataInput = additionalData.dataInput;
     let percentage = await decodeNum(
         dataInput.additionalRegisters.R4,
@@ -87,7 +88,7 @@ export async function assembleFinishedAuctions(boxes) {
                 assets: box.assets,
             };
             let seller = {
-                value: box.value - feeAmount - auctionFee - winnerVal,
+                value: box.value - feeAmount - txFee - winnerVal,
                 address: box.seller,
             };
             let feeBox = {
@@ -100,7 +101,7 @@ export async function assembleFinishedAuctions(boxes) {
                 startWhen: {},
                 txSpec: {
                     requests: [winner, seller, feeBox],
-                    fee: auctionFee,
+                    fee: txFee,
                     inputs: [box.id],
                     dataInputs: [dataInput.id],
                 }
