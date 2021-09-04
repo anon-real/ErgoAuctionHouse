@@ -1,28 +1,9 @@
-import {post, get} from './rest';
-import {
-    addAssemblerBid,
-    addBid,
-    getAssemblerBids,
-    getUrl,
-    getWalletAddress,
-    isAssembler,
-    isWalletNode,
-    setAssemblerBids,
-    showMsg,
-} from './helpers';
-import {Address, Transaction} from '@coinbarn/ergo-ts';
-import {
-    additionalData,
-    auctionFee, auctionOrdinaryAddr, auctionWithExtensionAddr,
-    auctionWithExtensionTree,
-    extendNum,
-    extendThreshold,
-    sendTx, trueAddress,
-} from './explorer';
-import {decodeNum, decodeString, encodeHex, encodeNum} from './serializer';
+import {addAssemblerBid, getWalletAddress,} from './helpers';
+import {Address} from '@coinbarn/ergo-ts';
+import {additionalData, auctionFee} from './explorer';
+import {encodeHex, encodeNum} from './serializer';
 import {follow, p2s} from "./assembler";
 import {Serializer} from "@coinbarn/ergo-ts/dist/serializer";
-import {generateTx} from "./nodeWallet";
 
 const template = `{
   val userAddress = fromBase64("$userAddress")
@@ -53,9 +34,9 @@ export async function registerAuction(
 ) {
     let tree = new Address(bidder).ergoTree;
     let info = `${initial},${step},${start}`;
-    let auctionAddress = auctionWithExtensionAddr
-    if (!autoExtend) auctionAddress = auctionOrdinaryAddr
-    let reqs =  [
+    let auctionAddress = 'auctionWithExtensionAddr' // TODO fix
+    // if (!autoExtend) auctionAddress = auctionOrdinaryAddr
+    let reqs = [
         {
             address: auctionAddress,
             value: initial,

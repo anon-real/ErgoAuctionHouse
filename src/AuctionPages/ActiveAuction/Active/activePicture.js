@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-    Button,
     CardFooter,
     Col,
     DropdownMenu,
@@ -11,33 +10,19 @@ import {
     Progress,
     UncontrolledButtonDropdown,
 } from 'reactstrap';
-import {
-    friendlyAddress,
-    friendlyName,
-    friendlyToken,
-    getAddrUrl,
-    getTxUrl,
-    getWalletAddress,
-    isWalletSaved,
-    showMsg,
-} from '../../../auction/helpers';
+import {friendlyAddress, getAddrUrl, isWalletSaved, showMsg,} from '../../../auction/helpers';
 import {ResponsiveContainer} from 'recharts';
 import SyncLoader from 'react-spinners/SyncLoader';
 import ReactTooltip from 'react-tooltip';
 
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faAngleUp, faEllipsisV, faEllipsisH} from '@fortawesome/free-solid-svg-icons';
+import {faAngleUp, faEllipsisH} from '@fortawesome/free-solid-svg-icons';
 import {css} from '@emotion/core';
-import {
-    auctionWithExtensionTree,
-    getSpendingTx,
-} from '../../../auction/explorer';
 import PlaceBidModal from './placeBid';
 import MyBidsModal from './myBids';
 import BidHistory from './bidHistory';
 import {Row} from 'react-bootstrap';
 import ArtworkDetails from '../../artworkDetails';
-import Clipboard from "react-clipboard.js";
 import {Link} from "react-router-dom";
 
 const override = css`
@@ -122,13 +107,13 @@ export default class ActivePicture extends React.Component {
                     isOpen={this.state.detailsModal}
                 />
                 <div className="card mb-3 bg-white widget-chart">
-                    
+
                     <b class="fsize-1 text-truncate" style={{marginTop: 8}}>{this.props.box.tokenName}</b>
 
                     <div className="widget-chart-actions">
                         <UncontrolledButtonDropdown direction="left">
                             <DropdownToggle color="link">
-                                <FontAwesomeIcon icon={faEllipsisH} />
+                                <FontAwesomeIcon icon={faEllipsisH}/>
                             </DropdownToggle>
                             <DropdownMenu className="dropdown-menu-md-left">
                                 <Nav vertical>
@@ -312,12 +297,6 @@ export default class ActivePicture extends React.Component {
                                         </div>
                                         <div className="widget-content-right">
                                             <div
-                                                data-tip={
-                                                    this.props.box.ergoTree ===
-                                                    auctionWithExtensionTree
-                                                        ? 'Auto Extend Enabled'
-                                                        : ''
-                                                }
                                                 className="text-muted opacity-6"
                                             >
                                                 {time[1]}
@@ -337,20 +316,21 @@ export default class ActivePicture extends React.Component {
 
                     </CardFooter>
 
-                    <button type="button" class="btn btn-outline-primary btn-lg" style={{fontSize: 14}} 
-                    onClick={(e) => {
-                        e.preventDefault();
-                        this.openBid();
-                    }}>
+                    <button type="button" class="btn btn-outline-primary btn-lg" style={{fontSize: 14}}
+                            onClick={(e) => {
+                                e.preventDefault();
+                                this.openBid();
+                            }}>
                         <text>
                             Place Bid
-                        </text>{' '}
+                        </text>
+                        {' '}
                         <text>
                             for{' '}
                             <b>
                                 {(this.props.box.value +
                                     this.props.box.minStep) /
-                                    1e9}{' '}
+                                1e9}{' '}
                                 ERG
                             </b>
                         </text>

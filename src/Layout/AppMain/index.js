@@ -1,12 +1,10 @@
-import { Redirect, Route } from 'react-router-dom';
-import React, { Fragment, Suspense } from 'react';
+import {Redirect, Route} from 'react-router-dom';
+import React, {Fragment, Suspense} from 'react';
 import AuctionHistory from '../../AuctionPages/AuctionHistory';
 import ActiveAuction from '../../AuctionPages/ActiveAuction';
 
-import { ToastContainer } from 'react-toastify';
-import Homepage from "../../Home";
+import {ToastContainer} from 'react-toastify';
 import FaqPage from "../../Faq";
-import SpecificAuctions from "../../AuctionPages/ActiveAuction/Active/specificAuction";
 
 const AppMain = () => {
     return (
@@ -23,7 +21,7 @@ const AppMain = () => {
                     </div>
                 }
             >
-                <Route path="/auction/specific" component={ActiveAuction} />
+                <Route path="/auction/specific" component={ActiveAuction}/>
             </Suspense>
 
             {/* ActiveAuction */}
@@ -39,7 +37,7 @@ const AppMain = () => {
                     </div>
                 }
             >
-                <Route path="/auction/active" component={ActiveAuction} />
+                <Route path="/auction/active" component={ActiveAuction}/>
             </Suspense>
 
             {/* AuctionHistory */}
@@ -55,7 +53,7 @@ const AppMain = () => {
                     </div>
                 }
             >
-                <Route path="/auction/history" component={AuctionHistory} />
+                <Route path="/auction/history" component={AuctionHistory}/>
             </Suspense>
 
             {/* Homepage */}
@@ -71,20 +69,20 @@ const AppMain = () => {
                     </div>
                 }
             >
-                <Route path="/faq" component={FaqPage} />
+                <Route path="/faq" component={FaqPage}/>
             </Suspense>
 
             <Route
                 exact
                 path="/"
-                render={() => <Redirect to="/auction/active?type=picture" />}
+                render={() => <Redirect to="/auction/active?type=picture"/>}
             />
             {/*<Route*/}
             {/*    exact*/}
             {/*    path="/auction/active"*/}
             {/*    render={() => <Redirect to="/auction/active?type=picture" />}*/}
             {/*/>*/}
-            <ToastContainer />
+            <ToastContainer/>
         </Fragment>
     );
 };

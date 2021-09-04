@@ -1,32 +1,17 @@
-import React, { Fragment } from 'react';
-import { Bar } from 'react-chartjs-2';
-import {
-    Button,
-    Col,
-    Container,
-    Modal,
-    ModalBody,
-    ModalHeader,
-    Row,
-    Tooltip,
-} from 'reactstrap';
-import {
-    friendlyToken,
-    getAddrUrl,
-    getTxUrl,
-    showMsg,
-} from '../../../auction/helpers';
+import React from 'react';
+import {Bar} from 'react-chartjs-2';
+import {Modal, ModalBody, ModalHeader, Row,} from 'reactstrap';
+import {friendlyToken, getTxUrl, showMsg,} from '../../../auction/helpers';
 import SyncLoader from 'react-spinners/SyncLoader';
-import { css } from '@emotion/core';
-import { allAuctionTrees, boxById, txById } from '../../../auction/explorer';
+import {css} from '@emotion/core';
+import {auctionTrees, boxById, txById} from '../../../auction/explorer';
 import moment from 'moment';
-import { ResponsiveContainer } from 'recharts';
-import PropagateLoader from 'react-spinners/PropagateLoader';
+import {ResponsiveContainer} from 'recharts';
 import ReactTooltip from 'react-tooltip';
 
 const override = css`
-    display: block;
-    margin: 0 auto;
+  display: block;
+  margin: 0 auto;
 `;
 
 class BidHistory extends React.Component {
@@ -65,13 +50,13 @@ class BidHistory extends React.Component {
                             },
                         });
 
-                        if (!allAuctionTrees.includes(res.ergoTree)) {
+                        if (!auctionTrees.includes(res.ergoTree)) {
                             this.setState({
                                 loading: false,
                                 remains: false,
                             });
                         } else {
-                            this.setState({ nextTx: res.txId });
+                            this.setState({nextTx: res.txId});
                             if (toLoad > 1) this.loadBids(res.txId, toLoad - 1);
                             else {
                                 this.setState({
@@ -86,12 +71,12 @@ class BidHistory extends React.Component {
                             false,
                             true
                         );
-                        this.setState({ loading: false });
+                        this.setState({loading: false});
                     });
             })
             .catch((_) => {
                 showMsg('Failed to load all bids history...', false, true);
-                this.setState({ loading: false });
+                this.setState({loading: false});
             });
     }
 
@@ -132,7 +117,7 @@ class BidHistory extends React.Component {
                 className={this.props.className}
             >
                 <ModalHeader toggle={this.props.close}>
-                    <ReactTooltip />
+                    <ReactTooltip/>
                     <span className="fsize-1 text-muted">
                         Bid history of{' '}
                         {friendlyToken(this.props.box.assets[0], false, 5)}.
@@ -173,7 +158,7 @@ class BidHistory extends React.Component {
                         />
                     </div>
 
-                    <hr />
+                    <hr/>
                     <ResponsiveContainer height={40}>
                         <div
                             className="mt-1"
@@ -234,7 +219,7 @@ class BidHistory extends React.Component {
                                     )}
                                 </span>
                             )}
-                            <br />
+                            <br/>
                             <Row>
                                 <SyncLoader
                                     css={override}

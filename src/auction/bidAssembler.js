@@ -1,25 +1,7 @@
-import {post, get} from './rest';
-import {
-    addAssemblerBid,
-    addBid,
-    getAssemblerBids,
-    getUrl,
-    getWalletAddress,
-    isAssembler,
-    isWalletNode,
-    setAssemblerBids,
-    showMsg,
-} from './helpers';
-import {Address, Transaction} from '@coinbarn/ergo-ts';
-import {
-    additionalData,
-    auctionFee,
-    auctionWithExtensionTree,
-    extendNum,
-    extendThreshold,
-    sendTx, trueAddress,
-} from './explorer';
-import {decodeNum, decodeString, encodeHex, encodeNum} from './serializer';
+import {addAssemblerBid, getWalletAddress,} from './helpers';
+import {Address} from '@coinbarn/ergo-ts';
+import {additionalData, auctionFee} from './explorer';
+import {encodeHex, encodeNum} from './serializer';
 import {follow, p2s} from "./assembler";
 
 const template = `{
@@ -43,9 +25,9 @@ export async function registerBid(currentHeight, bidAmount, box, address) {
     let encodedTree = await encodeHex(tree);
 
     let nextEndTime =
-        box.finalBlock - currentHeight <= extendThreshold &&
-        box.ergoTree === auctionWithExtensionTree
-            ? box.finalBlock + extendNum
+        box.finalBlock - currentHeight <= 'extendThreshold' &&
+        box.ergoTree === 'auctionWithExtensionTree' // TODO fix
+            ? box.finalBlock + 'extendNum'
             : box.finalBlock;
     if (nextEndTime !== box.finalBlock)
         console.log(
@@ -96,7 +78,7 @@ export async function registerBid(currentHeight, bidAmount, box, address) {
                         tx: null,
                         prevEndTime: box.finalBlock,
                         shouldExtend:
-                            box.ergoTree === auctionWithExtensionTree &&
+                            box.ergoTree === 'auctionWithExtensionTree' && // TODO fix
                             nextEndTime === box.finalBlock,
                         status: 'pending mining',
                         amount: bidAmount,

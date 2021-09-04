@@ -1,6 +1,6 @@
 import React from 'react';
-import { Button, Container, Modal, ModalBody, ModalHeader } from 'reactstrap';
-import { friendlyToken, getMyBids, getTxUrl } from '../../../auction/helpers';
+import {Button, Container, Modal, ModalBody, ModalHeader} from 'reactstrap';
+import {friendlyToken, getMyBids, getTxUrl} from '../../../auction/helpers';
 
 const statusToBadge = {
     'pending mining': 'info',
@@ -66,66 +66,66 @@ export default class MyBidsModal extends React.Component {
                             <div className="table-responsive">
                                 <table className="align-middle mb-0 table table-borderless table-striped table-hover">
                                     <thead>
-                                        <tr>
-                                            <th className="text-center">
-                                                Amount
-                                            </th>
-                                            <th className="text-center">
-                                                Status
-                                            </th>
-                                            <th className="text-center">
-                                                Transaction
-                                            </th>
-                                        </tr>
+                                    <tr>
+                                        <th className="text-center">
+                                            Amount
+                                        </th>
+                                        <th className="text-center">
+                                            Status
+                                        </th>
+                                        <th className="text-center">
+                                            Transaction
+                                        </th>
+                                    </tr>
                                     </thead>
                                     <tbody>
-                                        {this.state.curBids.map((bid) => {
-                                            let status =
-                                                bid.amount ===
-                                                    this.props.box.value &&
-                                                bid.status === 'complete'
-                                                    ? this.props.highText
-                                                    : bid.status;
-                                            return (
-                                                <tr>
-                                                    <td className="text-center">
-                                                        {bid.amount / 1e9} ERG
-                                                    </td>
-                                                    <td className="text-center">
-                                                        <div
-                                                            className={
-                                                                'badge badge-' +
-                                                                statusToBadge[
-                                                                    status
+                                    {this.state.curBids.map((bid) => {
+                                        let status =
+                                            bid.amount ===
+                                            this.props.box.value &&
+                                            bid.status === 'complete'
+                                                ? this.props.highText
+                                                : bid.status;
+                                        return (
+                                            <tr>
+                                                <td className="text-center">
+                                                    {bid.amount / 1e9} ERG
+                                                </td>
+                                                <td className="text-center">
+                                                    <div
+                                                        className={
+                                                            'badge badge-' +
+                                                            statusToBadge[
+                                                                status
                                                                 ]
-                                                            }
-                                                        >
-                                                            {status}
-                                                        </div>
-                                                    </td>
-                                                    <td className="text-center">
-                                                        <Button
-                                                            onClick={() =>
-                                                                window.open(
-                                                                    getTxUrl(
-                                                                        bid.txId
-                                                                    ),
-                                                                    '_blank'
-                                                                )
-                                                            }
-                                                            outline
-                                                            className="btn-outline-lin m-2 border-0"
-                                                            color="primary"
-                                                            disabled={bid.status === 'rejected'}
-                                                        >
+                                                        }
+                                                    >
+                                                        {status}
+                                                    </div>
+                                                </td>
+                                                <td className="text-center">
+                                                    <Button
+                                                        onClick={() =>
+                                                            window.open(
+                                                                getTxUrl(
+                                                                    bid.txId
+                                                                ),
+                                                                '_blank'
+                                                            )
+                                                        }
+                                                        outline
+                                                        className="btn-outline-lin m-2 border-0"
+                                                        color="primary"
+                                                        disabled={bid.status === 'rejected'}
+                                                    >
                                                             <span>
                                                                 See Transaction
                                                             </span>
-                                                        </Button>
-                                                    </td>
-                                                </tr>
-                                            );
-                                        })}
+                                                    </Button>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
                                     </tbody>
                                 </table>
                             </div>

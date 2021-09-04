@@ -1,65 +1,21 @@
-import React, {Fragment, useRef} from 'react';
+import React, {Fragment} from 'react';
 
-import {
-    auctionFee, boxById,
-    currentHeight, followAuction,
-    getAllActiveAuctions,
-} from '../../../auction/explorer';
-import {
-    friendlyAddress,
-    getWalletAddress,
-    isWalletNode, isWalletSaved,
-    showMsg,
-} from '../../../auction/helpers';
-import Clipboard from 'react-clipboard.js';
+import {currentHeight, followAuction,} from '../../../auction/explorer';
+import {isWalletSaved, showMsg,} from '../../../auction/helpers';
 import {css} from '@emotion/core';
 import PropagateLoader from 'react-spinners/PropagateLoader';
-import SyncLoader from 'react-spinners/SyncLoader';
-import {
-    Button,
-    Col,
-    Container,
-    Form,
-    FormFeedback,
-    FormGroup,
-    FormText,
-    Input,
-    InputGroup,
-    InputGroupAddon,
-    InputGroupText,
-    Label,
-    Modal,
-    ModalBody,
-    ModalFooter,
-    ModalHeader,
-    Row,
-} from 'reactstrap';
+import {Button,} from 'reactstrap';
 import cx from 'classnames';
 import TitleComponent2 from '../../../Layout/AppMain/PageTitleExamples/Variation2';
-import {
-    auctionTxRequest,
-    getAssets,
-    withdrawFinishedAuctions,
-} from '../../../auction/nodeWallet';
-import number from 'd3-scale/src/number';
-import ActivePicture from './activePicture';
-import {
-    decodeBoxes,
-    ergToNano,
-    isFloat,
-    isNatural,
-} from '../../../auction/serializer';
-import {assembleFinishedAuctions, follow} from '../../../auction/assembler';
-import NewAuction from "./newAuction";
+import {decodeBoxes,} from '../../../auction/serializer';
 import NewAuctionAssembler from "./newAuctionAssembler";
-import PlaceBidModal from "./placeBid";
 import ShowAuctions from "./showActives";
 import ShowHistories from "../../AuctionHistory/History/showHistories";
 import SendModal from "./sendModal";
 
 const override = css`
-    display: block;
-    margin: 0 auto;
+  display: block;
+  margin: 0 auto;
 `;
 
 export default class SpecificAuctions extends React.Component {
@@ -76,15 +32,9 @@ export default class SpecificAuctions extends React.Component {
     }
 
     toggleModal() {
-        if (isWalletNode()) {
-            this.setState({
-                modal: !this.state.modal,
-            });
-        } else {
-            this.setState({
-                modalAssembler: !this.state.modalAssembler,
-            });
-        }
+        this.setState({
+            modalAssembler: !this.state.modalAssembler,
+        });
     }
 
     toggleAssemblerModal(address = '', bid = 0, isAuction = false) {
@@ -172,13 +122,9 @@ export default class SpecificAuctions extends React.Component {
                 auctions={auctions}
             />
         }
+
         return (
             <Fragment>
-                <NewAuction
-                    isOpen={this.state.modal}
-                    close={this.toggleModal}
-                />
-
                 <NewAuctionAssembler
                     isOpen={this.state.modalAssembler}
                     close={this.toggleModal}

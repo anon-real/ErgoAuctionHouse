@@ -1,7 +1,6 @@
 import {Serializer} from '@coinbarn/ergo-ts/dist/serializer';
 import {Address, AddressKind} from "@coinbarn/ergo-ts/dist/models/address";
-import {boxById, getIssuingBox, getSpendingTx, txById} from "./explorer";
-import {getTxUrl} from "./helpers";
+import {boxById, getIssuingBox, txById} from "./explorer";
 
 let ergolib = import('ergo-lib-wasm-browser')
 

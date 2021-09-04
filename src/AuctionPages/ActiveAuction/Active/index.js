@@ -1,63 +1,26 @@
-import React, {Fragment, useRef} from 'react';
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import React, {Fragment} from 'react';
 
-import {
-    auctionFee,
-    currentHeight,
-    getAllActiveAuctions,
-} from '../../../auction/explorer';
-import {
-    friendlyAddress,
-    getWalletAddress,
-    isWalletNode, isWalletSaved,
-    showMsg,
-} from '../../../auction/helpers';
-import Clipboard from 'react-clipboard.js';
+import {currentHeight, getAllActiveAuctions,} from '../../../auction/explorer';
+import {friendlyAddress, getWalletAddress, isWalletSaved, showMsg,} from '../../../auction/helpers';
 import {css} from '@emotion/core';
 import PropagateLoader from 'react-spinners/PropagateLoader';
-import SyncLoader from 'react-spinners/SyncLoader';
 import {
     Button,
     Col,
-    Container, DropdownItem, DropdownMenu, DropdownToggle,
-    Form,
-    FormFeedback,
-    FormGroup,
-    FormText,
-    Input,
-    InputGroup,
-    InputGroupAddon,
-    InputGroupText,
-    Label,
-    Modal,
-    ModalBody,
-    ModalFooter,
-    ModalHeader,
-    Row, UncontrolledButtonDropdown,
+    Container,
+    DropdownItem,
+    DropdownMenu,
+    DropdownToggle,
+    Row,
+    UncontrolledButtonDropdown,
 } from 'reactstrap';
 import cx from 'classnames';
 import TitleComponent2 from '../../../Layout/AppMain/PageTitleExamples/Variation2';
-import {
-    auctionTxRequest,
-    getAssets,
-    withdrawFinishedAuctions,
-} from '../../../auction/nodeWallet';
-import number from 'd3-scale/src/number';
-import ActivePicture from './activePicture';
-import {
-    decodeBoxes,
-    ergToNano,
-    isFloat,
-    isNatural,
-} from '../../../auction/serializer';
+import {decodeBoxes,} from '../../../auction/serializer';
 import {assembleFinishedAuctions} from '../../../auction/assembler';
-import NewAuction from "./newAuction";
 import NewAuctionAssembler from "./newAuctionAssembler";
-import PlaceBidModal from "./placeBid";
 import ShowAuctions from "./showActives";
 import SendModal from "./sendModal";
-import {faDollarSign} from "@fortawesome/free-solid-svg-icons";
-import {ResponsiveContainer} from "recharts";
 
 const override = css`
   display: block;
@@ -95,15 +58,9 @@ export default class ActiveAuctions extends React.Component {
     }
 
     toggleModal() {
-        if (isWalletNode()) {
-            this.setState({
-                modal: !this.state.modal,
-            });
-        } else {
-            this.setState({
-                modalAssembler: !this.state.modalAssembler,
-            });
-        }
+        this.setState({
+            modalAssembler: !this.state.modalAssembler,
+        });
     }
 
     toggleAssemblerModal(address = '', bid = 0, isAuction = false) {
@@ -227,8 +184,7 @@ export default class ActiveAuctions extends React.Component {
                             }).then(boxes => {
                             if (artist) {
                                 return boxes.filter(box => artist.split(',').includes(box.artist))
-                            }
-                            else return boxes
+                            } else return boxes
                         })
                             .then((boxes) => {
                                 this.setState({
@@ -237,7 +193,6 @@ export default class ActiveAuctions extends React.Component {
                                     artist: artist
                                 });
                                 this.sortAuctions(boxes, this.state.sortKey)
-                                withdrawFinishedAuctions(boxes);
                                 if (firstTime) assembleFinishedAuctions(boxes);
                             })
                             .finally(() => {
@@ -269,11 +224,6 @@ export default class ActiveAuctions extends React.Component {
     render() {
         return (
             <Fragment>
-                <NewAuction
-                    isOpen={this.state.modal}
-                    close={this.toggleModal}
-                />
-
                 <NewAuctionAssembler
                     isOpen={this.state.modalAssembler}
                     close={this.toggleModal}
@@ -298,10 +248,11 @@ export default class ActiveAuctions extends React.Component {
                             >
                                 {
                                     this.state.type === "audio" ?
-                                <i className="pe-7s-volume2  icon-gradient bg-night-fade" style={{fontSize: 56}}/>
-                                :
-                                <i className="pe-7s-photo  icon-gradient bg-night-fade" style={{fontSize: 56}}/>
-                                    
+                                        <i className="pe-7s-volume2  icon-gradient bg-night-fade"
+                                           style={{fontSize: 56}}/>
+                                        :
+                                        <i className="pe-7s-photo  icon-gradient bg-night-fade" style={{fontSize: 56}}/>
+
                                 }
                             </div>
                             <div>

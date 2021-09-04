@@ -1,35 +1,33 @@
-import React, {Fragment} from 'react';
-import {Bar} from 'react-chartjs-2';
+import React from 'react';
 import {
     Button,
     Col,
-    Container, Form, FormFeedback, FormGroup, FormText, Input, InputGroup, InputGroupAddon, InputGroupText, Label,
+    Container,
+    Form,
+    FormFeedback,
+    FormGroup,
+    FormText,
+    Input,
+    InputGroup,
+    InputGroupAddon,
+    InputGroupText,
+    Label,
     Modal,
-    ModalBody, ModalFooter,
+    ModalBody,
+    ModalFooter,
     ModalHeader,
     Row,
-    Tooltip,
 } from 'reactstrap';
-import {
-    friendlyToken,
-    getAddrUrl,
-    getTxUrl, getWalletAddress,
-    showMsg,
-} from '../../../auction/helpers';
+import {getWalletAddress, showMsg,} from '../../../auction/helpers';
 import SyncLoader from 'react-spinners/SyncLoader';
 import {css} from '@emotion/core';
-import {allAuctionTrees, auctionFee, boxById, currentHeight, txById} from '../../../auction/explorer';
-import moment from 'moment';
-import {ResponsiveContainer} from 'recharts';
-import PropagateLoader from 'react-spinners/PropagateLoader';
-import ReactTooltip from 'react-tooltip';
+import {currentHeight} from '../../../auction/explorer';
 import {ergToNano, isFloat, isNatural} from "../../../auction/serializer";
-import {auctionTxRequest, getAssets} from "../../../auction/nodeWallet";
 import {getAuctionP2s, registerAuction} from "../../../auction/auctionAssembler";
 
 const override = css`
-    display: block;
-    margin: 0 auto;
+  display: block;
+  margin: 0 auto;
 `;
 
 class NewAuctionAssembler extends React.Component {

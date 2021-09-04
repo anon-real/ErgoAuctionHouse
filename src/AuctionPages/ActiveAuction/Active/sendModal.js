@@ -1,6 +1,6 @@
-import React, {Fragment} from 'react';
+import React from 'react';
 import {Button, Container, Modal, ModalBody, ModalFooter, ModalHeader} from 'reactstrap';
-import {friendlyAddress, friendlyToken, getMyBids, getTxUrl, showMsg} from '../../../auction/helpers';
+import {friendlyAddress, showMsg} from '../../../auction/helpers';
 import Clipboard from "react-clipboard.js";
 import {auctionFee} from "../../../auction/explorer";
 import QRCode from "react-qr-code";
@@ -80,8 +80,9 @@ export default class SendModal extends React.Component {
                                 here.
                             </a>
                         </p>
-                        <QRCode value={"https://explorer.ergoplatform.com/payment-request?address=" + this.props.bidAddress +
-                        "&amount=" + (this.props.bidAmount + auctionFee) / 1e9}/>
+                        <QRCode
+                            value={"https://explorer.ergoplatform.com/payment-request?address=" + this.props.bidAddress +
+                            "&amount=" + (this.props.bidAmount + auctionFee) / 1e9}/>
                     </Container>
                 </ModalBody>
                 <ModalFooter>

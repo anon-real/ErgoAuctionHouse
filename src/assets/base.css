@@ -8309,14 +8309,14 @@ button.bg-alternate:focus {
     .mx-2 {
         margin-left: 0rem !important;
     }
-  }
+}
 
-  @media only screen and (max-width: 1200px) {
+@media only screen and (max-width: 1200px) {
     .ml-2,
     .mx-2 {
         margin-left: 0rem !important;
     }
-  }
+}
 
 .m-3 {
     margin: 1rem !important;
@@ -10991,7 +10991,7 @@ button,
     margin-top: -60px;
     padding-top: 60px;
     transition: all .2s;
-    
+
 }
 
 .app-sidebar .app-sidebar__inner {
@@ -11635,7 +11635,7 @@ button,
     align-items: center;
     align-content: center;
     text-align: center;
-    padding: 0.8333333333rem ;
+    padding: 0.8333333333rem;
     margin: 0 30px 0 0;
     background: #fff;
     box-shadow: 0 0.46875rem 2.1875rem rgba(0, 0, 0, 0.03), 0 0.9375rem 1.40625rem rgba(0, 0, 0, 0.03), 0 0.25rem 0.53125rem rgba(0, 0, 0, 0.05), 0 0.125rem 0.1875rem rgba(0, 0, 0, 0.03);
@@ -12277,6 +12277,7 @@ button,
 .bg-transparent {
     background: transparent !important;
 }
+
 .bg-primary-header {
     /* background-image: linear-gradient(120deg, white 0%, white 100%) !important; */
     background-image: linear-gradient(120deg, #fff 0%, #fff 100%) !important;
@@ -16937,7 +16938,7 @@ a.badge-alternate:hover, a.badge-alternate:focus {
     margin-top: 0.2rem;
     border-radius: 8px;
     overflow: hidden;
-    box-shadow: 0px 0px 0px 1px rgba(0,0,0,0.08);
+    box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.08);
     display: block;
     height: 300px
 }
