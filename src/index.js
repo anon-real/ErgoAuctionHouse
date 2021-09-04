@@ -9,11 +9,12 @@ import Main from './AuctionPages/Main';
 import configureStore from './config/configureStore';
 import {Provider} from 'react-redux';
 import {
-    auctionNFT,
-    dataInputAddress,
     additionalData,
+    auctionNFT,
+    currentHeight,
+    dataInputAddress,
     handlePendingBids,
-    unspentBoxesFor, currentHeight,
+    unspentBoxesFor,
 } from './auction/explorer';
 import {showMsg} from './auction/helpers';
 import {bidFollower} from "./auction/assembler";

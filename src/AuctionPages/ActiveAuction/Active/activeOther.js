@@ -5,29 +5,23 @@ import {
     Col,
     DropdownMenu,
     DropdownToggle,
-    Nav, NavItem, NavLink,
+    Nav,
+    NavItem,
+    NavLink,
     Progress,
     UncontrolledButtonDropdown
 } from 'reactstrap';
-import {
-    friendlyAddress,
-    friendlyToken,
-    getAddrUrl,
-    getTxUrl, getWalletAddress,
-    isWalletSaved,
-    showMsg,
-} from '../../../auction/helpers';
+import {friendlyAddress, friendlyToken, getAddrUrl, getTxUrl, isWalletSaved, showMsg,} from '../../../auction/helpers';
 import {ResponsiveContainer} from 'recharts';
 import SyncLoader from 'react-spinners/SyncLoader';
 import ReactTooltip from 'react-tooltip';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faAngleUp, faEllipsisV} from '@fortawesome/free-solid-svg-icons';
 import {css} from '@emotion/core';
-import {auctionWithExtensionTree, getSpendingTx} from '../../../auction/explorer';
+import {getSpendingTx} from '../../../auction/explorer';
 import PlaceBidModal from './placeBid';
 import MyBidsModal from './myBids';
 import BidHistory from './bidHistory';
-import {Row} from "react-bootstrap";
 import ArtworkDetails from "../../artworkDetails";
 import {Link} from "react-router-dom";
 
@@ -328,8 +322,6 @@ export default class ActiveOther extends React.Component {
                                         </div>
                                         <div className="widget-content-right">
                                             <div
-                                                data-tip={this.props.box.ergoTree === auctionWithExtensionTree ?
-                                                    "Auto Extend Enabled" : ""}
                                                 className="text-muted opacity-6">
                                                 Blocks Remaining
                                             </div>

@@ -1,27 +1,11 @@
-import {post, get} from './rest';
-import {
-    addAssemblerBid,
-    addBid,
-    getAssemblerBids,
-    getUrl,
-    getWalletAddress,
-    isAssembler,
-    isWalletNode,
-    setAssemblerBids,
-    showMsg, showStickyMsg,
-} from './helpers';
-import {Address, Transaction} from '@coinbarn/ergo-ts';
-import {
-    additionalData,
-    auctionFee,
-    auctionWithExtensionTree,
-    extendNum,
-    extendThreshold,
-    sendTx, trueAddress,
-} from './explorer';
-import {decodeNum, decodeString, encodeHex, encodeNum} from './serializer';
+import {get, post} from './rest';
+import {addBid, getAssemblerBids, getUrl, setAssemblerBids, showStickyMsg,} from './helpers';
+import {Address} from '@coinbarn/ergo-ts';
+import {additionalData, auctionFee, trueAddress,} from './explorer';
+import {decodeNum, decodeString} from './serializer';
 
 const url = 'https://assembler.ergoauctions.org/';
+
 // const url = 'https://assm.sigmausd.io/';
 
 export async function follow(request) {

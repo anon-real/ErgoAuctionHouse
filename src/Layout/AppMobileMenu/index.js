@@ -30,7 +30,7 @@ class AppMobileMenu extends React.Component {
     }
 
     render() {
-        const { enableMobileMenu, enableMobileMenuSmall } = this.props;
+        const {enableMobileMenu, enableMobileMenuSmall} = this.props;
         return (
             <Fragment>
                 <div className="app-header__mobile-menu">

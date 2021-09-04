@@ -1,26 +1,21 @@
-import React, { Fragment } from 'react';
+import React, {Fragment} from 'react';
 
 import PageTitle from '../../../Layout/AppMain/PageTitle';
-import {
-    allAuctionTrees,
-    boxById,
-    getAuctionHistory, getCompleteAuctionHistory,
-} from '../../../auction/explorer';
-import HistoryBox from './historyBox';
+import {auctionTrees, boxById, getCompleteAuctionHistory,} from '../../../auction/explorer';
 import PropagateLoader from 'react-spinners/PropagateLoader';
-import { css } from '@emotion/core';
-import { showMsg } from '../../../auction/helpers';
+import {css} from '@emotion/core';
+import {showMsg} from '../../../auction/helpers';
 import {decodeBox} from '../../../auction/serializer';
-import { Row } from 'react-bootstrap';
-import { Button } from 'reactstrap';
-import { ResponsiveContainer } from 'recharts';
+import {Row} from 'react-bootstrap';
+import {Button} from 'reactstrap';
+import {ResponsiveContainer} from 'recharts';
 import ShowHistories from "./showHistories";
 
 const pagination = 100;
 
 const override = css`
-    display: block;
-    margin: 0 auto;
+  display: block;
+  margin: 0 auto;
 `;
 
 export default class AuctionsHistory extends React.Component {
@@ -38,16 +33,16 @@ export default class AuctionsHistory extends React.Component {
 
     loadMore(show = false) {
         if (this.state.still) {
-            this.setState({ loading: true });
+            this.setState({loading: true});
             getCompleteAuctionHistory(pagination, this.state.offset)
                 .then((res) => {
                     if (res.length < pagination) {
-                        this.setState({ still: false });
+                        this.setState({still: false});
                         if (show)
                             showMsg('Complete auction history is loaded.');
                     }
                     let boxes = res
-                        .filter((tx) => !allAuctionTrees.includes(tx.outputs[0].ergoTree))
+                        .filter((tx) => !auctionTrees.includes(tx.outputs[0].ergoTree))
                         .map((tx) => {
                             return boxById(tx.inputs[0].id)
                                 .then(res => decodeBox(res))
@@ -73,7 +68,7 @@ export default class AuctionsHistory extends React.Component {
                             );
                             setTimeout(() => this.loadMore(), 8000);
                         })
-                        .finally(() => this.setState({ loading: false }));
+                        .finally(() => this.setState({loading: false}));
                 })
                 .catch((_) => {
                     showMsg(
@@ -134,7 +129,7 @@ export default class AuctionsHistory extends React.Component {
                                 )}
                             </Button>
                         </Row>
-                        <br />
+                        <br/>
                         <Row>
                             <PropagateLoader
                                 css={override}

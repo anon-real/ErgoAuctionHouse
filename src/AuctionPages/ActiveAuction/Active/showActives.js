@@ -1,65 +1,17 @@
-import React, {Fragment, useRef} from 'react';
+import React, {Fragment} from 'react';
 
-import {
-    auctionFee,
-    currentHeight,
-    getAllActiveAuctions,
-} from '../../../auction/explorer';
-import {
-    friendlyAddress,
-    getWalletAddress,
-    isWalletNode, isWalletSaved,
-    showMsg,
-} from '../../../auction/helpers';
-import Clipboard from 'react-clipboard.js';
+import {currentHeight,} from '../../../auction/explorer';
 import {css} from '@emotion/core';
 import PropagateLoader from 'react-spinners/PropagateLoader';
-import SyncLoader from 'react-spinners/SyncLoader';
-import {
-    Button,
-    Col,
-    Container,
-    Form,
-    FormFeedback,
-    FormGroup,
-    FormText,
-    Input,
-    InputGroup,
-    InputGroupAddon,
-    InputGroupText,
-    Label,
-    Modal,
-    ModalBody,
-    ModalFooter,
-    ModalHeader,
-    Row,
-} from 'reactstrap';
-import cx from 'classnames';
-import TitleComponent2 from '../../../Layout/AppMain/PageTitleExamples/Variation2';
-import {
-    auctionTxRequest,
-    getAssets,
-    withdrawFinishedAuctions,
-} from '../../../auction/nodeWallet';
-import number from 'd3-scale/src/number';
+import {Row,} from 'reactstrap';
 import ActivePicture from './activePicture';
-import {
-    decodeBoxes,
-    ergToNano,
-    isFloat,
-    isNatural,
-} from '../../../auction/serializer';
-import {assembleFinishedAuctions} from '../../../auction/assembler';
-import NewAuction from "./newAuction";
-import NewAuctionAssembler from "./newAuctionAssembler";
-import PlaceBidModal from "./placeBid";
 import SendModal from "./sendModal";
 import ActiveAudio from "./activeAudio";
 import ActiveOther from "./activeOther";
 
 const override = css`
-    display: block;
-    margin: 0 auto;
+  display: block;
+  margin: 0 auto;
 `;
 
 export default class ShowAuctions extends React.Component {

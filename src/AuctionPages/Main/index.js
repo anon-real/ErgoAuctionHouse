@@ -17,10 +17,10 @@ class Main extends React.Component {
 
     }
 
-    onResize = (width) => this.setState({ width });
+    onResize = (width) => this.setState({width});
 
     render() {
-        const { width } = this.state;
+        const {width} = this.state;
 
         let {
             colorScheme,
@@ -45,7 +45,7 @@ class Main extends React.Component {
                     {'sidebar-mobile-open': enableMobileMenu},
                 )}>
                     <AppMain/>
-                    <ResizeDetector handleWidth onResize={this.onResize} />
+                    <ResizeDetector handleWidth onResize={this.onResize}/>
                 </div>
             </Fragment>
         )

@@ -1,18 +1,10 @@
 import React from 'react';
-import {
-    copyToClipboard,
-    friendlyAddress,
-    friendlyToken,
-    getAddrUrl,
-    getTxUrl,
-    isWalletSaved,
-    showMsg,
-} from '../../../auction/helpers';
+import {friendlyAddress, friendlyToken, getAddrUrl, getTxUrl,} from '../../../auction/helpers';
 import {ResponsiveContainer} from 'recharts';
 import SyncLoader from 'react-spinners/SyncLoader';
 import ReactTooltip from 'react-tooltip';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faAngleUp, faEllipsisH, faEllipsisV} from '@fortawesome/free-solid-svg-icons';
+import {faAngleUp, faEllipsisV} from '@fortawesome/free-solid-svg-icons';
 import {css} from '@emotion/core';
 import {getSpendingTx} from '../../../auction/explorer';
 import MyBidsModal from "../../ActiveAuction/Active/myBids";
@@ -20,16 +12,15 @@ import BidHistory from "../../ActiveAuction/Active/bidHistory";
 import ArtworkDetails from "../../artworkDetails";
 
 import {
-    CardFooter,
-    Row, Col,
     Button,
-    UncontrolledButtonDropdown,
-    DropdownToggle,
+    CardFooter,
+    Col,
     DropdownMenu,
+    DropdownToggle,
     Nav,
     NavItem,
     NavLink,
-    Progress, NavbarToggler
+    UncontrolledButtonDropdown
 } from 'reactstrap';
 import {Link} from "react-router-dom";
 

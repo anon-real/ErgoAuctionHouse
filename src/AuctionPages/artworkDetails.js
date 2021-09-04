@@ -1,9 +1,8 @@
 import React from 'react';
-import {Button, Container, Modal, ModalBody, ModalHeader, UncontrolledCarousel} from 'reactstrap';
-import {friendlyAddress, friendlyToken, getMyBids, getTxUrl, showMsg} from '../auction/helpers';
-import {Carousel, Col, Row} from "react-bootstrap";
+import {Container, Modal, ModalBody, ModalHeader} from 'reactstrap';
+import {friendlyAddress, showMsg} from '../auction/helpers';
+import {Col, Row} from "react-bootstrap";
 import Clipboard from "react-clipboard.js";
-import {auctionFee} from "../auction/explorer";
 
 export default class ArtworkDetails extends React.Component {
     constructor(props) {

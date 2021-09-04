@@ -15,12 +15,12 @@ export function friendlyToken(token, quantity = true, length = 13) {
     return res
 }
 
-export function friendlyAddress(addr, tot=13) {
+export function friendlyAddress(addr, tot = 13) {
     if (addr === undefined || addr.slice === undefined) return ''
     return addr.slice(0, tot) + '...' + addr.slice(-tot);
 }
 
-export function friendlyName(name, tot=80) {
+export function friendlyName(name, tot = 80) {
     if (name === undefined || name.slice === undefined) return ''
     else if (name.length < tot) return name
     return name.slice(0, tot) + '...';
