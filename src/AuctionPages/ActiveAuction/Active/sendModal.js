@@ -2,8 +2,8 @@ import React from 'react';
 import {Button, Container, Modal, ModalBody, ModalFooter, ModalHeader} from 'reactstrap';
 import {friendlyAddress, showMsg} from '../../../auction/helpers';
 import Clipboard from "react-clipboard.js";
-import {auctionFee} from "../../../auction/explorer";
 import QRCode from "react-qr-code";
+import {txFee} from "../../../auction/consts";
 
 const statusToBadge = {
     'pending mining': 'info',
@@ -37,13 +37,13 @@ export default class SendModal extends React.Component {
                             <Clipboard
                                 component="b"
                                 data-clipboard-text={
-                                    (this.props.bidAmount + auctionFee) /
+                                    (this.props.bidAmount + txFee) /
                                     1e9
                                 }
                                 onSuccess={() => showMsg('Copied!')}
                             >
                                 exactly{' '}
-                                {(this.props.bidAmount + auctionFee) / 1e9}{' '}
+                                {(this.props.bidAmount + txFee) / 1e9}{' '}
                                 erg
                             </Clipboard>{' '}
                             {this.props.isAuction && <span>and the <b>token</b> you want to auction</span>}{' '}
@@ -82,7 +82,7 @@ export default class SendModal extends React.Component {
                         </p>
                         <QRCode
                             value={"https://explorer.ergoplatform.com/payment-request?address=" + this.props.bidAddress +
-                            "&amount=" + (this.props.bidAmount + auctionFee) / 1e9}/>
+                            "&amount=" + (this.props.bidAmount + txFee) / 1e9}/>
                     </Container>
                 </ModalBody>
                 <ModalFooter>

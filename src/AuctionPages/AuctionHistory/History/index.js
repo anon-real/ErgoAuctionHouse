@@ -1,7 +1,7 @@
 import React, {Fragment} from 'react';
 
 import PageTitle from '../../../Layout/AppMain/PageTitle';
-import {auctionTrees, boxById, getCompleteAuctionHistory,} from '../../../auction/explorer';
+import {boxById, getCompleteAuctionHistory,} from '../../../auction/explorer';
 import PropagateLoader from 'react-spinners/PropagateLoader';
 import {css} from '@emotion/core';
 import {showMsg} from '../../../auction/helpers';
@@ -10,6 +10,7 @@ import {Row} from 'react-bootstrap';
 import {Button} from 'reactstrap';
 import {ResponsiveContainer} from 'recharts';
 import ShowHistories from "./showHistories";
+import {auctionTrees} from "../../../auction/consts";
 
 const pagination = 100;
 

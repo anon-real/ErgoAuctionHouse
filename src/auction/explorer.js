@@ -1,38 +1,14 @@
-import {Address, Explorer, Transaction} from '@coinbarn/ergo-ts';
+import {Explorer, Transaction} from '@coinbarn/ergo-ts';
 import {friendlyToken, getMyBids, setMyBids, showStickyMsg,} from './helpers';
 import {get} from "./rest";
+import {auctionAddresses, auctionTrees} from "./consts";
 
 const explorer = Explorer.mainnet;
-export const auctionContract = ``
-export const auctionAddress = `ba8ZLWRojzJq9NK8kp5QWHA25M7H6TRihQRRGRLuA3nsLTy8eF6VEK3FecnDFAFnXr8iZ7ySNkt2vYyZtvx2uccYs2Mg8T1wf5hTAqmS9UviaEZPzyZ4miVFdjvmj7H1KaK3pkR5QiJPcWGEwFjuvycwgtQGfCrLCwNCghjM2iPVAAbZcQ5uaHXeRZ7BTQPdT9TVAfNbPASs33EraYTZFLJRRpXMEYxRPTWida7nX1dbvfiaMv6mZcMtUASYjth3L8pakMXizna8qpLM7UwsHj9i9puvoiqug9oMkrwghy7kUHW6iR9WGBmNS52XNSTPW467EPEmEoDBmdYEfsEj2FY9DjCY5qKdCBhER2NRQWZmJwC1aJjfwQERifJeRi6eeLRXdzLcWPyg47q5zL6md6AMqiKNTtVk94bwyA5WQCcMrJfYpfyQoAS6yQJpMWTVAK52bwzMG32uCSodRPq4nvsUcwgzSkDHgYEq7w8RrnDifna1V72ZXgYzXWZK1DVY1zfvxdXme4RCjRJ5pa3ZUo1XLYVCChZQFYQRxxJqjE2qEqyL4Yhk9whosU9i4G8acS8HQZEAFTGDr7pXz27DD9Bo9sQSA1ovbAxppNtAi5QtjaHFoLrWVzkp3jggFhXVJpfvDTiJ6vKpQyFfFxottj1xsqkjAcQheNDacxc5MppvdBq8wpFoyfji9GpRd2vJhtFLVeWjMtgFnhH71Q7yj7jA1iyZ3bYBzKPWx4RaFcxYCCP5szY55zH2eUg2L58mMLBB`
-
-export let contracts = {}
-contracts[auctionAddress] = {
-    isActive: true,
-    extendThreshold: 30 * 60 * 1000,
-    extendNum: 40 * 60 * 1000,
-    loyalty: true,
-    customToken: true
-}
-
-export const auctionAddresses = [auctionAddress]
-export const auctionTrees = [auctionAddress] // array of trees of all auction addresses until now.
-    .map((addr) => new Address(addr).ergoTree)
-
-export const trueAddress = '4MQyML64GnzMxZgm'; // dummy address to get unsigned tx from node, we only care about the boxes though in this case
-
-export const dataInputAddress =
-    'AfHRBHDmA19bEqvBNoprnecKkffKTVpfjMJoWrutWzFztXBYrPijLGTq5WVGUapNRRKLr';
-export const auctionNFT =
-    '35f2a7b17800bd28e0592559bccbaa65a46d90d592064eb98db0193914abb563';
-
-export const auctionFee = 2000000;
-export let additionalData = {};
-
 export const explorerApi = 'https://api.ergoplatform.com/api/v0'
+export const explorerApiV1 = 'https://api.ergoplatform.com/api/v1'
 
-async function getRequest(url) {
-    return get(explorerApi + url).then(res => {
+async function getRequest(url, api=explorerApi) {
+    return get(api + url).then(res => {
         return {data: res.json()}
     })
 }
@@ -46,6 +22,12 @@ export async function currentHeight() {
 
 export function unspentBoxesFor(address) {
     return getRequest(`/transactions/boxes/byAddress/unspent/${address}`).then(
+        (res) => res.data
+    );
+}
+
+export function getBoxesForAsset(asset) {
+    return getRequest(`/boxes/unspent/byTokenId/${asset}`, explorerApiV1).then(
         (res) => res.data
     );
 }

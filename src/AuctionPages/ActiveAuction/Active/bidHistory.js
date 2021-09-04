@@ -4,10 +4,11 @@ import {Modal, ModalBody, ModalHeader, Row,} from 'reactstrap';
 import {friendlyToken, getTxUrl, showMsg,} from '../../../auction/helpers';
 import SyncLoader from 'react-spinners/SyncLoader';
 import {css} from '@emotion/core';
-import {auctionTrees, boxById, txById} from '../../../auction/explorer';
+import {boxById, txById} from '../../../auction/explorer';
 import moment from 'moment';
 import {ResponsiveContainer} from 'recharts';
 import ReactTooltip from 'react-tooltip';
+import {auctionTrees} from "../../../auction/consts";
 
 const override = css`
   display: block;

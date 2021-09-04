@@ -1,23 +1,28 @@
 import {addAssemblerBid, getWalletAddress,} from './helpers';
 import {Address} from '@coinbarn/ergo-ts';
-import {additionalData, auctionFee} from './explorer';
 import {encodeHex, encodeNum} from './serializer';
 import {follow, p2s} from "./assembler";
 import {Serializer} from "@coinbarn/ergo-ts/dist/serializer";
+import {additionalData, auctionAddress, txFee} from "./consts";
 
 const template = `{
   val userAddress = fromBase64("$userAddress")
   val bidAmount = $bidAmountL
-  val endTime = $endTime
+  val endTime = $endTimeL
   val bidDelta = $bidDeltaL
+  val currencyId = fromBase64("$currencyId")
   val startAuction = {
-      OUTPUTS(0).tokens.size > 0 && OUTPUTS(0).R4[Coll[Byte]].getOrElse(INPUTS(0).id) == userAddress &&
-      OUTPUTS(0).R5[Int].getOrElse(0) == endTime && OUTPUTS(0).R6[Long].getOrElse(0L) == bidDelta &&
-      OUTPUTS(0).R8[Coll[Byte]].getOrElse(INPUTS(0).id) == userAddress && OUTPUTS(0).value == bidAmount
+      OUTPUTS(0).tokens.size > 0 &&
+      OUTPUTS(0).R4[Coll[Byte]].getOrElse(INPUTS(0).id) == userAddress &&
+      OUTPUTS(0).R5[Coll[Byte]].getOrElse(INPUTS(0).id) == userAddress &&
+      OUTPUTS(0).R6[Long].getOrElse(0L) == bidDelta &&
+      OUTPUTS(0).R7[Long].getOrElse(0) == endTime &&
+      ((currencyId.size == 0 && OUTPUTS(0).value == bidAmount) ||
+         OUTPUTS(0).tokens(1)._1 == currencyID && OUTPUTS(0).tokens(1)._2 == bidAmount)
   }
   val returnFunds = {
-    val total = INPUTS.fold(0L, {(x:Long, b:Box) => x + b.value}) - 4000000
-    OUTPUTS(0).value >= total && OUTPUTS(0).propositionBytes == userAddress
+    val total = INPUTS.fold(0L, {(x:Long, b:Box) => x + b.value}) - 2000000
+    OUTPUTS(0).value >= total && OUTPUTS(0).propositionBytes == userAddress && outputs.size == 2
   }
   sigmaProp(startAuction || returnFunds)
 }`;
@@ -25,17 +30,15 @@ const template = `{
 export async function registerAuction(
     address,
     initial,
+    buyItNow,
     bidder,
     step,
     start,
     end,
-    description,
-    autoExtend,
+    description
 ) {
     let tree = new Address(bidder).ergoTree;
-    let info = `${initial},${step},${start}`;
-    let auctionAddress = 'auctionWithExtensionAddr' // TODO fix
-    // if (!autoExtend) auctionAddress = auctionOrdinaryAddr
+    let info = `${initial},${start},${description}`;
     let reqs = [
         {
             address: auctionAddress,
@@ -48,10 +51,10 @@ export async function registerAuction(
             ],
             registers: {
                 R4: await encodeHex(tree),
-                R5: await encodeNum(end, true),
+                R5: await encodeHex(tree),
                 R6: await encodeNum(step.toString()),
-                R7: await encodeHex(Serializer.stringToHex(description)),
-                R8: await encodeHex(tree),
+                R7: await encodeNum(end),
+                R8: await encodeHex(buyItNow),
                 R9: await encodeHex(Serializer.stringToHex(info)),
             },
         },
@@ -60,11 +63,11 @@ export async function registerAuction(
         address: address,
         returnTo: bidder,
         startWhen: {
-            erg: initial + auctionFee,
+            erg: initial + txFee,
         },
         txSpec: {
             requests: reqs,
-            fee: auctionFee,
+            fee: txFee,
             inputs: ['$userIns'],
             dataInputs: [additionalData.dataInput.id],
         },

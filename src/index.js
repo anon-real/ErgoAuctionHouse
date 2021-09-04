@@ -9,30 +9,21 @@ import Main from './AuctionPages/Main';
 import configureStore from './config/configureStore';
 import {Provider} from 'react-redux';
 import {
-    additionalData,
-    auctionNFT,
-    currentHeight,
-    dataInputAddress,
+    currentHeight, getBoxesForAsset,
     handlePendingBids,
     unspentBoxesFor,
 } from './auction/explorer';
 import {showMsg} from './auction/helpers';
 import {bidFollower} from "./auction/assembler";
+import {additionalData, auctionNFT} from "./auction/consts";
 
 const store = configureStore();
 const rootElement = document.getElementById('root');
 
 const renderApp = (Component) => {
     function updateDataInput() {
-        unspentBoxesFor(dataInputAddress)
-            .then((res) => {
-                return res.filter(
-                    (box) =>
-                        box.assets.length > 0 &&
-                        box.assets[0].tokenId === auctionNFT
-                );
-            })
-            .then((res) => (additionalData['dataInput'] = res[0]))
+        getBoxesForAsset(auctionNFT)
+            .then((res) => (additionalData['dataInput'] = res.items[0]))
             .catch(() =>
                 showMsg(
                     'Could not load data input from explorer...',
