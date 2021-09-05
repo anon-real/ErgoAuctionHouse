@@ -36,6 +36,12 @@ async function decodeStr(str) {
     return new TextDecoder().decode((await ergolib).Constant.decode_from_base16(str).to_byte_array())
 }
 
+function resolveIpfs(url) {
+    const ipfsPrefix = 'ipfs://'
+    if (!url.startsWith(ipfsPrefix)) return url
+    else return url.replace(ipfsPrefix, 'https://cloudflare-ipfs.com/ipfs/')
+}
+
 export async function decodeBox(box, height) {
     if (box.additionalRegisters.R9 === undefined) return undefined
     let info = Serializer.stringFromHex(
@@ -96,7 +102,7 @@ export async function decodeBox(box, height) {
                 box.tokenName = await decodeStr(box.tokenName)
                 box.tokenDescription = await decodeStr(box.tokenDescription)
                 if (box.artworkUrl)
-                    box.artworkUrl = await decodeStr(box.artworkUrl)
+                    box.artworkUrl = resolveIpfs(await decodeStr(box.artworkUrl))
             }
         } catch (e) {
             box.isArtwork = false
