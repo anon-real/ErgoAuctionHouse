@@ -19,12 +19,12 @@ import {
     ModalHeader,
     Row,
 } from 'reactstrap';
-import {getWalletAddress, showMsg,} from '../../../auction/helpers';
+import {showMsg,} from '../../../auction/helpers';
 import SyncLoader from 'react-spinners/SyncLoader';
 import {css} from '@emotion/core';
-import {currentHeight} from '../../../auction/explorer';
+import {currentBlock} from '../../../auction/explorer';
 import {currencyToLong, isFloat, longToCurrency} from "../../../auction/serializer";
-import {getAuctionP2s, registerAuction} from "../../../auction/newAuctionAssm";
+import {registerAuction} from "../../../auction/newAuctionAssm";
 import DateTimePicker from 'react-datetime-picker';
 import {supportedCurrencies} from "../../../auction/consts";
 
@@ -65,47 +65,38 @@ class NewAuctionAssembler extends React.Component {
         })
     }
 
-
     canStartAuction() {
         return (
             !this.state.modalLoading &&
             currencyToLong(this.state.initialBid, this.state.currency.decimal) >= this.state.currency.minSupported &&
-            this.state.auctionDuration > 0 &&
             currencyToLong(this.state.auctionStep, this.state.currency.decimal) >= this.state.currency.minSupported
         );
     }
 
     startAuction() {
         this.setState({modalLoading: true});
-        currentHeight()
-            .then((height) => {
-                getAuctionP2s(currencyToLong(this.state.initialBid, this.state.currency.decimal), height + parseInt(this.state.auctionDuration) + 5,
-                    currencyToLong(this.state.auctionStep, this.state.currency.decimal)).then(addr => {
-                    let description = this.state.description;
-                    if (!description) description = '';
-                    registerAuction(
-                        addr.address,
-                        currencyToLong(this.state.initialBid, this.state.currency.decimal),
-                        getWalletAddress(),
-                        currencyToLong(this.state.auctionStep, this.state.currency.decimal),
-                        height,
-                        height + parseInt(this.state.auctionDuration) + 5, // +5 to take into account the time it takes to be mined
-                        description,
-                        this.state.auctionAutoExtend
-                    ).then(res => {
-                        this.props.close()
-                        this.props.assemblerModal(addr.address, currencyToLong(this.state.initialBid, this.state.currency.decimal) - 10000000, true)
+        currentBlock().then((block) => {
+            let description = this.state.description;
+            if (!description) description = '';
+            registerAuction(
+                currencyToLong(this.state.initialBid, this.state.currency.decimal),
+                this.state.currency,
+                (this.state.enableInstantBuy? currencyToLong(this.state.instantAmount, this.state.currency.decimal) : -1),
+                currencyToLong(this.state.auctionStep, this.state.currency.decimal),
+                parseInt(moment(this.state.endTime).format('x')),
+                block,
+                description
+            ).then(res => {
+                this.props.close()
+                this.props.assemblerModal(res.address, this.state.initialBid, true, this.state.currency.name)
 
-                    }).catch(err => {
-                        showMsg('Error while registering the request to the assembler!', true);
-                        this.setState({modalLoading: false})
-                    })
+            }).catch(err => {
+                showMsg('Error while starting the auction!', true);
+                console.error(err)
+                this.setState({modalLoading: false})
+            })
 
-                }).catch(_ => {
-                    showMsg('Could not contact the assembler service.', true);
-                    this.setState({modalLoading: false})
-                })
-            }).catch(_ => showMsg('Could not get height from the explorer, try again!', true));
+        }).catch(_ => showMsg('Could not get height from the explorer, try again!', true));
     }
 
     render() {
@@ -213,7 +204,7 @@ class NewAuctionAssembler extends React.Component {
                                             <Input
                                                 type="text"
                                                 invalid={
-                                                    currencyToLong(this.state.instantAmount, this.state.currency.decimal) <= currencyToLong(this.state.initialBid, this.state.currency.decimal)
+                                                    this.state.enableInstantBuy && currencyToLong(this.state.instantAmount, this.state.currency.decimal) <= currencyToLong(this.state.initialBid, this.state.currency.decimal)
                                                 }
                                                 disabled={!this.state.enableInstantBuy}
                                                 value={
@@ -244,7 +235,8 @@ class NewAuctionAssembler extends React.Component {
                                             </FormFeedback>
                                         </InputGroup>
                                         <FormText>
-                                            If you set this, anyone can instantly win your auction by bidding by this amount.
+                                            If you set this, anyone can instantly win your auction by bidding by this
+                                            amount.
                                         </FormText>
                                     </FormGroup>
                                 </Col>
@@ -316,8 +308,7 @@ class NewAuctionAssembler extends React.Component {
                                 <Label for="description">Description</Label>
                                 <Input
                                     invalid={
-                                        this.state.description !==
-                                        undefined &&
+                                        this.state.description !== undefined &&
                                         this.state.description.length > 250
                                     }
                                     value={this.state.description}

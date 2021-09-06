@@ -2,22 +2,28 @@ import {Explorer, Transaction} from '@coinbarn/ergo-ts';
 import {friendlyToken, getMyBids, setMyBids, showStickyMsg,} from './helpers';
 import {get} from "./rest";
 import {auctionAddresses, auctionTrees} from "./consts";
+import {longToCurrency} from "./serializer";
 
 const explorer = Explorer.mainnet;
 export const explorerApi = 'https://api.ergoplatform.com/api/v0'
 export const explorerApiV1 = 'https://api.ergoplatform.com/api/v1'
 
-async function getRequest(url, api=explorerApi) {
+async function getRequest(url, api = explorerApi) {
     return get(api + url).then(res => {
         return {data: res.json()}
     })
 }
 
 export async function currentHeight() {
-    // return explorer.getCurrentHeight();
     return getRequest('/blocks?limit=1')
         .then(res => res.data)
         .then(res => res.items[0].height)
+}
+
+export async function currentBlock() {
+    return getRequest('/blocks?limit=1')
+        .then(res => res.data)
+        .then(res => res.items[0])
 }
 
 export function unspentBoxesFor(address) {
@@ -110,8 +116,8 @@ export function handlePendingBids(height) {
                     if (spent[0] === bid.txId) {
                         bid.status = 'complete';
                         let msg = `Your ${
-                            bid.amount / 1e9
-                        } ERG bid for ${friendlyToken(
+                            longToCurrency(bid.amount, -1, bid.currency.name)
+                        } ${bid.currency.name} bid for ${friendlyToken(
                             bid.token,
                             false,
                             5
@@ -126,18 +132,18 @@ export function handlePendingBids(height) {
                     } else {
                         bid.status = 'rejected';
                         let msg = `Your ${
-                            bid.amount / 1e9
-                        } ERG bid for ${friendlyToken(
+                            longToCurrency(bid.amount, -1, bid.currency.name)
+                        } ${bid.currency.name} bid for ${friendlyToken(
                             bid.token,
                             false,
                             5
-                        )} is rejected. Potentially because a bid is placed for this auction before yours. You can try again.`;
+                        )} is rejected. Potentially you are outbidded, try again!`;
                         if (bid.isFirst)
                             msg = `Your auction for ${friendlyToken(
                                 bid.token,
                                 false,
                                 5
-                            )} is rejected! Somehow the transaction responsible for creating the auction is invalid.`;
+                            )} is rejected, you can try again!`;
                         showStickyMsg(msg, true);
                     }
                 } else {
@@ -147,12 +153,12 @@ export function handlePendingBids(height) {
                             bid.status = 'rejected';
                             bid.tx = null
                             let msg = `Your ${
-                                bid.amount / 1e9
-                            } ERG bid for ${friendlyToken(
+                                longToCurrency(bid.amount, -1, bid.currency.name)
+                            } ${bid.currency.name} bid for ${friendlyToken(
                                 bid.token,
                                 false,
                                 5
-                            )} is rejected because the bid's end time must be extended, place your bid again to take that into account!`;
+                            )} is rejected, please try again!`;
                             showStickyMsg(msg, true);
                         }
                     }

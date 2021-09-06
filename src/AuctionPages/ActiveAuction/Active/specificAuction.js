@@ -1,6 +1,6 @@
 import React, {Fragment} from 'react';
 
-import {currentHeight, followAuction,} from '../../../auction/explorer';
+import {currentBlock, currentHeight, followAuction,} from '../../../auction/explorer';
 import {isWalletSaved, showMsg,} from '../../../auction/helpers';
 import {css} from '@emotion/core';
 import PropagateLoader from 'react-spinners/PropagateLoader';
@@ -37,12 +37,13 @@ export default class SpecificAuctions extends React.Component {
         });
     }
 
-    toggleAssemblerModal(address = '', bid = 0, isAuction = false) {
+    toggleAssemblerModal(address = '', bid = 0, isAuction = false, currency = 'ERG') {
         this.setState({
             assemblerModal: !this.state.assemblerModal,
             bidAddress: address,
             bidAmount: bid,
-            isAuction: isAuction
+            isAuction: isAuction,
+            currency: currency
         });
     }
 
@@ -78,13 +79,13 @@ export default class SpecificAuctions extends React.Component {
             if (this.state.lastUpdated < 40) return;
         }
         this.setState({lastUpdated: 0});
-        currentHeight()
-            .then((height) => {
-                this.setState({currentHeight: height});
+        currentBlock()
+            .then((block) => {
+                this.setState({currentHeight: block.height});
                 followAuction(this.state.boxId)
                     .then(res => [res])
                     .then((boxes) => {
-                        decodeBoxes(boxes, height)
+                        decodeBoxes(boxes, block)
                             .then((boxes) => {
                                 this.setState({
                                     auctions: boxes,
@@ -137,6 +138,7 @@ export default class SpecificAuctions extends React.Component {
                     bidAmount={this.state.bidAmount}
                     isAuction={this.props.isAuction}
                     bidAddress={this.state.bidAddress}
+                    currency={this.state.currency}
                 />
                 <div className="app-page-title">
                     <div className="page-title-wrapper">

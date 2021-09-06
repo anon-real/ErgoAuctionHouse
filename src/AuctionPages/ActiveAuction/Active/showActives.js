@@ -44,12 +44,13 @@ export default class ShowAuctions extends React.Component {
         this.setState(this.setState({myBids: false}));
     }
 
-    toggleAssemblerModal(address = '', bid = 0, isAuction = false) {
+    toggleAssemblerModal(address = '', bid = 0, isAuction = false, currency = 'ERG') {
         this.setState({
             assemblerModal: !this.state.assemblerModal,
             bidAddress: address,
             bidAmount: bid,
-            isAuction: isAuction
+            isAuction: isAuction,
+            currency: currency
         });
     }
 
@@ -86,6 +87,7 @@ export default class ShowAuctions extends React.Component {
                     bidAmount={this.state.bidAmount}
                     isAuction={this.state.isAuction}
                     bidAddress={this.state.bidAddress}
+                    currency={this.state.currency}
                 />
 
                 {!this.state.loading && this.state.auctions.length === 0 && (

@@ -24,6 +24,7 @@ import BidHistory from './bidHistory';
 import {Row} from 'react-bootstrap';
 import ArtworkDetails from '../../artworkDetails';
 import {Link} from "react-router-dom";
+import {longToCurrency} from "../../../auction/serializer";
 
 const override = css`
   display: block;
@@ -47,15 +48,6 @@ export default class ActivePicture extends React.Component {
         this.setState({detailsModal: !this.state.detailsModal});
     }
 
-    getTime(blockRem) {
-        let time = blockRem * 2
-        if (time <= 60) return [time, 'Minutes']
-        time = (time / 60).toFixed(0)
-        if (time <= 24) return [time, 'Hours']
-        time = (time / 24).toFixed(0)
-        return [time, 'Days']
-    }
-
     openBid() {
         if (this.state.bidModal) {
             this.setState({bidModal: !this.state.bidModal});
@@ -66,9 +58,9 @@ export default class ActivePicture extends React.Component {
                 'In order to place bids, you have to configure the wallet first.',
                 true
             );
-        } else if (this.props.box.remBlock <= 0) {
+        } else if (this.props.box.remTime <= 0) {
             showMsg(
-                'This auction is finished! It is pending for withdrawal.',
+                'This auction is finished!',
                 true
             );
         } else {
@@ -86,7 +78,6 @@ export default class ActivePicture extends React.Component {
 
     render() {
         let box = this.props.box;
-        let time = this.getTime(box.remBlock)
         return (
             <Col key={box.id} xs="12" md="6" lg="6" xl="4">
                 <PlaceBidModal
@@ -270,10 +261,7 @@ export default class ActivePicture extends React.Component {
                             <Row>
                                 <span>
                                     <b className="fsize-1">
-                                        {(this.props.box.value / 1e9).toFixed(
-                                            2
-                                        )}{' '}
-                                        ERG
+                                        {longToCurrency(this.props.box.curBid, -1, this.props.box.currency).toFixed(2)}{' '}{this.props.box.currency}
                                     </b>{' '}
                                     <text
                                         style={{fontSize: '10px'}}
@@ -290,23 +278,12 @@ export default class ActivePicture extends React.Component {
                             <div className="widget-content">
                                 <div className="widget-content-outer">
                                     <div className="widget-content-wrapper">
-                                        <div className="widget-content-left mr-3">
-                                            <div className="widget-numbers fsize-1 text-muted">
-                                                ~{time[0]}
-                                            </div>
-                                        </div>
-                                        <div className="widget-content-right">
-                                            <div
-                                                className="text-muted opacity-6"
-                                            >
-                                                {time[1]}
-                                            </div>
-                                        </div>
+                                        {this.props.box.remTime}
                                     </div>
                                     <div className="widget-progress-wrapper">
                                         <Progress
                                             className="progress-bar-xs progress-bar-animated-alt"
-                                            value={this.props.box.doneBlock}
+                                            value={this.props.box.done}
                                         />
                                     </div>
                                 </div>
@@ -328,10 +305,7 @@ export default class ActivePicture extends React.Component {
                         <text>
                             for{' '}
                             <b>
-                                {(this.props.box.value +
-                                    this.props.box.minStep) /
-                                1e9}{' '}
-                                ERG
+                                {longToCurrency(this.props.box.curBid + this.props.box.step, -1, this.props.box.currency)}{' '} {this.props.box.currency}
                             </b>
                         </text>
                     </button>

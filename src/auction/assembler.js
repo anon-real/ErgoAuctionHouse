@@ -2,14 +2,12 @@ import {get, post} from './rest';
 import {addBid, getAssemblerBids, getUrl, setAssemblerBids, showStickyMsg,} from './helpers';
 import {Address} from '@coinbarn/ergo-ts';
 import {decodeNum, decodeString} from './serializer';
-import {additionalData, trueAddress, txFee} from "./consts";
+import {additionalData, assmUrl, trueAddress, txFee} from "./consts";
 
-const url = 'https://assembler.ergoauctions.org/';
-
-// const url = 'https://assm.sigmausd.io/';
+// const assmUrl = 'https://assm.sigmausd.io/';
 
 export async function follow(request) {
-    return await post(getUrl(url) + '/follow', request).then((res) =>
+    return await post(getUrl(assmUrl) + '/follow', request).then((res) =>
         res.json()
     ).then(res => {
         if (res.success === false) throw new Error()
@@ -18,11 +16,11 @@ export async function follow(request) {
 }
 
 export async function stat(id) {
-    return await get(getUrl(url) + '/result/' + id).then((res) => res.json());
+    return await get(getUrl(assmUrl) + '/result/' + id).then((res) => res.json());
 }
 
 export async function p2s(request) {
-    return await post(getUrl(url) + '/compile', request).then((res) =>
+    return await post(getUrl(assmUrl) + '/compile', request).then((res) =>
         res.json()
     ).then(res => {
         if (res.success === false) throw new Error()
@@ -107,7 +105,7 @@ export async function assembleFinishedAuctions(boxes) {
                 }
             };
 
-            return post(getUrl(url) + '/follow', request)
+            return post(getUrl(assmUrl) + '/follow', request)
                 .then((res) => {
                     res.json()
                 }).then(res => {

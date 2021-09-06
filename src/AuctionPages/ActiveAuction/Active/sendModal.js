@@ -5,14 +5,6 @@ import Clipboard from "react-clipboard.js";
 import QRCode from "react-qr-code";
 import {txFee} from "../../../auction/consts";
 
-const statusToBadge = {
-    'pending mining': 'info',
-    rejected: 'warning',
-    complete: 'primary',
-    'current active bid': 'success',
-    'winner': 'success',
-};
-
 export default class SendModal extends React.Component {
     constructor(props) {
         super(props);
@@ -37,14 +29,12 @@ export default class SendModal extends React.Component {
                             <Clipboard
                                 component="b"
                                 data-clipboard-text={
-                                    (this.props.bidAmount + txFee) /
-                                    1e9
+                                    this.props.bidAmount
                                 }
                                 onSuccess={() => showMsg('Copied!')}
                             >
                                 exactly{' '}
-                                {(this.props.bidAmount + txFee) / 1e9}{' '}
-                                erg
+                                {this.props.bidAmount}{' '}{this.props.currency}
                             </Clipboard>{' '}
                             {this.props.isAuction && <span>and the <b>token</b> you want to auction</span>}{' '}
                             to{' '}

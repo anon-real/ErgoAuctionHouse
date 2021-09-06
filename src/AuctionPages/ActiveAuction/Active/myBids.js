@@ -1,6 +1,7 @@
 import React from 'react';
 import {Button, Container, Modal, ModalBody, ModalHeader} from 'reactstrap';
 import {friendlyToken, getMyBids, getTxUrl} from '../../../auction/helpers';
+import {longToCurrency} from "../../../auction/serializer";
 
 const statusToBadge = {
     'pending mining': 'info',
@@ -89,7 +90,7 @@ export default class MyBidsModal extends React.Component {
                                         return (
                                             <tr>
                                                 <td className="text-center">
-                                                    {bid.amount / 1e9} ERG
+                                                    {longToCurrency(bid.amount, 2, this.props.box.currency)} {this.props.box.currency}
                                                 </td>
                                                 <td className="text-center">
                                                     <div

@@ -1,6 +1,10 @@
 import {Serializer} from '@coinbarn/ergo-ts/dist/serializer';
+import moment from 'moment';
 import {Address, AddressKind} from "@coinbarn/ergo-ts/dist/models/address";
 import {boxById, getIssuingBox, txById} from "./explorer";
+import {supportedCurrencies} from "./consts";
+var momentDurationFormatSetup = require("moment-duration-format");
+
 
 let ergolib = import('ergo-lib-wasm-browser')
 
@@ -35,32 +39,30 @@ async function decodeStr(str) {
     return new TextDecoder().decode((await ergolib).Constant.decode_from_base16(str).to_byte_array())
 }
 
-export async function decodeBox(box, height) {
-    if (box.additionalRegisters.R9 === undefined) return undefined
-    let info = Serializer.stringFromHex(
-        await decodeString(box.additionalRegisters.R9)
-    );
-    info = info.split(',').map((num) => parseInt(num));
-    let finalBlock = await decodeNum(box.additionalRegisters.R5, true)
-    box.description = Serializer.stringFromHex(
-        await decodeString(box.additionalRegisters.R7)
-    );
-    box.remBlock = Math.max(finalBlock - height - 1, 0);
-    box.doneBlock =
-        ((height - info[2]) / (finalBlock - info[2])) *
-        100;
-    box.finalBlock = finalBlock;
-    box.increase = (
-        ((box.value - info[0]) / info[0]) *
-        100
-    ).toFixed(1);
-    box.minStep = info[1];
-    box.seller = Address.fromErgoTree(
-        await decodeString(box.additionalRegisters.R4)
-    ).address;
-    box.bidder = Address.fromErgoTree(
-        await decodeString(box.additionalRegisters.R8)
-    ).address;
+export async function decodeBox(box, block) {
+    box.seller = Address.fromErgoTree(await decodeString(box.additionalRegisters.R4)).address;
+    box.bidder = Address.fromErgoTree(await decodeString(box.additionalRegisters.R5)).address;
+    box.step = parseInt(await decodeNum(box.additionalRegisters.R6))
+    box.endTime = parseInt(await decodeNum(box.additionalRegisters.R7))
+    box.instantAmount = parseInt(await decodeNum(box.additionalRegisters.R8))
+
+    let info = Serializer.stringFromHex(await decodeString(box.additionalRegisters.R9)).split(',')
+    box.initialBid = parseInt(info[0])
+    box.startTime = parseInt(info[1])
+    box.description = info[2]
+    if (box.description.length === 0) box.description = '-'
+
+    box.remTime = Math.max(box.endTime - block.timestamp, 0);
+    box.remTime = moment.duration(box.remTime, 'milliseconds').format("w [weeks], d [days], h [hours], m [minutes]", {largest: 2, trim: true})
+    box.done = ((moment().valueOf() - box.startTime) / (box.endTime - box.startTime)) * 100;
+    box.currency = 'ERG'
+    box.curBid = box.value
+    if (box.assets.length > 1) {
+        box.currency = Object.values(supportedCurrencies).find(cur => cur.id === box.assets[1].tokenId).name
+        box.curBid = box.assets[1].amount
+    }
+    box.increase = (((box.curBid - box.initialBid) / box.initialBid) * 100).toFixed(1);
+
     box.loader = false;
 
     await getIssuingBox(box.assets[0].tokenId)
@@ -93,6 +95,7 @@ export async function decodeBox(box, height) {
             if (box.isArtwork) {
                 box.artHash = await decodeString(box.artHash)
                 box.tokenName = await decodeStr(box.tokenName)
+                if (box.tokenName.length === 0) box.tokenName = '-'
                 box.tokenDescription = await decodeStr(box.tokenDescription)
                 if (box.artworkUrl)
                     box.artworkUrl = await decodeStr(box.artworkUrl)
@@ -127,14 +130,14 @@ export async function decodeBox(box, height) {
     return await box
 }
 
-export async function decodeBoxes(boxes, height) {
-    let cur = await Promise.all(boxes.map((box) => decodeBox(box, height)))
+export async function decodeBoxes(boxes, block) {
+    let cur = await Promise.all(boxes.map((box) => decodeBox(box, block)))
     cur = cur.filter(res => res !== undefined)
-    cur.sort((a, b) => a.remBlock - b.remBlock)
+    cur.sort((a, b) => a.remTime - b.remTime)
     return cur
 }
 
-export function currencyToLong(val, decimal=9) {
+export function currencyToLong(val, decimal = 9) {
     if (typeof val !== 'string') val = String(val)
     if (val === undefined) return 0
     if (val.startsWith('.')) return parseInt(val.slice(1) + '0'.repeat(decimal - val.length + 1))
@@ -144,7 +147,9 @@ export function currencyToLong(val, decimal=9) {
     return parseInt(parts[0] + parts[1] + '0'.repeat(decimal - parts[1].length))
 }
 
-export function longToCurrency(val, decimal=9) {
+export function longToCurrency(val, decimal = 9, currencyName=null) {
+    if (typeof val !== "number") val = parseInt(val)
+    if (currencyName) decimal = supportedCurrencies[currencyName].decimal
     return val / Math.pow(10, decimal)
 }
 

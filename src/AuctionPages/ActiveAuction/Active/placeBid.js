@@ -15,13 +15,13 @@ import {
     ModalHeader,
     Row,
 } from 'reactstrap';
-import {friendlyToken, isWalletNode, isWalletSaved, showMsg,} from '../../../auction/helpers';
+import {friendlyToken, isWalletSaved, showMsg,} from '../../../auction/helpers';
 import SyncLoader from 'react-spinners/SyncLoader';
 import {css} from '@emotion/core';
-import {currentHeight} from '../../../auction/explorer';
-import {currencyToLong, isFloat} from '../../../auction/serializer';
-import {getBidP2s, registerBid} from "../../../auction/newBidAssm";
-import {txFee} from "../../../auction/consts";
+import {currentBlock} from '../../../auction/explorer';
+import {currencyToLong, isFloat, longToCurrency} from '../../../auction/serializer';
+import {registerBid} from "../../../auction/newBidAssm";
+import {supportedCurrencies} from "../../../auction/consts";
 
 const override = css`
   display: block;
@@ -35,7 +35,7 @@ export default class PlaceBidModal extends React.Component {
             modalLoading: false,
             assemblerModal: false,
             copied: false,
-            bidAmount: ((props.box.value + props.box.minStep) / 1e9).toString(),
+            bidAmount: longToCurrency(props.box.curBid + props.box.step, -1, props.box.currency).toString(),
         };
         this.placeBid = this.placeBid.bind(this);
     }
@@ -49,62 +49,37 @@ export default class PlaceBidModal extends React.Component {
 
     placeBid() {
         if (!isWalletSaved()) {
-            showMsg(
-                `Please configure the wallet first!`,
-                true
-            );
-            return;
-        }
-        if (
-            isWalletNode() &&
-            currencyToLong(this.state.bidAmount) + txFee > this.state.ergBalance
-        ) {
-            showMsg(
-                `Not enough balance to place ${this.state.bidAmount} ERG bid.`,
-                true
-            );
+            showMsg(`Please configure the wallet first!`, true);
             return;
         }
         this.setState({modalLoading: true});
-        currentHeight()
-            .then((height) => {
-                getBidP2s(currencyToLong(this.state.bidAmount), this.props.box)
-                    .then((addr) => {
-                        registerBid(
-                            height,
-                            currencyToLong(this.state.bidAmount),
-                            this.props.box,
-                            addr.address
-                        )
-                            .then((r) => {
-                                if (r.id !== undefined) {
-                                    this.props.close()
-                                    this.props.assemblerModal(addr.address, currencyToLong(this.state.bidAmount))
-                                } else {
-                                    showMsg(
-                                        'Could not contact the assembler service.',
-                                        true
-                                    );
-                                }
-                            })
-                            .catch((_) => {
-                                showMsg(
-                                    'Could not contact the assembler service.',
-                                    true
-                                );
-                            })
-                            .finally((_) =>
-                                this.setState({modalLoading: false})
-                            );
-                    })
-                    .catch((_) => {
+        currentBlock().then((block) => {
+            registerBid(
+                block,
+                currencyToLong(this.state.bidAmount, supportedCurrencies[this.props.box.currency].decimal),
+                this.props.box,
+            )
+                .then((r) => {
+                    if (r.id !== undefined) {
+                        this.props.close()
+                        this.props.assemblerModal(r.address, this.state.bidAmount, false, this.props.box.currency)
+                    } else {
                         showMsg(
                             'Could not contact the assembler service.',
                             true
                         );
-                        this.setState({modalLoading: false});
-                    });
-            })
+                    }
+                })
+                .catch((_) => {
+                    showMsg(
+                        'Could not contact the assembler service.',
+                        true
+                    );
+                })
+                .finally((_) =>
+                    this.setState({modalLoading: false})
+                );
+        })
             .catch(() =>
                 showMsg(
                     'Could not get height from the explorer, try again!',
@@ -144,9 +119,7 @@ export default class PlaceBidModal extends React.Component {
                                         type="number"
                                         value={this.state.bidAmount}
                                         invalid={
-                                            currencyToLong(this.state.bidAmount) <
-                                            this.props.box.value +
-                                            this.props.box.minStep
+                                            currencyToLong(this.state.bidAmount) < this.props.box.curBid + this.props.box.step
                                         }
                                         onChange={(e) => {
                                             if (isFloat(e.target.value)) {
@@ -158,14 +131,12 @@ export default class PlaceBidModal extends React.Component {
                                         id="bidAmount"
                                     />
                                     <InputGroupAddon addonType="append">
-                                        <InputGroupText>ERG</InputGroupText>
+                                        <InputGroupText>{this.props.box.currency}</InputGroupText>
                                     </InputGroupAddon>
                                     <FormFeedback invalid>
                                         Minimum bid value for this auction is{' '}
-                                        {(this.props.box.value +
-                                            this.props.box.minStep) /
-                                        1e9}{' '}
-                                        ERG
+                                        {longToCurrency(this.props.box.curBid + this.props.box.step, -1, this.props.box.currency)}{' '}
+                                        {this.props.box.currency}
                                     </FormFeedback>
                                 </InputGroup>
                                 <FormText>Specify your bid amount.</FormText>
@@ -185,8 +156,7 @@ export default class PlaceBidModal extends React.Component {
                             color="secondary"
                             disabled={
                                 currencyToLong(this.state.bidAmount) <
-                                this.props.box.value +
-                                this.props.box.minStep ||
+                                this.props.box.curBid + this.props.box.step ||
                                 this.state.modalLoading
                             }
                             onClick={this.placeBid}
