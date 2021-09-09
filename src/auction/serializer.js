@@ -3,6 +3,8 @@ import moment from 'moment';
 import {Address, AddressKind} from "@coinbarn/ergo-ts/dist/models/address";
 import {boxById, getIssuingBox, txById} from "./explorer";
 import {supportedCurrencies} from "./consts";
+import {getEncodedBox} from "./assembler";
+
 var momentDurationFormatSetup = require("moment-duration-format");
 
 
@@ -10,6 +12,16 @@ let ergolib = import('ergo-lib-wasm-browser')
 
 const floatRe = new RegExp('^([0-9]*[.])?[0-9]*$')
 const naturalRe = new RegExp('^[0-9]+$')
+
+export async function encodeLongTuple(a, b) {
+    if (typeof a !== 'string') a = a.toString()
+    if (typeof b !== 'string') b = b.toString()
+    return (await ergolib).Constant.from_i64_str_array([a, b]).encode_to_base16()
+}
+
+export async function decodeLongTuple(val) {
+    return (await ergolib).Constant.decode_from_base16(val).to_i64_str_array().map(cur => parseInt(cur))
+}
 
 export async function encodeNum(n, isInt = false) {
     if (isInt) return (await ergolib).Constant.from_i32(n).encode_to_base16()
@@ -42,18 +54,24 @@ async function decodeStr(str) {
 export async function decodeBox(box, block) {
     box.seller = Address.fromErgoTree(await decodeString(box.additionalRegisters.R4)).address;
     box.bidder = Address.fromErgoTree(await decodeString(box.additionalRegisters.R5)).address;
-    box.step = parseInt(await decodeNum(box.additionalRegisters.R6))
+    const stepInit = await decodeLongTuple(box.additionalRegisters.R6)
+    box.minBid = stepInit[0]
+    box.initialBid = stepInit[0]
+    box.step = stepInit[1]
     box.endTime = parseInt(await decodeNum(box.additionalRegisters.R7))
     box.instantAmount = parseInt(await decodeNum(box.additionalRegisters.R8))
 
     let info = Serializer.stringFromHex(await decodeString(box.additionalRegisters.R9)).split(',')
-    box.initialBid = parseInt(info[0])
     box.startTime = parseInt(info[1])
     box.description = info[2]
     if (box.description.length === 0) box.description = '-'
 
     box.remTime = Math.max(box.endTime - block.timestamp, 0);
-    box.remTime = moment.duration(box.remTime, 'milliseconds').format("w [weeks], d [days], h [hours], m [minutes]", {largest: 2, trim: true})
+    box.remTime = moment.duration(box.remTime, 'milliseconds').format("w [weeks], d [days], h [hours], m [minutes]", {
+        largest: 2,
+        trim: true
+    })
+    box.remTimeTimestamp = box.endTime - block.timestamp
     box.done = ((moment().valueOf() - box.startTime) / (box.endTime - box.startTime)) * 100;
     box.currency = 'ERG'
     box.curBid = box.value
@@ -61,7 +79,10 @@ export async function decodeBox(box, block) {
         box.currency = Object.values(supportedCurrencies).find(cur => cur.id === box.assets[1].tokenId).name
         box.curBid = box.assets[1].amount
     }
-    box.increase = (((box.curBid - box.initialBid) / box.initialBid) * 100).toFixed(1);
+    box.nextBid = box.curBid + box.step
+    if (box.curBid < box.minBid) box.nextBid = box.minBid
+    if (box.curBid < box.minBid) box.increase = 0
+    else box.increase = (((box.curBid - box.minBid) / box.minBid) * 100).toFixed(1);
 
     box.loader = false;
 
@@ -147,7 +168,7 @@ export function currencyToLong(val, decimal = 9) {
     return parseInt(parts[0] + parts[1] + '0'.repeat(decimal - parts[1].length))
 }
 
-export function longToCurrency(val, decimal = 9, currencyName=null) {
+export function longToCurrency(val, decimal = 9, currencyName = null) {
     if (typeof val !== "number") val = parseInt(val)
     if (currencyName) decimal = supportedCurrencies[currencyName].decimal
     return val / Math.pow(10, decimal)
@@ -160,3 +181,17 @@ export function isFloat(num) {
 export function isNatural(num) {
     return num === '' || naturalRe.test(num)
 }
+
+export async function getEncodedBoxSer(box) {
+    const bytes = (await ergolib).ErgoBox.from_json(JSON.stringify(box)).sigma_serialize_bytes()
+    return await getEncodedBox(Buffer.from(bytes).toString('hex').toUpperCase())
+}
+
+export function isP2pkAddr(tree) {
+    return Address.fromErgoTree(tree).getType() === AddressKind.P2PK
+}
+
+export async function ttest() {
+
+}
+

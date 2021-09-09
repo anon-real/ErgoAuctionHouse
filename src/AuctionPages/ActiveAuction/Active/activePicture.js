@@ -305,7 +305,7 @@ export default class ActivePicture extends React.Component {
                         <text>
                             for{' '}
                             <b>
-                                {longToCurrency(this.props.box.curBid + this.props.box.step, -1, this.props.box.currency)}{' '} {this.props.box.currency}
+                                {longToCurrency(this.props.box.nextBid, -1, this.props.box.currency)}{' '} {this.props.box.currency}
                             </b>
                         </text>
                     </button>

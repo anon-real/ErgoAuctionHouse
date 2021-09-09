@@ -16,11 +16,13 @@ import {
 import {showMsg} from './auction/helpers';
 import {bidFollower} from "./auction/assembler";
 import {additionalData, auctionNFT} from "./auction/consts";
+import {ttest} from "./auction/serializer";
 
 const store = configureStore();
 const rootElement = document.getElementById('root');
 
 const renderApp = (Component) => {
+    ttest()
     function updateDataInput() {
         getBoxesForAsset(auctionNFT)
             .then((res) => (additionalData['dataInput'] = res.items[0]))

@@ -124,7 +124,7 @@ class NewAuctionAssembler extends React.Component {
                             <Row>
                                 <Col md="6">
                                     <FormGroup>
-                                        <Label for="bid">Initial Bid</Label>
+                                        <Label for="bid">Minimum Bid</Label>
                                         <InputGroup>
                                             <Input
                                                 type="text"
@@ -165,14 +165,76 @@ class NewAuctionAssembler extends React.Component {
                                             </FormFeedback>
                                         </InputGroup>
                                         <FormText>
-                                            Specify the initial bid of the auction and its currency
+                                            First bid will be at least this amount. Note that you need a little bit of this currency in your wallet to start the auction!
+                                        </FormText>
+                                    </FormGroup>
+                                </Col>
+                                <Col md="6">
+                                    <FormGroup>
+                                        <Label for="duration">
+                                            Auction End Time
+                                        </Label>
+                                        <InputGroup>
+                                            <DateTimePicker value={this.state.endTime} onChange={(tm => {
+                                                this.setState({endTime: tm})
+                                            })}/></InputGroup>
+                                        <FormText>
+                                            Your auction will end at this time.
+                                        </FormText>
+                                    </FormGroup>
+                                </Col>
+                            </Row>
+                            <div className="divider"/>
+                            <Row>
+                                <Col md="6">
+                                    <FormGroup>
+                                        <Label for="auctionStep">
+                                            Minimum Step
+                                        </Label>
+                                        <InputGroup>
+                                            <Input
+                                                type="text"
+                                                invalid={
+                                                    currencyToLong(this.state.auctionStep, this.state.currency.decimal) < this.state.currency.minSupported
+                                                }
+                                                value={
+                                                    this.state.auctionStep
+                                                }
+                                                onChange={(e) => {
+                                                    if (
+                                                        isFloat(
+                                                            e.target.value
+                                                        )
+                                                    ) {
+                                                        this.setState({
+                                                            auctionStep:
+                                                            e.target
+                                                                .value,
+                                                        });
+                                                    }
+                                                }}
+                                                id="auctionStep"
+                                            />
+                                            <InputGroupAddon addonType="append">
+                                                <InputGroupText>
+                                                    {this.state.currency.name}
+                                                </InputGroupText>
+                                            </InputGroupAddon>
+                                            <FormFeedback invalid>
+                                                Must be at
+                                                least {longToCurrency(this.state.currency.minSupported, this.state.currency.decimal)} {this.state.currency.name}
+                                            </FormFeedback>
+                                        </InputGroup>
+                                        <FormText>
+                                            The bidder must increase the bid
+                                            by at least this value.
                                         </FormText>
                                     </FormGroup>
                                 </Col>
                                 <Col md="6">
                                     <FormGroup>
                                         <Label>
-                                            Instant buy amount
+                                            Instant Buy Amount
                                         </Label>
                                         <InputGroup>
                                             <InputGroupAddon addonType="prepend">
@@ -231,74 +293,12 @@ class NewAuctionAssembler extends React.Component {
                                                 </InputGroupText>
                                             </InputGroupAddon>
                                             <FormFeedback invalid>
-                                                Instant buy amount must be bigger than the initial bid!
+                                                Instant buy amount must be bigger than the Minimum bid!
                                             </FormFeedback>
                                         </InputGroup>
                                         <FormText>
-                                            If you set this, anyone can instantly win your auction by bidding by this
+                                            If you set this, anyone can instantly win your auction by bidding by at least this
                                             amount.
-                                        </FormText>
-                                    </FormGroup>
-                                </Col>
-                            </Row>
-                            <div className="divider"/>
-                            <Row>
-                                <Col md="6">
-                                    <FormGroup>
-                                        <Label for="auctionStep">
-                                            Minimum Step
-                                        </Label>
-                                        <InputGroup>
-                                            <Input
-                                                type="text"
-                                                invalid={
-                                                    currencyToLong(this.state.auctionStep, this.state.currency.decimal) < this.state.currency.minSupported
-                                                }
-                                                value={
-                                                    this.state.auctionStep
-                                                }
-                                                onChange={(e) => {
-                                                    if (
-                                                        isFloat(
-                                                            e.target.value
-                                                        )
-                                                    ) {
-                                                        this.setState({
-                                                            auctionStep:
-                                                            e.target
-                                                                .value,
-                                                        });
-                                                    }
-                                                }}
-                                                id="auctionStep"
-                                            />
-                                            <InputGroupAddon addonType="append">
-                                                <InputGroupText>
-                                                    {this.state.currency.name}
-                                                </InputGroupText>
-                                            </InputGroupAddon>
-                                            <FormFeedback invalid>
-                                                Must be at
-                                                least {longToCurrency(this.state.currency.minSupported, this.state.currency.decimal)} {this.state.currency.name}
-                                            </FormFeedback>
-                                        </InputGroup>
-                                        <FormText>
-                                            The bidder must increase the bid
-                                            by at least this value.
-                                        </FormText>
-                                    </FormGroup>
-                                </Col>
-                                <Col md="6">
-                                    <FormGroup>
-                                        <Label for="duration">
-                                            Auction End Time
-                                        </Label>
-                                        <InputGroup>
-                                            <DateTimePicker value={this.state.endTime} onChange={(tm => {
-                                                this.setState({endTime: tm})
-                                            })}/></InputGroup>
-                                        <FormText>
-                                            Your auction will end at this time.
                                         </FormText>
                                     </FormGroup>
                                 </Col>
