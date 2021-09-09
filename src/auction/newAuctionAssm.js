@@ -1,6 +1,6 @@
 import {addAssemblerBid, getWalletAddress,} from './helpers';
 import {Address} from '@coinbarn/ergo-ts';
-import {encodeHex, encodeNum} from './serializer';
+import {decodeLongTuple, encodeHex, encodeLongTuple, encodeNum} from './serializer';
 import {follow, p2s} from "./assembler";
 import {Serializer} from "@coinbarn/ergo-ts/dist/serializer";
 import {additionalData, auctionAddress, txFee} from "./consts";
@@ -17,11 +17,11 @@ const template = `{
       OUTPUTS(0).tokens.size > 0 &&
       OUTPUTS(0).R4[Coll[Byte]].getOrElse(INPUTS(0).id) == userAddress &&
       OUTPUTS(0).R5[Coll[Byte]].getOrElse(INPUTS(0).id) == userAddress &&
-      OUTPUTS(0).R6[Long].getOrElse(0L) == bidDelta &&
+      OUTPUTS(0).R6[Coll[Long]].get(0) == bidAmount &&
+      OUTPUTS(0).R6[Coll[Long]].get(1) == bidDelta &&
       OUTPUTS(0).R7[Long].getOrElse(0L) == endTime &&
       OUTPUTS(0).R8[Long].getOrElse(0L) == buyItNow &&
-      ((currencyId.size == 0 && OUTPUTS(0).value == bidAmount) ||
-         OUTPUTS(0).tokens(1)._1 == currencyId && OUTPUTS(0).tokens(1)._2 == bidAmount)
+      (currencyId.size == 0 || (currencyId.size > 0 && OUTPUTS(0).tokens(1)._1 == currencyId)) 
   }
   val returnFunds = {
     val total = INPUTS.fold(0L, {(x:Long, b:Box) => x + b.value}) - 2000000
@@ -44,22 +44,16 @@ export async function registerAuction(
     let tree = new Address(bidder).ergoTree;
     let info = `${initial},${block.timestamp},${description}`;
 
-    let auctionErg = initial
-    let start = {
-        erg: initial + txFee,
-    }
+    let auctionErg = -1
     let auctionAssets = [
         {
             tokenId: "$userIns.token",
             amount: 0,
         },
     ]
+    let start = {erg: 0}
     if (currency.id.length > 0) {
-        start = {}
-        start[currency.id] = initial
-
-        auctionErg = -1
-
+        start[currency.id] = 0
         auctionAssets = [
             {
                 tokenId: "$userIns.token",
@@ -67,7 +61,7 @@ export async function registerAuction(
             },
             {
                 tokenId: currency.id,
-                amount: initial,
+                amount: -1,
             },
         ]
     }
@@ -80,7 +74,7 @@ export async function registerAuction(
             registers: {
                 R4: await encodeHex(tree),
                 R5: await encodeHex(tree),
-                R6: await encodeNum(step.toString()),
+                R6: await encodeLongTuple(initial, step),
                 R7: await encodeNum(end.toString()),
                 R8: await encodeNum(buyItNow.toString()),
                 R9: await encodeHex(Serializer.stringToHex(info)),

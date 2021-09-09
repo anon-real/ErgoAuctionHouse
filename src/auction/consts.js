@@ -1,6 +1,6 @@
 import {Address} from "@coinbarn/ergo-ts";
 
-export const auctionAddress = `3cVSf8PPdT3GVE782iaguCye3dFXxbU5z9ah5AfxuQ6SjLrnYYj9H1R6CjqQNF6vzwMqTcYLJTjeK3TWSENwaEw3Uu36nuZHRK7Py9Rydt7pSFKQ4uSn7RvpoMAidjx9kar1GDf54PNTB8tmVvCHCwuNG4YUnNHjkF3PhK8dwo6wybxt5xYzxDosjb1ddZzLLZryMGBzJutHdjyBDK8JinbkjGQ8fDwKxDL5T6nW5XTsoU2NWLngfky8AzF1y4nn6mPShN7pTNdjSGCVhAZBsGt3i5tVVnuu1kD4kffvSpEcWBrVuMijbxzjhQCrsphozEbVj13Loj3RQuewjzAfHcqpbp17KWjAZtMugi9xvAct9BhFBBS6sEDjBLdWtcFbkp5NbJcZECe3UxBUMKzN9nrdZ84GVKoeGC4dFbf7rM1HTGBv2HNoK21ymzuGDkQokGkcCzHWSkt8u9mcZHVk3NCthzDckY2Xjg9qoJWPt5ngF2f7g3KkMt14aj2PYrArnWMPKz8Sf94owhgdg2BVHDtQhwqwTavW2hTdbzC84Vjjf3j8q9nmJEc8F3PUHi9PJBFqf5y8nCpT4NH4NZobCwpMKQtseL6AwyAMgEs1tSyXKKaJnQwarCe7Mru9LErpT65SdYsXRH8LaHM9a8kKm1D111kC8SrMFfVGbGL8LonzznWq6Cd7erxUFkGQeZceabwet6secgZRw6nCb7PKxqXuMqMEwxbN68Jd1ShqFPHzW25JSZGwhQdDMsVs1qTqxryL7AGnPVTpTbMpFxYKLYpyL2TTb5eNYivVM21SgjqrbLF1panFsDSvBCWfAEoBsVuxjTSLBJaJXcAv1HmJuU7EpmKry468sdWHmWXmM1AZ74ngXgTW4U3hr7gSGneimxYozziL26QZogZQcFeKuPNirXoH39jhUJVfZcdJ2EQ73WXtcr4sUT4QpZF1d`
+export const auctionAddress = `5D3NT8mhA3GBRtUaBvDbTXGTeMgHxwRBd7TDs9WJVi5Ph9J7F5kurj7Z353aJ9RDrk6Btf81djSpgCrGMPymv8ZQ7Qn53iHnuLev9LtRoXurUE5oEv9jz18U3Kd7Y1c5x3LcD4mbHuDub8qT9XoKjY1vpDKiZA5B4JuykiDjLwj8kstH937qFt1Lvbn2ttpbHVQdE8t5pxot8av3EMuu9h6n84VxS15aJPxQQbttgw5qgEBJtAWZtsGK7uDMdwumVsTmHt6rhW34jo9RmfrCBxJG2caR7gVXhLK3mMVJs8ch4EiAdcYXmCguomnGke6eqAyqfTVLKQXYRXwnB8EHshjEAmRRLpDLNC5jPapfaTvQkVXXNw631dMbBzYNev5nT8jJqv5rQihvMsD2zZ8LAL2e1EKSbQ1EZz3aRh4je7q1tfq5BwkW4Xsac6QbsfqNBmkvsyMDA5ABZDmjmJ69cNNvW5dwofHyHbi42fewtJQCtFUXUzYtco46BXiftDmm1bQWoHpMCWLvsbJDL1SJZw1JjxSXRredXC6vFiT6TA1aJCH2GY8xUBFzFp81mpYZ49ikLoStfVpGcc5afDyUDRUQyDnhbkobK9ah9Vuj7nENtvdsGQs2gCZ6GK3GWubRvWTUTacBRZZTNNajQqGU4Rd1JY9AHKJhnfVvTd9wgiu47P3dCMjnC7kxnfeLbCTsSCtLMt2mkdPgQssMazSpNydwohYLhng9KDv178cMEQ65u37YW34dM2FrnR7qHs5AxAr9oJhfhdUkgivWcWnp9ync2WeUeaQ8XLmwCegwSRT1f8UJH4GLd7xm2TmAj8mB7nYCHQsCXJoiMXRsfmUuoJHmua8fGh3YiDevV7EXP8VJ54JaVQoA9hfKkSF5V1CZvVqQRNoRmSKbPG72j731BXqDyEZHxaXDcT8zxJM8v2yWjJp32KDD1i8xXQyn8dUVDdKSZNF7ohzL2dxkg3bxGB6C5F4UhxVHtGh6svVz4VGWujMZkLr243KtqFRVmC94rna8AfUtvEJPjTEPXXzMe87y1Gej63nqxzow3R8wtLWu6vP55GPhcrkSsvffgHEt7WWuZJZGjrECAa47x7uDEm87B5o9Hp16NjPKv62qeuMWXkEhqj9XRARMSjFGGrVWkRpT1b8`
 export const auctionAddresses = [auctionAddress]
 export let additionalData = {};
 export const auctionTrees = [auctionAddress] // array of trees of all auction addresses until now.
@@ -24,19 +24,19 @@ export const supportedCurrencies = {
         name: 'ERG',
         id: '',
         decimal: 9,
-        minSupported: 10000000
+        minSupported: 10000000,
     },
     SigUSD: {
         name: 'SigUSD',
         id: '03faf2cb329f2e90d6d23b58d91bbb6c046aa143261cc21f52fbe2824bfcbf04',
         decimal: 2,
-        minSupported: 10
+        minSupported: 100,
     },
     TestUSD: {
         name: 'TestUSD',
-        id: '77597c7594ab183f2ae4b5cd388291505c14dca3e1308e40952239a65a053694',
+        id: '67280a3b27b57abd667ea5822c419636a07952bec908800fdb0949781789340d',
         decimal: 2,
-        minSupported: 10
+        minSupported: 100
     }
 }
 // export const assmUrl = 'https://assembler.ergoauctions.org/';

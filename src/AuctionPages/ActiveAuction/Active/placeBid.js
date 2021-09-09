@@ -35,7 +35,7 @@ export default class PlaceBidModal extends React.Component {
             modalLoading: false,
             assemblerModal: false,
             copied: false,
-            bidAmount: longToCurrency(props.box.curBid + props.box.step, -1, props.box.currency).toString(),
+            bidAmount: longToCurrency(props.box.nextBid, -1, props.box.currency).toString(),
         };
         this.placeBid = this.placeBid.bind(this);
     }
@@ -119,7 +119,7 @@ export default class PlaceBidModal extends React.Component {
                                         type="number"
                                         value={this.state.bidAmount}
                                         invalid={
-                                            currencyToLong(this.state.bidAmount) < this.props.box.curBid + this.props.box.step
+                                            currencyToLong(this.state.bidAmount, supportedCurrencies[this.props.box.currency].decimal) < this.props.box.nextBid
                                         }
                                         onChange={(e) => {
                                             if (isFloat(e.target.value)) {
@@ -135,7 +135,7 @@ export default class PlaceBidModal extends React.Component {
                                     </InputGroupAddon>
                                     <FormFeedback invalid>
                                         Minimum bid value for this auction is{' '}
-                                        {longToCurrency(this.props.box.curBid + this.props.box.step, -1, this.props.box.currency)}{' '}
+                                        {longToCurrency(this.props.box.nextBid, -1, this.props.box.currency)}{' '}
                                         {this.props.box.currency}
                                     </FormFeedback>
                                 </InputGroup>
@@ -155,8 +155,8 @@ export default class PlaceBidModal extends React.Component {
                             className="mr-2 btn-transition"
                             color="secondary"
                             disabled={
-                                currencyToLong(this.state.bidAmount) <
-                                this.props.box.curBid + this.props.box.step ||
+                                currencyToLong(this.state.bidAmount, supportedCurrencies[this.props.box.currency].decimal) <
+                                this.props.box.nextBid ||
                                 this.state.modalLoading
                             }
                             onClick={this.placeBid}

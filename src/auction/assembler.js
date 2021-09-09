@@ -1,8 +1,9 @@
 import {get, post} from './rest';
 import {addBid, getAssemblerBids, getUrl, setAssemblerBids, showStickyMsg,} from './helpers';
 import {Address} from '@coinbarn/ergo-ts';
-import {decodeNum, decodeString} from './serializer';
 import {additionalData, assmUrl, trueAddress, txFee} from "./consts";
+import {boxById} from "./explorer";
+import {getEncodedBoxSer, isP2pkAddr} from "./serializer";
 
 // const assmUrl = 'https://assm.sigmausd.io/';
 
@@ -17,6 +18,18 @@ export async function follow(request) {
 
 export async function stat(id) {
     return await get(getUrl(assmUrl) + '/result/' + id).then((res) => res.json());
+}
+
+export async function getReturnAddr(addr) {
+    return await get(getUrl(assmUrl) + '/returnAddr/' + addr)
+        .then((res) => res.json())
+        .then(res => res.returnAddr)
+}
+
+export async function getEncodedBox(bytes) {
+    return await get(getUrl(assmUrl) + '/encodedBox/' + bytes)
+        .then((res) => res.json())
+        .then(res => res.encodedBox)
 }
 
 export async function p2s(request) {
@@ -66,52 +79,154 @@ export async function bidFollower() {
 }
 
 export async function assembleFinishedAuctions(boxes) {
-    return
-    let dataInput = additionalData.dataInput;
-    let percentage = await decodeNum(
-        dataInput.additionalRegisters.R4,
-        true
-    );
-    let feeTo = Address.fromErgoTree(
-        await decodeString(dataInput.additionalRegisters.R5)
-    ).address;
-    let winnerVal = 1000000;
-    boxes
-        .filter((box) => box.remBlock === 0)
-        .forEach((box) => {
-            let feeAmount = parseInt(box.value / percentage);
-            let winner = {
-                value: winnerVal,
-                address: box.bidder,
-                assets: box.assets,
-            };
+    const toWithdraw = boxes.filter((box) => box.remTimeTimestamp <= 0 || (box.curBid >= box.instantAmount && box.instantAmount !== -1))
+    for (let i = 0; i < toWithdraw.length; i++) {
+        const box = toWithdraw[i]
+        let request = {}
+        if (box.curBid < box.minBid) {
             let seller = {
-                value: box.value - feeAmount - txFee - winnerVal,
+                value: box.value - txFee,
                 address: box.seller,
+                assets: box.assets.map(ass => {
+                    return {tokenId: ass.tokenId, amount: ass.amount}
+                }),
             };
-            let feeBox = {
-                value: feeAmount,
-                address: feeTo,
+            request = {
+                address: box.seller,
+                returnTo: box.seller,
+                startWhen: {},
+                txSpec: {
+                    requests: [seller],
+                    fee: txFee,
+                    inputs: [box.id],
+                    dataInputs: [additionalData.dataInput.boxId],
+                }
             };
-            let request = {
+        } else {
+            const dataInput = additionalData.dataInput;
+            const auctionFee = Math.floor(box.curBid / parseInt(dataInput.additionalRegisters.R4.renderedValue))
+            const feeTo = Address.fromErgoTree(dataInput.additionalRegisters.R5.renderedValue).address;
+            const artistFee = Math.floor(box.curBid / parseInt(dataInput.additionalRegisters.R6.renderedValue))
+            const minimalErg = 500000
+
+            let artBox = await boxById(box.assets[0].tokenId)
+            const boxEncoded = await getEncodedBoxSer(artBox)
+            let winner = {
+                value: minimalErg,
+                address: box.bidder,
+                assets: [{
+                    tokenId: box.assets[0].tokenId,
+                    amount: box.assets[0].amount
+                }],
+            };
+            let realArtistShareBox = {
+                value: artistFee,
+                address: box.bidder
+            };
+            let artistAddr = null
+            if (!isP2pkAddr(artBox.ergoTree)) artistAddr = await getReturnAddr(artBox.address)
+
+            let seller = {}
+            let feeBox = {}
+            let artistFeeBox = {}
+            if (box.assets.length === 1) {
+                seller = {
+                    value: box.value - txFee * 2 - auctionFee - artistFee - minimalErg,
+                    address: box.seller,
+                    registers: {
+                        R4: boxEncoded
+                    },
+                };
+                feeBox = {
+                    value: auctionFee,
+                    address: feeTo,
+                };
+                artistFeeBox = {
+                    value: artistFee + txFee,
+                    address: artBox.address,
+                };
+            } else {
+                realArtistShareBox = {
+                    value: minimalErg,
+                    address: artistAddr,
+                    assets: [{
+                        tokenId: box.assets[1].tokenId,
+                        amount: artistFee
+                    }]
+                };
+                seller = {
+                    value: box.value - txFee * 2 - minimalErg * 3,
+                    address: box.seller,
+                    assets: [{
+                        tokenId: box.assets[1].tokenId,
+                        amount: box.assets[1].amount - auctionFee - artistFee
+                    }],
+                    registers: {
+                        R4: boxEncoded
+                    },
+                };
+                feeBox = {
+                    value: minimalErg,
+                    address: feeTo,
+                    assets: [{
+                        tokenId: box.assets[1].tokenId,
+                        amount: auctionFee
+                    }],
+                };
+                artistFeeBox = {
+                    value: minimalErg + txFee,
+                    address: artBox.address,
+                    assets: [{
+                        tokenId: box.assets[1].tokenId,
+                        amount: artistFee
+                    }],
+                };
+            }
+
+            request = {
                 address: trueAddress,
                 returnTo: trueAddress,
                 startWhen: {},
                 txSpec: {
-                    requests: [winner, seller, feeBox],
+                    requests: [winner, seller, feeBox, artistFeeBox],
                     fee: txFee,
                     inputs: [box.id],
-                    dataInputs: [dataInput.id],
+                    dataInputs: [dataInput.boxId],
                 }
             };
 
-            return post(getUrl(assmUrl) + '/follow', request)
-                .then((res) => {
-                    res.json()
-                }).then(res => {
-                    console.log(`Withdrawing finished auction`);
-                })
 
-        });
+            if (artistAddr !== null) {
+                const artistRealShare = {
+                    address: artBox.address,
+                    returnTo: artistAddr,
+                    startWhen: {erg: 0},
+                    txSpec: {
+                        requests: [realArtistShareBox],
+                        fee: txFee,
+                        inputs: ["$userIns"],
+                        dataInputs: [],
+                    }
+                };
+                await post(getUrl(assmUrl) + '/follow', artistRealShare)
+                    .then((res) => {
+                        res.json()
+                    }).then(res => {
+                        console.log(`registered artist share tx`);
+                    })
+            }
+        }
+
+        if (Object.keys(request).length > 0) post(getUrl(assmUrl) + '/follow', request)
+            .then((res) => res.json()).then(res => {
+                console.log(`Withdrawing finished auction`, res);
+            })
+
+
+    }
+
+
+    toWithdraw.forEach((box) => {
+    });
 
 }
