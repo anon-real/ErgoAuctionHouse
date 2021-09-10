@@ -5,6 +5,7 @@ import {follow, p2s} from "./assembler";
 import {Serializer} from "@coinbarn/ergo-ts/dist/serializer";
 import {additionalData, auctionAddress, txFee} from "./consts";
 import {sendTx} from "./explorer";
+import {yoroiSendFunds} from "./yoroiUtils";
 
 const template = `{
   val userAddress = fromBase64("$userAddress")
@@ -39,6 +40,7 @@ export async function registerAuction(
     block,
     description
 ) {
+    console.log('wow')
     const p2s = (await getAuctionP2s(initial, end, step, buyItNow, currency)).address
     const bidder = getWalletAddress()
     let tree = new Address(bidder).ergoTree;

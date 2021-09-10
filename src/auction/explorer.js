@@ -50,14 +50,12 @@ export function getUnconfirmedTxsFor(addr, useV1=false) {
 
 export async function getAllActiveAuctions() {
     const spending = (await getUnconfirmedTxsFor(auctionAddress, true)).filter(s => s.inputs.length > 1)
-    console.log('yay', spending)
     let idToNew = {}
     spending.forEach(s => {
         let curId = s.inputs[s.inputs.length - 1].boxId
         if (idToNew[curId] === undefined || idToNew[curId].value < s.value)
             idToNew[curId] = s.outputs[0]
     })
-    console.log('yoy', idToNew)
     const all = auctionAddresses.map((addr) => getActiveAuctions(addr));
     return Promise.all(all)
         .then((res) => [].concat.apply([], res))

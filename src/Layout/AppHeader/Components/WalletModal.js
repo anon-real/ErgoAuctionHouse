@@ -1,9 +1,17 @@
 import React from 'react';
 import yoroiWallet from '../../../assets/images/yoroi-logo-shape-blue.inline.svg';
-import {getWalletAddress, isAddressValid, isAssembler, isWalletSaved, showMsg} from '../../../auction/helpers';
+import {
+    getWalletAddress, getWalletType,
+    isAddressValid,
+    isAssembler,
+    isWalletNode,
+    isWalletSaved, isWalletYoroi,
+    showMsg
+} from '../../../auction/helpers';
 
 import {
     Button,
+    Form,
     FormFeedback,
     FormGroup,
     FormText,
@@ -19,6 +27,8 @@ import {
 import classnames from 'classnames';
 import SyncLoader from 'react-spinners/SyncLoader';
 import {css} from '@emotion/core';
+import {Address} from '@coinbarn/ergo-ts';
+import {getYoroiAddress, setupYoroi} from "../../../auction/yoroiUtils";
 
 const override = css`
   display: block;
@@ -53,7 +63,9 @@ class WalletModal extends React.Component {
             modal: !this.state.modal,
         });
 
-        let type = 'assembler'
+        let type = 'yoroi'
+        if (isWalletSaved()) type = getWalletType()
+
 
         this.setState({
             activeTab: type,
@@ -70,7 +82,7 @@ class WalletModal extends React.Component {
         }
     }
 
-    saveWallet() {
+    async saveWallet() {
         this.setState({
             processing: true,
         });
@@ -86,6 +98,23 @@ class WalletModal extends React.Component {
             showMsg('Successfully configured the wallet.');
             this.toggle();
             this.setState({walletState: 'Update'});
+        }
+        if (this.state.activeTab === 'yoroi') {
+            this.clearWallet(false)
+            let res = setupYoroi(true)
+            let address = await getYoroiAddress()
+            if (res && address) {
+                localStorage.setItem(
+                    'wallet',
+                    JSON.stringify({
+                        type: this.state.activeTab,
+                        address: address,
+                    })
+                );
+                this.setState({walletState: 'Update'});
+            }
+            this.toggle();
+            return
         }
     }
 
@@ -123,25 +152,7 @@ class WalletModal extends React.Component {
                             <Button
                                 outline
                                 className={
-                                    'mx-2 btn-wide btn-pill ' +
-                                    classnames({
-                                        active:
-                                            this.state.activeTab ===
-                                            'assembler',
-                                    })
-                                }
-                                color="light"
-                                onClick={() => {
-                                    this.toggleTab('assembler');
-                                }}
-                            >
-                                <span>Any Wallet</span>
-                            </Button>
-                            <Button
-                                outline
-                                disabled={true}
-                                className={
-                                    'mx-2 btn-wide btn-pill ' +
+                                    'mr-2 ml-2 btn-wide btn-pill ' +
                                     classnames({
                                         active:
                                             this.state.activeTab === 'yoroi',
@@ -156,7 +167,24 @@ class WalletModal extends React.Component {
                                     style={{height: '20px', width: '20px'}}
                                     src={yoroiWallet}
                                 />
-                                <span className="px-2">Yoroi Wallet</span>
+                                <span className="ml-2">Yoroi Wallet</span>
+                            </Button>
+                            <Button
+                                outline
+                                className={
+                                    'mr-2 ml-2 btn-wide btn-pill ' +
+                                    classnames({
+                                        active:
+                                            this.state.activeTab ===
+                                            'assembler',
+                                    })
+                                }
+                                color="light"
+                                onClick={() => {
+                                    this.toggleTab('assembler');
+                                }}
+                            >
+                                <span>Any Wallet</span>
                             </Button>
                         </div>
                     </ModalHeader>
@@ -164,8 +192,7 @@ class WalletModal extends React.Component {
                         <TabContent activeTab={this.state.activeTab}>
                             <TabPane tabId="yoroi">
                                 <p>
-                                    Support for Yoroi will be added in the
-                                    future.
+                                    Connects to your Yoroi wallet.
                                 </p>
                             </TabPane>
                             <TabPane tabId="assembler">
@@ -246,13 +273,12 @@ class WalletModal extends React.Component {
                             className="mr-2 btn-transition"
                             color="secondary"
                             disabled={
-                                this.state.activeTab === 'yoroi' ||
                                 this.state.processing ||
                                 (this.state.activeTab === 'assembler' && !isAddressValid(this.state.userAddress))
                             }
-                            onClick={this.saveWallet}
+                            onClick={() => this.saveWallet()}
                         >
-                            Save {this.state.processing}
+                            {this.state.activeTab !== 'yoroi' ? 'Save' : 'Connect'} {this.state.processing}
                         </Button>
                     </ModalFooter>
                 </Modal>

@@ -1,72 +1,16 @@
 /* eslint no-undef: "off"*/
 
-import {post, get} from './rest';
-import {
-    addAssemblerBid,
-    addBid,
-    getAssemblerBids,
-    getUrl,
-    getWalletAddress,
-    isAssembler,
-    isWalletNode,
-    setAssemblerBids,
-    showMsg,
-} from './helpers';
-import {Address, Transaction} from '@coinbarn/ergo-ts';
-import {
-    additionalData,
-    auctionFee,
-    auctionWithExtensionTree,
-    extendNum,
-    extendThreshold,
-    sendTx, trueAddress,
-} from './explorer';
-import {decodeNum, decodeString, encodeHex, encodeNum} from './serializer';
+import {addAssemblerBid, getWalletAddress,} from './helpers';
+import {Address} from '@coinbarn/ergo-ts';
+import {additionalData, auctionFee, auctionWithExtensionTree, extendNum, extendThreshold,} from './explorer';
 import {setupYoroi} from "./yoroiUtils";
+import {registerBid} from "./newBidAssm";
 
 let ergolib = import('ergo-lib-wasm-browser')
 
-async function signTx(txToBeSigned) {
-    try {
-        return await ergo.sign_tx(txToBeSigned);
-    } catch (err) {
-        const msg = `[signTx] Error: ${JSON.stringify(err)}`;
-        console.error(msg, err);
-        return null;
-    }
-}
-
-async function submitTx(txToBeSubmitted) {
-    try {
-        return await ergo.submit_tx(txToBeSubmitted);
-    } catch (err) {
-        const msg = `[submitTx] Error: ${JSON.stringify(err)}`;
-        console.error(msg, err);
-        return null;
-    }
-}
-
-async function processTx(txToBeProcessed) {
-    const msg = s => {
-        console.log('[processTx]', s);
-    };
-    const signedTx = await signTx(txToBeProcessed);
-    if (!signedTx) {
-        console.log(`No signed tx`);
-        return null;
-    }
-    msg("Transaction signed - awaiting submission");
-    // const txId = await submitTx(signedTx);
-    // if (!txId) {
-    //     console.log(`No submotted tx ID`);
-    //     return null;
-    // }
-    // msg("Transaction submitted - thank you for your donation!");
-    // return txId;
-}
-
-export async function placeBid(currentHeight, bidAmount, box) {
+export async function placeBid(bidAmount, box) {
     let wasm = await ergolib
+    let assm = await registerBid(bidAmount, box)
     let yoroiRes = await setupYoroi()
     if (!yoroiRes) throw new Error('Could not connect to Yoroi wallet')
 

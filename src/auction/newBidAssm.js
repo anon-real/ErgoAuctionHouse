@@ -4,6 +4,7 @@ import {encodeHex, encodeNum} from './serializer';
 import {follow, p2s} from "./assembler";
 import {additionalData, auctionAddress, contracts, supportedCurrencies, txFee} from "./consts";
 import {currentBlock} from "./explorer";
+import {yoroiSendFunds} from "./yoroiUtils";
 
 const template = `{
   val userAddress = PK("$userAddress")
@@ -24,10 +25,22 @@ const template = `{
 
 export async function registerBid(bidAmount, box) {
     const block = await currentBlock()
+
+
+
+    console.log('wow')
+    await yoroiSendFunds({
+        'ERG': 2000000
+        // '67280a3b27b57abd667ea5822c419636a07952bec908800fdb0949781789340d': 500
+
+    }, '9gAKeRu1W4Dh6adWXnnYmfqjCTnxnSMtym2LPPMPErCkusCd6F3', block)
+    return
+
+
+
     let ourAddr = getWalletAddress();
     let userTree = new Address(ourAddr).ergoTree;
     const p2s = (await getBidP2s(bidAmount, box)).address
-
     let nextEndTime = box.endTime
     if (box.endTime - block.timestamp <= contracts[auctionAddress].extendThreshold) {
         nextEndTime += contracts[auctionAddress].extendNum
