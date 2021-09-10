@@ -80,12 +80,12 @@ export async function registerBid(bidAmount, box) {
         address: auctionAddress,
         assets: auctionAssets,
         registers: {
-            R4: box.additionalRegisters.R4,
+            R4: box.additionalRegisters.R4.serializedValue,
             R5: await encodeHex(userTree),
-            R6: box.additionalRegisters.R6,
+            R6: box.additionalRegisters.R6.serializedValue,
             R7: await encodeNum(nextEndTime.toString()),
-            R8: box.additionalRegisters.R8,
-            R9: box.additionalRegisters.R9,
+            R8: box.additionalRegisters.R8.serializedValue,
+            R9: box.additionalRegisters.R9.serializedValue,
         },
     };
     let request = {
@@ -96,7 +96,7 @@ export async function registerBid(bidAmount, box) {
         txSpec: {
             requests: [newBox, returnBidder],
             fee: txFee,
-            inputs: ['$userIns', box.id],
+            inputs: ['$userIns', box.boxId],
             dataInputs: [additionalData.dataInput.boxId],
         },
     };
@@ -127,7 +127,7 @@ export async function registerBid(bidAmount, box) {
 }
 
 export async function getBidP2s(bid, box) {
-    let id64 = Buffer.from(box.id, 'hex').toString('base64');
+    let id64 = Buffer.from(box.boxId, 'hex').toString('base64');
     let currencyId = ''
     if (box.assets.length > 1) currencyId = box.assets[1].tokenId
     currencyId = Buffer.from(currencyId, 'hex').toString('base64');

@@ -8,7 +8,7 @@ import {boxById, txById} from '../../../auction/explorer';
 import moment from 'moment';
 import {ResponsiveContainer} from 'recharts';
 import ReactTooltip from 'react-tooltip';
-import {auctionTrees} from "../../../auction/consts";
+import {auctionAddress, auctionTrees} from "../../../auction/consts";
 import {longToCurrency} from "../../../auction/serializer";
 
 const override = css`
@@ -52,7 +52,7 @@ class BidHistory extends React.Component {
                             },
                         });
 
-                        if (!auctionTrees.includes(res.ergoTree)) {
+                        if (auctionAddress !== res.address) {
                             this.setState({
                                 loading: false,
                                 remains: false,
@@ -93,7 +93,7 @@ class BidHistory extends React.Component {
                 loading: true,
                 remains: true,
             });
-            this.loadBids(this.props.box.txId, 10);
+            this.loadBids(this.props.box.transactionId, 10);
         }
     }
 
