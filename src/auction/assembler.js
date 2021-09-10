@@ -98,7 +98,7 @@ export async function assembleFinishedAuctions(boxes) {
                 txSpec: {
                     requests: [seller],
                     fee: txFee,
-                    inputs: [box.id],
+                    inputs: [box.boxId],
                     dataInputs: [additionalData.dataInput.boxId],
                 }
             };
@@ -191,7 +191,7 @@ export async function assembleFinishedAuctions(boxes) {
                 txSpec: {
                     requests: [winner, seller, feeBox, artistFeeBox],
                     fee: txFee,
-                    inputs: [box.id],
+                    inputs: [box.boxId],
                     dataInputs: [dataInput.boxId],
                 }
             };

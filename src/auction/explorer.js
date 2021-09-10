@@ -40,27 +40,30 @@ export function getActiveAuctions(addr) {
         .then((boxes) => boxes.filter((box) => box.assets.length > 0));
 }
 
-export function getUnconfirmedTxsFor(addr) {
+export function getUnconfirmedTxsFor(addr, useV1=false) {
     return getRequest(
-        `/transactions/unconfirmed/byAddress/${addr}`
+        `/mempool/transactions/byAddress/${addr}`,
+        useV1 ? explorerApiV1 : explorerApi
     )
         .then((res) => res.items);
 }
 
 export async function getAllActiveAuctions() {
-    const spending = (await getUnconfirmedTxsFor(auctionAddress)).filter(s => s.inputs.length > 1)
+    const spending = (await getUnconfirmedTxsFor(auctionAddress, true)).filter(s => s.inputs.length > 1)
+    console.log('yay', spending)
     let idToNew = {}
     spending.forEach(s => {
-        let curId = s.inputs[s.inputs.length - 1].id
+        let curId = s.inputs[s.inputs.length - 1].boxId
         if (idToNew[curId] === undefined || idToNew[curId].value < s.value)
             idToNew[curId] = s.outputs[0]
     })
+    console.log('yoy', idToNew)
     const all = auctionAddresses.map((addr) => getActiveAuctions(addr));
     return Promise.all(all)
         .then((res) => [].concat.apply([], res))
         .then(res => {
             return res.map(r => {
-                if (idToNew[r.id] !== undefined) return idToNew[r.id]
+                if (idToNew[r.boxId] !== undefined) return idToNew[r.boxId]
                 else return r
             })
         })
