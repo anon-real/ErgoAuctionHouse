@@ -18,10 +18,9 @@ import {
 import {friendlyToken, isWalletSaved, showMsg,} from '../../../auction/helpers';
 import SyncLoader from 'react-spinners/SyncLoader';
 import {css} from '@emotion/core';
-import {currentBlock} from '../../../auction/explorer';
 import {currencyToLong, isFloat, longToCurrency} from '../../../auction/serializer';
 import {registerBid} from "../../../auction/newBidAssm";
-import {supportedCurrencies} from "../../../auction/consts";
+import {supportedCurrencies, txFee} from "../../../auction/consts";
 
 const override = css`
   display: block;
@@ -53,38 +52,26 @@ export default class PlaceBidModal extends React.Component {
             return;
         }
         this.setState({modalLoading: true});
-        currentBlock().then((block) => {
-            registerBid(
-                block,
-                currencyToLong(this.state.bidAmount, supportedCurrencies[this.props.box.currency].decimal),
-                this.props.box,
-            )
-                .then((r) => {
-                    if (r.id !== undefined) {
-                        this.props.close()
-                        this.props.assemblerModal(r.address, this.state.bidAmount, false, this.props.box.currency)
-                    } else {
-                        showMsg(
-                            'Could not contact the assembler service.',
-                            true
-                        );
-                    }
-                })
-                .catch((_) => {
+        const bidA  = currencyToLong(this.state.bidAmount, supportedCurrencies[this.props.box.currency].decimal)
+        registerBid(bidA, this.props.box).then((r) => {
+                if (r.id !== undefined) {
+                    this.props.close()
+                    this.props.assemblerModal(r.address, longToCurrency(bidA + (this.props.box.assets.length === 1 ? txFee : 0), -1, this.props.box.currency), false, this.props.box.currency)
+                } else {
                     showMsg(
                         'Could not contact the assembler service.',
                         true
                     );
-                })
-                .finally((_) =>
-                    this.setState({modalLoading: false})
-                );
-        })
-            .catch(() =>
+                }
+            })
+            .catch((_) => {
                 showMsg(
-                    'Could not get height from the explorer, try again!',
+                    'Could not contact the assembler service.',
                     true
-                )
+                );
+            })
+            .finally((_) =>
+                this.setState({modalLoading: false})
             );
     }
 

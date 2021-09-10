@@ -9,6 +9,7 @@ import moment from 'moment';
 import {ResponsiveContainer} from 'recharts';
 import ReactTooltip from 'react-tooltip';
 import {auctionTrees} from "../../../auction/consts";
+import {longToCurrency} from "../../../auction/serializer";
 
 const override = css`
   display: block;
@@ -43,7 +44,7 @@ class BidHistory extends React.Component {
                         let time = moment(tx.summary.timestamp).format('lll');
                         this.setState({
                             data: {
-                                bids: [tx.outputs[0].value / 1e9].concat(
+                                bids: [longToCurrency(this.props.box.assets.length > 1 ? tx.outputs[0].assets[1].amount : tx.outputs[0].value, -1, this.props.box.currency)].concat(
                                     this.state.data.bids
                                 ),
                                 labels: [time].concat(this.state.data.labels),
@@ -96,12 +97,16 @@ class BidHistory extends React.Component {
         }
     }
 
+    callbackFn(value, index, values) {
+        return value;
+    }
+
     render() {
         let data = {
             labels: this.state.data.labels,
             datasets: [
                 {
-                    label: 'Bid Amount in ERG',
+                    label: `Bid Amount in ${this.props.box.currency}`,
                     backgroundColor: 'rgba(35, 67, 123, 1)',
                     borderWidth: 1,
                     hoverBackgroundColor: 'rgba(53, 102, 187, 1)',
@@ -144,13 +149,7 @@ class BidHistory extends React.Component {
                                         {
                                             ticks: {
                                                 beginAtZero: true,
-                                                callback: function (
-                                                    value,
-                                                    index,
-                                                    values
-                                                ) {
-                                                    return value + ' ERG';
-                                                },
+                                                callback: this.callbackFn,
                                             },
                                         },
                                     ],

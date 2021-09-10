@@ -1,6 +1,10 @@
 import React from 'react';
 import {Flip, Slide, toast} from 'react-toastify';
 import {Address} from "@coinbarn/ergo-ts";
+import {currentBlock} from "./explorer";
+import {registerBid} from "./newBidAssm";
+import {currencyToLong} from "./serializer";
+import {supportedCurrencies} from "./consts";
 
 const explorerUrl = 'https://explorer.ergoplatform.com/en/';
 

@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+    ButtonGroup,
     CardFooter,
     Col,
     DropdownMenu,
@@ -25,6 +26,8 @@ import {Row} from 'react-bootstrap';
 import ArtworkDetails from '../../artworkDetails';
 import {Link} from "react-router-dom";
 import {longToCurrency} from "../../../auction/serializer";
+import {registerBid} from "../../../auction/newBidAssm";
+import {txFee} from "../../../auction/consts";
 
 const override = css`
   display: block;
@@ -35,6 +38,7 @@ export default class ActivePicture extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            loading: false,
             bidModal: false,
             myBidsModal: false,
             detailsModal: false,
@@ -146,7 +150,7 @@ export default class ActivePicture extends React.Component {
                                 css={override}
                                 size={8}
                                 color={'#0086d3'}
-                                loading={this.props.box.loader}
+                                loading={this.state.loading}
                             />
                         </ResponsiveContainer>
 
@@ -259,9 +263,9 @@ export default class ActivePicture extends React.Component {
                     <CardFooter>
                         <Col md={6} className="widget-description">
                             <Row>
-                                <span>
+                                {this.props.box.curBid >= this.props.box.minBid && <span>
                                     <b className="fsize-1">
-                                        {longToCurrency(this.props.box.curBid, -1, this.props.box.currency).toFixed(2)}{' '}{this.props.box.currency}
+                                        {longToCurrency(this.props.box.curBid, -1, this.props.box.currency)}{' '}{this.props.box.currency}
                                     </b>{' '}
                                     <text
                                         style={{fontSize: '10px'}}
@@ -270,7 +274,15 @@ export default class ActivePicture extends React.Component {
                                         {this.props.box.increase}%
                                         <FontAwesomeIcon icon={faAngleUp}/>
                                     </text>
-                                </span>
+                                </span>}
+                                {this.props.box.curBid < this.props.box.minBid && <span>
+                                    <i
+                                        style={{fontSize: '12px'}}
+                                        className="pl-1 pr-1"
+                                    >
+                                        No bids yet
+                                    </i>{' '}
+                                </span>}
                             </Row>
                         </Col>
 
@@ -293,23 +305,47 @@ export default class ActivePicture extends React.Component {
 
                     </CardFooter>
 
-                    <button type="button" class="btn btn-outline-primary btn-lg" style={{fontSize: 14}}
-                            onClick={(e) => {
-                                e.preventDefault();
-                                this.openBid();
-                            }}>
-                        <text>
-                            Place Bid
-                        </text>
-                        {' '}
-                        <text>
-                            for{' '}
-                            <b>
-                                {longToCurrency(this.props.box.nextBid, -1, this.props.box.currency)}{' '} {this.props.box.currency}
-                            </b>
-                        </text>
-                    </button>
-
+                    <ButtonGroup>
+                        <button type="button" className="btn btn-outline-primary btn-sm"
+                                style={{fontSize: 13}}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    this.openBid();
+                                }}>
+                            <text>
+                                Place Bid
+                            </text>
+                            {' '}
+                            <text>
+                                for{' '}
+                                <b>
+                                    {longToCurrency(this.props.box.nextBid, -1, this.props.box.currency)}{' '} {this.props.box.currency}
+                                </b>
+                            </text>
+                        </button>
+                        {this.props.box.instantAmount !== -1 &&
+                        <button type="button" className="btn btn-outline-dark btn-sm"
+                                style={{fontSize: 13}}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    this.setState({loading: true})
+                                    registerBid(this.props.box.instantAmount, this.props.box).then(r => {
+                                        this.setState({loading: false})
+                                        this.props.assemblerModal(r.address, longToCurrency(this.props.box.instantAmount + (this.props.box.assets.length === 1 ? txFee : 0), -1, this.props.box.currency), false, this.props.box.currency)
+                                    })
+                                }}>
+                            <text>
+                                Buy
+                            </text>
+                            {' '}
+                            <text>
+                                for{' '}
+                                <b>
+                                    {longToCurrency(this.props.box.instantAmount, -1, this.props.box.currency)}{' '} {this.props.box.currency}
+                                </b>
+                            </text>
+                        </button>}
+                    </ButtonGroup>
                 </div>
             </Col>
         );

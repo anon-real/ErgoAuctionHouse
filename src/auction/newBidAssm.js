@@ -3,6 +3,7 @@ import {Address} from '@coinbarn/ergo-ts';
 import {encodeHex, encodeNum} from './serializer';
 import {follow, p2s} from "./assembler";
 import {additionalData, auctionAddress, contracts, supportedCurrencies, txFee} from "./consts";
+import {currentBlock} from "./explorer";
 
 const template = `{
   val userAddress = PK("$userAddress")
@@ -21,14 +22,15 @@ const template = `{
   sigmaProp(placeBid || returnFunds)
 }`;
 
-export async function registerBid(block, bidAmount, box) {
+export async function registerBid(bidAmount, box) {
+    const block = await currentBlock()
     let ourAddr = getWalletAddress();
     let userTree = new Address(ourAddr).ergoTree;
     const p2s = (await getBidP2s(bidAmount, box)).address
 
     let nextEndTime = box.endTime
     if (box.endTime - block.timestamp <= contracts[auctionAddress].extendThreshold) {
-        box.endTime += contracts[auctionAddress].extendNum
+        nextEndTime += contracts[auctionAddress].extendNum
     }
 
     let auctionErg = bidAmount
@@ -98,7 +100,6 @@ export async function registerBid(block, bidAmount, box) {
             dataInputs: [additionalData.dataInput.boxId],
         },
     };
-    console.log(request)
     return await follow(request)
         .then((res) => {
             if (res.id !== undefined) {
@@ -110,10 +111,8 @@ export async function registerBid(block, bidAmount, box) {
                         boxId: box.id,
                         txId: null,
                         tx: null,
-                        prevEndTime: box.finalBlock,
-                        shouldExtend:
-                            box.ergoTree === 'auctionWithExtensionTree' && // TODO fix
-                            nextEndTime === box.finalBlock,
+                        prevEndTime: box.endTime,
+                        shouldExtend: nextEndTime === box.endTime,
                         status: 'pending mining',
                         amount: bidAmount,
                         currency: supportedCurrencies[box.currency],

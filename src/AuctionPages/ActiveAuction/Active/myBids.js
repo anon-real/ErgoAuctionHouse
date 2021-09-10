@@ -82,15 +82,14 @@ export default class MyBidsModal extends React.Component {
                                     <tbody>
                                     {this.state.curBids.map((bid) => {
                                         let status =
-                                            bid.amount ===
-                                            this.props.box.value &&
+                                            bid.amount === this.props.box.curBid &&
                                             bid.status === 'complete'
                                                 ? this.props.highText
                                                 : bid.status;
                                         return (
                                             <tr>
                                                 <td className="text-center">
-                                                    {longToCurrency(bid.amount, 2, this.props.box.currency)} {this.props.box.currency}
+                                                    {longToCurrency(bid.amount, -1, this.props.box.currency)} {this.props.box.currency}
                                                 </td>
                                                 <td className="text-center">
                                                     <div

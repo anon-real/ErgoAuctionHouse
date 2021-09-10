@@ -1,7 +1,7 @@
 import {Serializer} from '@coinbarn/ergo-ts/dist/serializer';
 import moment from 'moment';
 import {Address, AddressKind} from "@coinbarn/ergo-ts/dist/models/address";
-import {boxById, getIssuingBox, txById} from "./explorer";
+import {boxById, getIssuingBox, getSpendingTx, txById} from "./explorer";
 import {supportedCurrencies} from "./consts";
 import {getEncodedBox} from "./assembler";
 
@@ -51,17 +51,21 @@ async function decodeStr(str) {
     return new TextDecoder().decode((await ergolib).Constant.decode_from_base16(str).to_byte_array())
 }
 
+export function getBoxBid(box) {
+
+}
+
 export async function decodeBox(box, block) {
-    box.seller = Address.fromErgoTree(await decodeString(box.additionalRegisters.R4)).address;
-    box.bidder = Address.fromErgoTree(await decodeString(box.additionalRegisters.R5)).address;
-    const stepInit = await decodeLongTuple(box.additionalRegisters.R6)
+    box.seller = Address.fromErgoTree(await decodeString(box.additionalRegisters.R4.serializedValue)).address;
+    box.bidder = Address.fromErgoTree(await decodeString(box.additionalRegisters.R5.serializedValue)).address;
+    const stepInit = await decodeLongTuple(box.additionalRegisters.R6.serializedValue)
     box.minBid = stepInit[0]
     box.initialBid = stepInit[0]
     box.step = stepInit[1]
-    box.endTime = parseInt(await decodeNum(box.additionalRegisters.R7))
-    box.instantAmount = parseInt(await decodeNum(box.additionalRegisters.R8))
+    box.endTime = parseInt(await decodeNum(box.additionalRegisters.R7.serializedValue))
+    box.instantAmount = parseInt(await decodeNum(box.additionalRegisters.R8.serializedValue))
 
-    let info = Serializer.stringFromHex(await decodeString(box.additionalRegisters.R9)).split(',')
+    let info = Serializer.stringFromHex(await decodeString(box.additionalRegisters.R9.serializedValue)).split(',')
     box.startTime = parseInt(info[1])
     box.description = info[2]
     if (box.description.length === 0) box.description = '-'
