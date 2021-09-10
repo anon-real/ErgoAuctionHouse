@@ -119,15 +119,12 @@ export async function assembleFinishedAuctions(boxes) {
                     amount: box.assets[0].amount
                 }],
             };
-            let realArtistShareBox = {
-                value: artistFee,
-                address: box.bidder
-            };
             let artistAddr = null
             if (!isP2pkAddr(artBox.ergoTree)) artistAddr = await getReturnAddr(artBox.address)
 
             let seller = {}
             let feeBox = {}
+            let realArtistShareBox = {}
             let artistFeeBox = {}
             if (box.assets.length === 1) {
                 seller = {
@@ -145,15 +142,11 @@ export async function assembleFinishedAuctions(boxes) {
                     value: artistFee + txFee,
                     address: artBox.address,
                 };
-            } else {
                 realArtistShareBox = {
-                    value: minimalErg,
-                    address: artistAddr,
-                    assets: [{
-                        tokenId: box.assets[1].tokenId,
-                        amount: artistFee
-                    }]
+                    value: artistFee,
+                    address: artistAddr
                 };
+            } else {
                 seller = {
                     value: box.value - txFee * 2 - minimalErg * 3,
                     address: box.seller,
@@ -180,6 +173,14 @@ export async function assembleFinishedAuctions(boxes) {
                         tokenId: box.assets[1].tokenId,
                         amount: artistFee
                     }],
+                };
+                realArtistShareBox = {
+                    value: minimalErg,
+                    address: artistAddr,
+                    assets: [{
+                        tokenId: box.assets[1].tokenId,
+                        amount: artistFee
+                    }]
                 };
             }
 

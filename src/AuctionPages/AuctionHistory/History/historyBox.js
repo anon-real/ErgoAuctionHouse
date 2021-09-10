@@ -23,6 +23,7 @@ import {
     UncontrolledButtonDropdown
 } from 'reactstrap';
 import {Link} from "react-router-dom";
+import {longToCurrency} from "../../../auction/serializer";
 
 const override = css`
   display: block;
@@ -129,9 +130,12 @@ export default class HistoryBox extends React.Component {
                         </ResponsiveContainer>
 
                         <div className="d-inline-flex">
-                            <span className="widget-numbers">
-                                {this.props.box.value / 1e9} ERG
-                            </span>
+                            {this.props.box.curBid >= this.props.box.minBid && <span className="widget-numbers">
+                                {longToCurrency(this.props.box.curBid, -1, this.props.box.currency)} {this.props.box.currency}
+                            </span>}
+                            {this.props.box.curBid < this.props.box.minBid && <span className="widget-numbers">
+                                -
+                            </span>}
                             {this.props.box.isArtwork && <span
                                 onClick={() => this.setState({artDetail: true})}
                                 data-tip="Artwork NFT"

@@ -88,7 +88,7 @@ class NewAuctionAssembler extends React.Component {
                 description
             ).then(res => {
                 this.props.close()
-                this.props.assemblerModal(res.address, this.state.initialBid, true, this.state.currency.name)
+                this.props.assemblerModal(res.address, longToCurrency(this.state.currency.minSupported, -1, this.state.currency.name), true, this.state.currency.name)
 
             }).catch(err => {
                 showMsg('Error while starting the auction!', true);
