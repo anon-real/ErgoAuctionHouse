@@ -52,7 +52,6 @@ export default class AuctionsHistory extends React.Component {
                         .map(bx => decodeBox(bx, block));
                     Promise.all(boxes).then((res) => {
                         res.forEach((box) => {
-                            console.log('yay', box)
                             box.finalTx = box.spentTransactionId;
                         });
                         return res;
