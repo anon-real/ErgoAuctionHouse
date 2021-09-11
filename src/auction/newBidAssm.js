@@ -1,6 +1,7 @@
-import {addAssemblerBid, getWalletAddress,} from './helpers';
+import {addAssemblerBid, getWalletAddress, isAssembler, isYoroi, showMsg,} from './helpers';
+import moment from 'moment';
 import {Address} from '@coinbarn/ergo-ts';
-import {encodeHex, encodeNum} from './serializer';
+import {encodeHex, encodeNum, longToCurrency} from './serializer';
 import {follow, p2s} from "./assembler";
 import {additionalData, auctionAddress, contracts, supportedCurrencies, txFee} from "./consts";
 import {currentBlock} from "./explorer";
@@ -20,27 +21,16 @@ const template = `{
     val total = INPUTS.fold(0L, {(x:Long, b:Box) => x + b.value}) - 2000000
     OUTPUTS(0).value >= total && OUTPUTS(0).propositionBytes == userAddress.propBytes && OUTPUTS.size == 2
   }
-  sigmaProp(placeBid || returnFunds)
+  sigmaProp((placeBid || returnFunds) && HEIGHT < $timestampL)
 }`;
 
 export async function registerBid(bidAmount, box) {
     const block = await currentBlock()
-
-
-
-    console.log('wow')
-    await yoroiSendFunds({
-        'ERG': 2000000
-        // '67280a3b27b57abd667ea5822c419636a07952bec908800fdb0949781789340d': 500
-
-    }, '9gAKeRu1W4Dh6adWXnnYmfqjCTnxnSMtym2LPPMPErCkusCd6F3', block)
-    return
-
-
-
-    let ourAddr = getWalletAddress();
+    let ourAddr;
+    if (isYoroi()) ourAddr = getWalletAddress()
+    else ourAddr = getWalletAddress()
     let userTree = new Address(ourAddr).ergoTree;
-    const p2s = (await getBidP2s(bidAmount, box)).address
+    const p2s = (await getBidP2s(bidAmount, box, ourAddr)).address
     let nextEndTime = box.endTime
     if (box.endTime - block.timestamp <= contracts[auctionAddress].extendThreshold) {
         nextEndTime += contracts[auctionAddress].extendNum
@@ -135,24 +125,38 @@ export async function registerBid(bidAmount, box) {
                 addAssemblerBid(bid);
             }
             res.address = p2s
+            res.block = block
             return res;
         });
 }
 
-export async function getBidP2s(bid, box) {
+export async function getBidP2s(bid, box, addr) {
     let id64 = Buffer.from(box.boxId, 'hex').toString('base64');
     let currencyId = ''
     if (box.assets.length > 1) currencyId = box.assets[1].tokenId
     currencyId = Buffer.from(currencyId, 'hex').toString('base64');
 
     let script = template
-        .replace('$userAddress', getWalletAddress())
+        .replace('$userAddress', addr)
         .replace('$bidAmount', bid)
         .replace('$auctionId', id64)
         .replace('$currencyId', currencyId)
+        .replace('$timestamp', moment().valueOf())
         .replaceAll('\n', '\\n');
-    // console.log(script)
-    // return
     return p2s(script);
 }
 
+export async function bidHelper(bid, box, modal) {
+    const r = await registerBid(bid, box)
+    if (r.id === undefined) throw Error("Could not contact the assembler service")
+    if (isAssembler()) {
+        modal(r.address, longToCurrency(bid + (box.assets.length === 1 ? txFee : 0), -1, box.currency), false, box.currency)
+    } else if (isYoroi()) {
+        let need = {ERG: bid + txFee}
+        if (box.assets.length > 1) {
+            need = {ERG: 2000000}
+            need[box.assets[1].tokenId] = bid
+        }
+        return await yoroiSendFunds(need, r.address, r.block)
+    }
+}

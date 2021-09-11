@@ -19,8 +19,8 @@ import {friendlyToken, isWalletSaved, showMsg,} from '../../../auction/helpers';
 import SyncLoader from 'react-spinners/SyncLoader';
 import {css} from '@emotion/core';
 import {currencyToLong, isFloat, longToCurrency} from '../../../auction/serializer';
-import {registerBid} from "../../../auction/newBidAssm";
-import {supportedCurrencies, txFee} from "../../../auction/consts";
+import {bidHelper} from "../../../auction/newBidAssm";
+import {supportedCurrencies} from "../../../auction/consts";
 
 const override = css`
   display: block;
@@ -52,27 +52,12 @@ export default class PlaceBidModal extends React.Component {
             return;
         }
         this.setState({modalLoading: true});
-        const bidA  = currencyToLong(this.state.bidAmount, supportedCurrencies[this.props.box.currency].decimal)
-        registerBid(bidA, this.props.box).then((r) => {
-                if (r.id !== undefined) {
-                    this.props.close()
-                    this.props.assemblerModal(r.address, longToCurrency(bidA + (this.props.box.assets.length === 1 ? txFee : 0), -1, this.props.box.currency), false, this.props.box.currency)
-                } else {
-                    showMsg(
-                        'Could not contact the assembler service.',
-                        true
-                    );
-                }
-            })
-            .catch((_) => {
-                showMsg(
-                    'Could not contact the assembler service.',
-                    true
-                );
-            })
-            .finally((_) =>
+        const bidA = currencyToLong(this.state.bidAmount, supportedCurrencies[this.props.box.currency].decimal)
+        bidHelper(bidA, this.props.box, this.props.assemblerModal)
+            .finally((_) => {
+                this.props.close()
                 this.setState({modalLoading: false})
-            );
+            });
     }
 
     render() {
