@@ -1,7 +1,8 @@
 /* eslint no-undef: "off"*/
 import {getWalletAddress, showMsg} from "./helpers";
 import {txFee} from "./consts";
-import {Address} from "@coinbarn/ergo-ts/dist/models/address";
+import {getBalance} from "./explorer";
+
 let ergolib = import('ergo-lib-wasm-browser')
 
 function yoroiDisconnect() {
@@ -46,7 +47,6 @@ export async function yoroiSendFunds(need, addr, block) {
     let ins = []
     const keys = Object.keys(have)
     for (let i = 0; i < keys.length; i++) {
-        // if (keys[i] === 'ERG') continue // TODO fix
         if (have[keys[i]] <= 0) continue
         const curIns = await ergo.get_utxos(have[keys[i]].toString(), keys[i]);
         if (curIns !== undefined) {
@@ -121,4 +121,21 @@ export async function yoroiSendFunds(need, addr, block) {
         showMsg('Necessary funds were sent using Yoroi!')
     else
         showMsg('Error while sending funds using Yoroi!', true)
+}
+
+export async function getYoroiTokens() {
+    await setupYoroi()
+    const addresses = (await ergo.get_used_addresses()).concat(await ergo.get_unused_addresses())
+    let tokens = {}
+    for (let i = 0; i < addresses.length; i++) {
+        (await getBalance(addresses[i])).tokens.forEach(ass => {
+            if (!Object.keys(tokens).includes(ass.tokenId))
+            tokens[ass.tokenId] = {
+                amount: 0,
+                name: ass.name
+            }
+            tokens[ass.tokenId].amount += parseInt(ass.amount)
+        })
+    }
+    return tokens
 }

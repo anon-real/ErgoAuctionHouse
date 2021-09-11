@@ -5,7 +5,7 @@ import {encodeHex, encodeNum, longToCurrency} from './serializer';
 import {follow, p2s} from "./assembler";
 import {additionalData, auctionAddress, contracts, supportedCurrencies, txFee} from "./consts";
 import {currentBlock} from "./explorer";
-import {yoroiSendFunds} from "./yoroiUtils";
+import {getYoroiTokens, yoroiSendFunds} from "./yoroiUtils";
 
 const template = `{
   val userAddress = PK("$userAddress")

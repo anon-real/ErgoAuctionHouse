@@ -1,10 +1,10 @@
-import {addAssemblerBid, getWalletAddress,} from './helpers';
+import {addAssemblerBid, getWalletAddress, isAssembler, isYoroi, showMsg,} from './helpers';
 import {Address} from '@coinbarn/ergo-ts';
-import {decodeLongTuple, encodeHex, encodeLongTuple, encodeNum} from './serializer';
+import {currencyToLong, decodeLongTuple, encodeHex, encodeLongTuple, encodeNum, longToCurrency} from './serializer';
 import {follow, p2s} from "./assembler";
 import {Serializer} from "@coinbarn/ergo-ts/dist/serializer";
 import {additionalData, auctionAddress, supportedCurrencies, txFee} from "./consts";
-import {sendTx} from "./explorer";
+import {currentBlock, sendTx} from "./explorer";
 import {yoroiSendFunds} from "./yoroiUtils";
 import moment from "moment";
 
@@ -38,9 +38,9 @@ export async function registerAuction(
     buyItNow,
     step,
     end,
-    block,
     description
 ) {
+    const block = await currentBlock()
     const p2s = (await getAuctionP2s(initial, end, step, buyItNow, currency)).address
     const bidder = getWalletAddress()
     let tree = new Address(bidder).ergoTree;
@@ -114,6 +114,7 @@ export async function registerAuction(
                 addAssemblerBid(bid);
             }
             res.address = p2s
+            res.block = block
             return res;
         });
 }
@@ -135,3 +136,27 @@ export async function getAuctionP2s(initial, end, step, buyItNow, currency) {
     return p2s(script);
 }
 
+export async function newAuctionHelper(
+    initial,
+    currency,
+    buyItNow,
+    step,
+    end,
+    description,
+    selectedToken,
+    amount,
+    assemblerModal,
+) {
+    const r = await registerAuction(initial, currency, buyItNow, step, end, description)
+    if (r.id === undefined) throw Error("Could not contact the assembler service")
+    if (isAssembler()) {
+        assemblerModal(r.address, longToCurrency(currency.initial, -1, currency.name), true, currency.name)
+    } else if (isYoroi()) {
+        let need = {ERG: supportedCurrencies.ERG.initial}
+        need[selectedToken.value] = amount
+        if (currency.id.length > 0)
+            need[currency.id] = currency.initial
+        console.log(need)
+        return await yoroiSendFunds(need, r.address, r.block)
+    }
+}

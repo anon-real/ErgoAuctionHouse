@@ -1,4 +1,5 @@
 import React from 'react';
+import Select from 'react-select';
 import moment from 'moment';
 import {
     Button,
@@ -19,14 +20,14 @@ import {
     ModalHeader,
     Row,
 } from 'reactstrap';
-import {showMsg,} from '../../../auction/helpers';
+import {friendlyAddress, isYoroi, showMsg,} from '../../../auction/helpers';
 import SyncLoader from 'react-spinners/SyncLoader';
 import {css} from '@emotion/core';
-import {currentBlock} from '../../../auction/explorer';
 import {currencyToLong, isFloat, longToCurrency} from "../../../auction/serializer";
-import {registerAuction} from "../../../auction/newAuctionAssm";
+import {newAuctionHelper} from "../../../auction/newAuctionAssm";
 import DateTimePicker from 'react-datetime-picker';
 import {supportedCurrencies} from "../../../auction/consts";
+import {getYoroiTokens} from "../../../auction/yoroiUtils";
 
 
 const override = css`
@@ -45,6 +46,10 @@ class NewAuctionAssembler extends React.Component {
             initialBid: longToCurrency(supportedCurrencies.ERG.minSupported, supportedCurrencies.ERG.decimal),
             instantAmount: longToCurrency(supportedCurrencies.ERG.minSupported * 10, supportedCurrencies.ERG.decimal),
             enableInstantBuy: false,
+            tokenLoading: false,
+            tokens: [],
+            selectedToken: null,
+            tokenAmount: 1
         }
         this.canStartAuction = this.canStartAuction.bind(this);
         this.changeCurrency = this.changeCurrency.bind(this);
@@ -53,7 +58,22 @@ class NewAuctionAssembler extends React.Component {
     componentWillReceiveProps(nextProps, nextContext) {
         if (this.props.isOpen && !nextProps.isOpen) {
             this.setState({modalLoading: false, assets: {}});
+        } else if (!this.props.isOpen && nextProps.isOpen) {
+            this.setState({tokenLoading: true})
+            getYoroiTokens().then(res => {
+                const rendered = Object.keys(res).map(key => {
+                    return {
+                        label: res[key].name + ` (${friendlyAddress(key, 5)})`,
+                        value: key,
+                        amount: res[key].amount,
+                    }
+                })
+                this.setState({tokens: rendered, tokenLoading: false})
+            })
         }
+    }
+
+    componentWillMount() {
     }
 
     changeCurrency(name) {
@@ -68,6 +88,7 @@ class NewAuctionAssembler extends React.Component {
     canStartAuction() {
         return (
             !this.state.modalLoading &&
+            ((this.state.selectedToken !== null && parseInt(this.state.tokenAmount)) > 0 || !isYoroi()) &&
             currencyToLong(this.state.initialBid, this.state.currency.decimal) >= this.state.currency.minSupported &&
             currencyToLong(this.state.auctionStep, this.state.currency.decimal) >= this.state.currency.minSupported
         );
@@ -75,28 +96,23 @@ class NewAuctionAssembler extends React.Component {
 
     startAuction() {
         this.setState({modalLoading: true});
-        currentBlock().then((block) => {
-            let description = this.state.description;
-            if (!description) description = '';
-            registerAuction(
-                currencyToLong(this.state.initialBid, this.state.currency.decimal),
-                this.state.currency,
-                (this.state.enableInstantBuy? currencyToLong(this.state.instantAmount, this.state.currency.decimal) : -1),
-                currencyToLong(this.state.auctionStep, this.state.currency.decimal),
-                parseInt(moment(this.state.endTime).format('x')),
-                block,
-                description
-            ).then(res => {
+        let description = this.state.description;
+        if (!description) description = '';
+        newAuctionHelper(
+            currencyToLong(this.state.initialBid, this.state.currency.decimal),
+            this.state.currency,
+            (this.state.enableInstantBuy ? currencyToLong(this.state.instantAmount, this.state.currency.decimal) : -1),
+            currencyToLong(this.state.auctionStep, this.state.currency.decimal),
+            parseInt(moment(this.state.endTime).format('x')),
+            description,
+            this.state.selectedToken,
+            parseInt(this.state.tokenAmount),
+            this.props.assemblerModal
+        ).catch(_ => showMsg('Could not get height from the explorer, try again!', true))
+            .finally(() => {
                 this.props.close()
-                this.props.assemblerModal(res.address, longToCurrency(this.state.currency.minSupported, -1, this.state.currency.name), true, this.state.currency.name)
-
-            }).catch(err => {
-                showMsg('Error while starting the auction!', true);
-                console.error(err)
                 this.setState({modalLoading: false})
             })
-
-        }).catch(_ => showMsg('Could not get height from the explorer, try again!', true));
     }
 
     render() {
@@ -121,6 +137,50 @@ class NewAuctionAssembler extends React.Component {
                         </Row>
 
                         <Form>
+                            {isYoroi() && <Row>
+                                <Col>
+                                    <FormGroup>
+                                        <Label for="bid">Token to Auction</Label>
+                                        <Select
+                                            className="basic-single"
+                                            classNamePrefix="select"
+                                            isDisabled={false}
+                                            isLoading={this.state.tokenLoading}
+                                            isClearable={false}
+                                            isRtl={false}
+                                            isSearchable={true}
+                                            name="color"
+                                            options={this.state.tokens}
+                                            onChange={(changed) => this.setState({selectedToken: changed})}
+                                        />
+                                    </FormGroup>
+                                    <FormText>
+                                        You own these tokens in your Yoroi wallet, select the one you'd like to auction.
+                                    </FormText>
+                                </Col>
+                                {this.state.selectedToken !== null && this.state.selectedToken.amount > 1 && <Col>
+                                    <FormGroup>
+                                        <Label for="auctionStep">
+                                            Select Amount
+                                        </Label>
+                                        <InputGroup>
+                                            <Input
+                                                type="number"
+                                                value={this.state.tokenAmount}
+                                                onChange={(e) => {
+                                                    this.setState({
+                                                        tokenAmount: e.target.value,
+                                                    });
+                                                }}
+                                            />
+                                        </InputGroup>
+                                        <FormText>
+                                            You have {this.state.selectedToken.amount} of this token, specify how many
+                                            of those you want to auction.
+                                        </FormText>
+                                    </FormGroup>
+                                </Col>}
+                            </Row>}
                             <Row>
                                 <Col md="6">
                                     <FormGroup>
@@ -165,7 +225,8 @@ class NewAuctionAssembler extends React.Component {
                                             </FormFeedback>
                                         </InputGroup>
                                         <FormText>
-                                            The first bid will be at least this amount. Note that you need a little bit of this currency in your wallet to start the auction!
+                                            The first bid will be at least this amount. Note that you need a little bit
+                                            of this currency in your wallet to start the auction!
                                         </FormText>
                                     </FormGroup>
                                 </Col>
@@ -297,7 +358,8 @@ class NewAuctionAssembler extends React.Component {
                                             </FormFeedback>
                                         </InputGroup>
                                         <FormText>
-                                            If you set this, anyone can instantly win your auction by bidding by at least this
+                                            If you set this, anyone can instantly win your auction by bidding by at
+                                            least this
                                             amount.
                                         </FormText>
                                     </FormGroup>
