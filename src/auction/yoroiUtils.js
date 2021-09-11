@@ -46,6 +46,13 @@ export async function yoroiSendFunds(need, addr, block) {
     have['ERG'] += txFee
     let ins = []
     const keys = Object.keys(have)
+
+    const allBal = await getYoroiTokens()
+    if (keys.filter(key => key !== 'ERG').filter(key => !Object.keys(allBal).includes(key) || allBal[key].amount < have[key]).length > 0) {
+        showMsg('Not enough balance in the Yoroi wallet!', true)
+        return
+    }
+
     for (let i = 0; i < keys.length; i++) {
         if (have[keys[i]] <= 0) continue
         const curIns = await ergo.get_utxos(have[keys[i]].toString(), keys[i]);
