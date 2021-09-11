@@ -305,23 +305,36 @@ export default class ActivePicture extends React.Component {
                     </CardFooter>
 
                     <ButtonGroup>
-                        <button type="button" className="btn btn-outline-primary btn-sm"
-                                style={{fontSize: 13}}
+                        <div className="d-block text-center">
+                        <button className="btn-icon btn-icon-only btn btn-outline-primary"
                                 onClick={(e) => {
                                     e.preventDefault();
                                     this.openBid();
                                 }}>
-                            <text>
-                                Place Bid
-                            </text>
-                            {' '}
-                            <text>
-                                for{' '}
-                                <b>
-                                    {longToCurrency(this.props.box.nextBid, -1, this.props.box.currency)}{' '} {this.props.box.currency}
-                                </b>
-                            </text>
+                            <i className="pe-7s-edit btn-icon-wrapper"> </i>
                         </button>
+                        </div>
+                        <button type="button" className="btn btn-outline-primary btn-sm"
+                                    style={{fontSize: 13}}
+                                    onClick={(e) => {
+                                        // e.preventDefault();
+                                        // this.openBid();
+                                        e.preventDefault();
+                                        this.setState({loading: true})
+                                        bidHelper(this.props.box.nextBid, this.props.box, this.props.assemblerModal)
+                                            .finally(() => this.setState({loading: false}))
+                                    }}>
+                                <text>
+                                    Place Bid
+                                </text>
+                                {' '}
+                                <text>
+                                    for{' '}
+                                    <b>
+                                        {longToCurrency(this.props.box.nextBid, -1, this.props.box.currency)}{' '} {this.props.box.currency}
+                                    </b>
+                                </text>
+                            </button>
                         {this.props.box.instantAmount !== -1 &&
                         <button type="button" className="btn btn-outline-dark btn-sm"
                                 style={{fontSize: 13}}

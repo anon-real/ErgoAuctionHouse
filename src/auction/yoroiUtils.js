@@ -116,6 +116,7 @@ export async function yoroiSendFunds(need, addr, block) {
     const tx = await ergo.sign_tx(unsigned)
     const txId = await ergo.submit_tx(tx)
 
+    console.log('Yoroi tx id', txId)
     if (txId !== undefined && txId.length > 0)
         showMsg('Necessary funds were sent using Yoroi!')
     else
