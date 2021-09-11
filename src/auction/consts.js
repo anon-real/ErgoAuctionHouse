@@ -25,18 +25,21 @@ export const supportedCurrencies = {
         id: '',
         decimal: 9,
         minSupported: 10000000,
+        initial: 10000000,
     },
     SigUSD: {
         name: 'SigUSD',
         id: '03faf2cb329f2e90d6d23b58d91bbb6c046aa143261cc21f52fbe2824bfcbf04',
         decimal: 2,
         minSupported: 100,
+        initial: 1,
     },
     TestUSD: {
         name: 'TestUSD',
         id: '67280a3b27b57abd667ea5822c419636a07952bec908800fdb0949781789340d',
         decimal: 2,
-        minSupported: 100
+        minSupported: 100,
+        initial: 1,
     }
 }
 export const assmUrl = 'https://assembler.ergoauctions.org/';

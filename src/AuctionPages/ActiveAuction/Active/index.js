@@ -16,7 +16,7 @@ import {
 } from 'reactstrap';
 import cx from 'classnames';
 import TitleComponent2 from '../../../Layout/AppMain/PageTitleExamples/Variation2';
-import {decodeBoxes,} from '../../../auction/serializer';
+import {decodeBoxes, longToCurrency,} from '../../../auction/serializer';
 import {assembleFinishedAuctions} from '../../../auction/assembler';
 import NewAuctionAssembler from "./newAuctionAssembler";
 import ShowAuctions from "./showActives";
@@ -47,7 +47,8 @@ export default class ActiveAuctions extends React.Component {
             auctions: [],
             sortKey: '0',
             end: limit,
-            lastLoaded: []
+            lastLoaded: [],
+            values: []
         };
         this.refreshInfo = this.refreshInfo.bind(this);
         this.openAuction = this.openAuction.bind(this);
@@ -188,10 +189,19 @@ export default class ActiveAuctions extends React.Component {
                             } else return boxes
                         })
                             .then((boxes) => {
+                                let values = {ERG: 0}
+                                boxes.forEach(bx => {
+                                    if (bx.curBid >= bx.minBid) {
+                                        if (!Object.keys(values).includes(bx.currency))
+                                            values[bx.currency] = 0
+                                        values[bx.currency] += bx.curBid
+                                    }
+                                })
                                 this.setState({
                                     loading: false,
                                     type: type,
-                                    artist: artist
+                                    artist: artist,
+                                    values: values
                                 });
                                 this.sortAuctions(boxes, this.state.sortKey)
                                 if (firstTime) assembleFinishedAuctions(boxes);
@@ -280,8 +290,11 @@ export default class ActiveAuctions extends React.Component {
                                         'd-none': false,
                                     })}
                                 >
-                                    <b>{this.state.auctions.length} active auctions with worth
-                                        of {(this.state.auctions.map(auc => auc.value).reduce((a, b) => a + b, 0) / 1e9).toFixed(1)} ERG</b>
+                                    <b>{this.state.auctions.length} active auctions with worth of: <br/></b>
+                                    <b>{longToCurrency(this.state.values.ERG, -1, 'ERG')} <i>ERG</i></b>
+                                    {Object.keys(this.state.values).filter(key => key !== 'ERG').map(key =>
+                                        <b>{', '}{longToCurrency(this.state.values[key], -1, key)} <i>{key}</i></b>
+                                    )}
                                 </div>
                             </div>
                         </div>

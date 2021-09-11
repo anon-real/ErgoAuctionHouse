@@ -200,3 +200,7 @@ export function handlePendingBids(height) {
 export function sendTx(tx) {
     explorer.broadcastTx(tx);
 }
+
+export async function getBalance(addr) {
+    return getRequest(`/addresses/${addr}/balance/confirmed`, explorerApiV1);
+}
