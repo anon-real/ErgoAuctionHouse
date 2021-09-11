@@ -1,5 +1,5 @@
 /* eslint no-undef: "off"*/
-import {showMsg} from "./helpers";
+import {getWalletAddress, showMsg} from "./helpers";
 import {txFee} from "./consts";
 import {Address} from "@coinbarn/ergo-ts/dist/models/address";
 let ergolib = import('ergo-lib-wasm-browser')
@@ -78,9 +78,17 @@ export async function yoroiSendFunds(need, addr, block) {
         creationHeight: block.height
     }
 
+    const feeBox = {
+        value: txFee.toString(),
+        creationHeight: block.height,
+        ergoTree: "1005040004000e36100204a00b08cd0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798ea02d192a39a8cc7a701730073011001020402d19683030193a38cc7b2a57300000193c2b2a57301007473027303830108cdeeac93b1a57304",
+        assets: [],
+        additionalRegisters: {},
+    }
+
     const changeBox = {
         value: (-have['ERG']).toString(),
-        ergoTree: wasm.Address.from_mainnet_str(await getYoroiAddress()).to_ergo_tree().to_base16_bytes(),
+        ergoTree: wasm.Address.from_mainnet_str(getWalletAddress()).to_ergo_tree().to_base16_bytes(),
         assets: Object.keys(have).filter(key => key !== 'ERG')
             .filter(key => have[key] < 0)
             .map(key => {
@@ -100,13 +108,16 @@ export async function yoroiSendFunds(need, addr, block) {
                 extension: {}
             }
         }),
-        outputs: [fundBox, changeBox],
+        outputs: [fundBox, changeBox, feeBox],
         dataInputs: [],
         fee: txFee
     }
-    console.log(JSON.stringify(unsigned))
-    const tx = await ergo.sign_tx(unsigned)
-    console.log('yoy', tx)
 
-    showMsg('Congrats!!!')
+    const tx = await ergo.sign_tx(unsigned)
+    const txId = await ergo.submit_tx(tx)
+
+    if (txId !== undefined && txId.length > 0)
+        showMsg('Necessary funds were sent using Yoroi!')
+    else
+        showMsg('Error while sending funds using Yoroi!', true)
 }

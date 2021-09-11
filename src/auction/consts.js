@@ -39,5 +39,4 @@ export const supportedCurrencies = {
         minSupported: 100
     }
 }
-// export const assmUrl = 'https://assembler.ergoauctions.org/';
-export const assmUrl = 'localhost:9000/';
+export const assmUrl = 'https://assembler.ergoauctions.org/';

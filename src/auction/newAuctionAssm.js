@@ -3,9 +3,10 @@ import {Address} from '@coinbarn/ergo-ts';
 import {decodeLongTuple, encodeHex, encodeLongTuple, encodeNum} from './serializer';
 import {follow, p2s} from "./assembler";
 import {Serializer} from "@coinbarn/ergo-ts/dist/serializer";
-import {additionalData, auctionAddress, txFee} from "./consts";
+import {additionalData, auctionAddress, supportedCurrencies, txFee} from "./consts";
 import {sendTx} from "./explorer";
 import {yoroiSendFunds} from "./yoroiUtils";
+import moment from "moment";
 
 const template = `{
   val userAddress = fromBase64("$userAddress")
@@ -28,7 +29,7 @@ const template = `{
     val total = INPUTS.fold(0L, {(x:Long, b:Box) => x + b.value}) - 2000000
     OUTPUTS(0).value >= total && OUTPUTS(0).propositionBytes == userAddress && OUTPUTS.size == 2
   }
-  sigmaProp(startAuction || returnFunds)
+  sigmaProp((startAuction || returnFunds) && HEIGHT < $timestampL)
 }`;
 
 export async function registerAuction(
@@ -40,7 +41,6 @@ export async function registerAuction(
     block,
     description
 ) {
-    console.log('wow')
     const p2s = (await getAuctionP2s(initial, end, step, buyItNow, currency)).address
     const bidder = getWalletAddress()
     let tree = new Address(bidder).ergoTree;
@@ -53,7 +53,7 @@ export async function registerAuction(
             amount: 0,
         },
     ]
-    let start = {erg: 0}
+    let start = {erg: supportedCurrencies.ERG.minSupported - txFee}
     if (currency.id.length > 0) {
         start[currency.id] = 0
         auctionAssets = [
@@ -130,6 +130,7 @@ export async function getAuctionP2s(initial, end, step, buyItNow, currency) {
         .replace('$bidDelta', step)
         .replace('$currencyId', currencyID)
         .replace('$buyItNow', buyItNow)
+        .replace('$timestamp', moment().valueOf())
         .replaceAll('\n', '\\n');
     return p2s(script);
 }

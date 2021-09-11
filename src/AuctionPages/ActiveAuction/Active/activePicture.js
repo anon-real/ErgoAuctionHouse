@@ -26,8 +26,7 @@ import {Row} from 'react-bootstrap';
 import ArtworkDetails from '../../artworkDetails';
 import {Link} from "react-router-dom";
 import {longToCurrency} from "../../../auction/serializer";
-import {registerBid} from "../../../auction/newBidAssm";
-import {txFee} from "../../../auction/consts";
+import {bidHelper} from "../../../auction/newBidAssm";
 
 const override = css`
   display: block;
@@ -329,10 +328,8 @@ export default class ActivePicture extends React.Component {
                                 onClick={(e) => {
                                     e.preventDefault();
                                     this.setState({loading: true})
-                                    registerBid(this.props.box.instantAmount, this.props.box).then(r => {
-                                        this.setState({loading: false})
-                                        this.props.assemblerModal(r.address, longToCurrency(this.props.box.instantAmount + (this.props.box.assets.length === 1 ? txFee : 0), -1, this.props.box.currency), false, this.props.box.currency)
-                                    })
+                                    bidHelper(this.props.box.instantAmount, this.props.box, this.props.assemblerModal)
+                                        .finally(() => this.setState({loading: false}))
                                 }}>
                             <text>
                                 Buy

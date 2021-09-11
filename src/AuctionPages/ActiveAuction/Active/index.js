@@ -146,9 +146,9 @@ export default class ActiveAuctions extends React.Component {
 
     sortAuctions(auctions, key) {
         if (key === '0')
-            auctions.sort((a, b) => a.remBlock - b.remBlock)
+            auctions.sort((a, b) => a.remTimeTimestamp - b.remTimeTimestamp)
         else if (key === '1')
-            auctions.sort((a, b) => b.remBlock - a.remBlock)
+            auctions.sort((a, b) => b.remTimeTimestamp - a.remTimeTimestamp)
         else if (key === '2')
             auctions.sort((a, b) => b.value - a.value)
         else if (key === '3')

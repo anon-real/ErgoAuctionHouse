@@ -67,17 +67,16 @@ export function isWalletSaved() {
     return sessionStorage.getItem('wallet') !== null || localStorage.getItem('wallet') !== null;
 }
 
-export function isWalletNode() {
-    return isWalletSaved() && getWalletType() === 'node';
-}
-
 export function isAssembler() {
     return isWalletSaved() && getWalletType() === 'assembler';
 }
 
+export function isYoroi() {
+    return isWalletSaved() && getWalletType() === 'yoroi';
+}
+
 export function getWalletAddress() {
-    if (isAssembler()) return JSON.parse(localStorage.getItem('wallet')).address
-    return JSON.parse(sessionStorage.getItem('wallet')).address
+    return JSON.parse(localStorage.getItem('wallet')).address
 }
 
 export function getWalletType() {
