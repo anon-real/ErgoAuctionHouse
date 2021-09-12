@@ -1,11 +1,11 @@
-import {addAssemblerBid, getWalletAddress, isAssembler, isYoroi, showMsg,} from './helpers';
+import {addAssemblerBid, getWalletAddress, isAssembler, isYoroi,} from './helpers';
 import moment from 'moment';
 import {Address} from '@coinbarn/ergo-ts';
 import {encodeHex, encodeNum, longToCurrency} from './serializer';
 import {follow, p2s} from "./assembler";
 import {additionalData, auctionAddress, contracts, supportedCurrencies, txFee} from "./consts";
 import {currentBlock} from "./explorer";
-import {getYoroiTokens, yoroiSendFunds} from "./yoroiUtils";
+import {yoroiSendFunds} from "./yoroiUtils";
 
 const template = `{
   val userAddress = PK("$userAddress")
@@ -157,6 +157,7 @@ export async function bidHelper(bid, box, modal) {
             need = {ERG: 2000000}
             need[box.assets[1].tokenId] = bid
         }
-        return await yoroiSendFunds(need, r.address, r.block)
+        const res = await yoroiSendFunds(need, r.address, r.block)
+        return res
     }
 }

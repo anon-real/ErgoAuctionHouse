@@ -135,7 +135,7 @@ export default class ActiveAudio extends React.Component {
                                         <NavLink
                                             href={
                                                 '#/auction/specific/' +
-                                                this.props.box.id
+                                                this.props.box.boxId
                                             }
                                         >
                                             Link to Auction
