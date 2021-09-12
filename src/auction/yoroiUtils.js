@@ -120,7 +120,13 @@ export async function yoroiSendFunds(need, addr, block) {
         fee: txFee
     }
 
-    const tx = await ergo.sign_tx(unsigned)
+    let tx = null
+    try {
+        tx = await ergo.sign_tx(unsigned)
+    } catch (e) {
+        showMsg('Error while sending funds from Yoroi!', true)
+        return
+    }
     const txId = await ergo.submit_tx(tx)
 
     console.log('Yoroi tx id', txId)
@@ -137,10 +143,10 @@ export async function getYoroiTokens() {
     for (let i = 0; i < addresses.length; i++) {
         (await getBalance(addresses[i])).tokens.forEach(ass => {
             if (!Object.keys(tokens).includes(ass.tokenId))
-            tokens[ass.tokenId] = {
-                amount: 0,
-                name: ass.name
-            }
+                tokens[ass.tokenId] = {
+                    amount: 0,
+                    name: ass.name
+                }
             tokens[ass.tokenId].amount += parseInt(ass.amount)
         })
     }

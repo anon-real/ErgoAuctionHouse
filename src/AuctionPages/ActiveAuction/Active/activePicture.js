@@ -100,7 +100,11 @@ export default class ActivePicture extends React.Component {
                     box={this.props.box}
                     isOpen={this.state.detailsModal}
                 />
-                <div className="card mb-3 bg-white widget-chart">
+                <div className="card mb-3 bg-white widget-chart" style={
+                    {
+                        'opacity': this.props.box.isFinished ? 0.6 : 1
+                    }
+                }>
 
                     <b class="fsize-1 text-truncate" style={{marginTop: 8}}>{this.props.box.tokenName}</b>
 
@@ -118,7 +122,7 @@ export default class ActivePicture extends React.Component {
                                         <NavLink
                                             href={
                                                 '#/auction/specific/' +
-                                                this.props.box.id
+                                                this.props.box.boxId
                                             }
                                         >
                                             Link to Auction
@@ -304,37 +308,37 @@ export default class ActivePicture extends React.Component {
 
                     </CardFooter>
 
-                    <ButtonGroup>
+                    <ButtonGroup style={{'pointerEvents': this.props.box.isFinished ? "none" : null}}>
                         <div className="d-block text-center">
-                        <button className="btn-icon btn-icon-only btn btn-outline-primary"
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    this.openBid();
-                                }}>
-                            <i className="pe-7s-edit btn-icon-wrapper"> </i>
-                        </button>
+                            <button className="btn-icon btn-icon-only btn btn-outline-primary"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        this.openBid();
+                                    }}>
+                                <i className="pe-7s-edit btn-icon-wrapper"> </i>
+                            </button>
                         </div>
                         <button type="button" className="btn btn-outline-primary btn-sm"
-                                    style={{fontSize: 13}}
-                                    onClick={(e) => {
-                                        // e.preventDefault();
-                                        // this.openBid();
-                                        e.preventDefault();
-                                        this.setState({loading: true})
-                                        bidHelper(this.props.box.nextBid, this.props.box, this.props.assemblerModal)
-                                            .finally(() => this.setState({loading: false}))
-                                    }}>
-                                <text>
-                                    Place Bid
-                                </text>
-                                {' '}
-                                <text>
-                                    for{' '}
-                                    <b>
-                                        {longToCurrency(this.props.box.nextBid, -1, this.props.box.currency)}{' '} {this.props.box.currency}
-                                    </b>
-                                </text>
-                            </button>
+                                style={{fontSize: 13}}
+                                onClick={(e) => {
+                                    // e.preventDefault();
+                                    // this.openBid();
+                                    e.preventDefault();
+                                    this.setState({loading: true})
+                                    bidHelper(this.props.box.nextBid, this.props.box, this.props.assemblerModal)
+                                        .finally(() => this.setState({loading: false}))
+                                }}>
+                            <text>
+                                Place Bid
+                            </text>
+                            {' '}
+                            <text>
+                                for{' '}
+                                <b>
+                                    {longToCurrency(this.props.box.nextBid, -1, this.props.box.currency)}{' '} {this.props.box.currency}
+                                </b>
+                            </text>
+                        </button>
                         {this.props.box.instantAmount !== -1 &&
                         <button type="button" className="btn btn-outline-dark btn-sm"
                                 style={{fontSize: 13}}

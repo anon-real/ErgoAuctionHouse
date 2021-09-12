@@ -57,6 +57,7 @@ export function getBoxBid(box) {
 
 function resolveIpfs(url) {
     const ipfsPrefix = 'ipfs://'
+    console.log(url.replace(ipfsPrefix, 'https://cloudflare-ipfs.com/ipfs/'))
     if (!url.startsWith(ipfsPrefix)) return url
     else return url.replace(ipfsPrefix, 'https://cloudflare-ipfs.com/ipfs/')
 }
@@ -96,7 +97,11 @@ export async function decodeBox(box, block) {
 
     box.loader = false;
 
-    await getIssuingBox(box.assets[0].tokenId)
+    box.isFinished = box.remTime === 0
+    if (box.instantAmount !== -1 &&  box.curBid >= box.instantAmount)
+        box.isFinished = true
+
+   await getIssuingBox(box.assets[0].tokenId)
         .then((res) => {
             if (Object.keys(res[0].additionalRegisters).length >= 5) {
                 box.isArtwork = true
