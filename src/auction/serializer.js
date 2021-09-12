@@ -55,6 +55,12 @@ export function getBoxBid(box) {
 
 }
 
+function resolveIpfs(url) {
+    const ipfsPrefix = 'ipfs://'
+    if (!url.startsWith(ipfsPrefix)) return url
+    else return url.replace(ipfsPrefix, 'https://cloudflare-ipfs.com/ipfs/')
+}
+
 export async function decodeBox(box, block) {
     box.seller = Address.fromErgoTree(await decodeString(box.additionalRegisters.R4.serializedValue)).address;
     box.bidder = Address.fromErgoTree(await decodeString(box.additionalRegisters.R5.serializedValue)).address;
@@ -123,7 +129,7 @@ export async function decodeBox(box, block) {
                 if (box.tokenName.length === 0) box.tokenName = '-'
                 box.tokenDescription = await decodeStr(box.tokenDescription)
                 if (box.artworkUrl)
-                    box.artworkUrl = await decodeStr(box.artworkUrl)
+                    box.artworkUrl = resolveIpfs(await decodeStr(box.artworkUrl))
             }
         } catch (e) {
             box.isArtwork = false
