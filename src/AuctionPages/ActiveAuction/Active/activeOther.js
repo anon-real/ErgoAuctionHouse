@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-    Button,
+    ButtonGroup,
     CardFooter,
     Col,
     DropdownMenu,
@@ -9,21 +9,24 @@ import {
     NavItem,
     NavLink,
     Progress,
-    UncontrolledButtonDropdown
+    UncontrolledButtonDropdown,
 } from 'reactstrap';
-import {friendlyAddress, friendlyToken, getAddrUrl, getTxUrl, isWalletSaved, showMsg,} from '../../../auction/helpers';
+import {friendlyAddress, friendlyToken, getAddrUrl, isWalletSaved, showMsg,} from '../../../auction/helpers';
 import {ResponsiveContainer} from 'recharts';
 import SyncLoader from 'react-spinners/SyncLoader';
 import ReactTooltip from 'react-tooltip';
+
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faAngleUp, faEllipsisV} from '@fortawesome/free-solid-svg-icons';
+import {faAngleUp, faEllipsisH, faEllipsisV} from '@fortawesome/free-solid-svg-icons';
 import {css} from '@emotion/core';
-import {getSpendingTx} from '../../../auction/explorer';
 import PlaceBidModal from './placeBid';
 import MyBidsModal from './myBids';
 import BidHistory from './bidHistory';
-import ArtworkDetails from "../../artworkDetails";
+import {Button, Row} from 'react-bootstrap';
+import ArtworkDetails from '../../artworkDetails';
 import {Link} from "react-router-dom";
+import {longToCurrency} from "../../../auction/serializer";
+import {bidHelper} from "../../../auction/newBidAssm";
 
 const override = css`
   display: block;
@@ -34,10 +37,10 @@ export default class ActiveOther extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            loading: false,
             bidModal: false,
             myBidsModal: false,
             detailsModal: false,
-            infoModal: false
         };
         this.openBid = this.openBid.bind(this);
         this.openMyBids = this.openMyBids.bind(this);
@@ -58,9 +61,9 @@ export default class ActiveOther extends React.Component {
                 'In order to place bids, you have to configure the wallet first.',
                 true
             );
-        } else if (this.props.box.remBlock <= 0) {
+        } else if (this.props.box.remTime <= 0) {
             showMsg(
-                'This auction is finished! It is pending for withdrawal; If you configure your wallet, the app can use it to withdraw finished auctions.',
+                'This auction is finished!',
                 true
             );
         } else {
@@ -70,19 +73,6 @@ export default class ActiveOther extends React.Component {
 
     openMyBids() {
         this.setState({myBidsModal: !this.state.myBidsModal});
-    }
-
-    showIssuingTx(box) {
-        box.loader = true;
-        this.forceUpdate();
-        getSpendingTx(box.assets[0].tokenId)
-            .then((res) => {
-                window.open(getTxUrl(res), '_blank');
-            })
-            .finally(() => {
-                box.loader = false;
-                this.forceUpdate();
-            });
     }
 
     showAddress(addr) {
@@ -105,6 +95,11 @@ export default class ActiveOther extends React.Component {
                     close={this.openMyBids}
                     highText="current active bid"
                 />
+                <BidHistory
+                    close={this.openDetails}
+                    box={this.props.box}
+                    isOpen={this.state.detailsModal}
+                />
                 <ArtworkDetails
                     isOpen={this.state.infoModal}
                     close={() =>
@@ -117,13 +112,19 @@ export default class ActiveOther extends React.Component {
                     tokenDescription={
                         this.props.box.tokenDescription
                     }
-                    simple={true}
                     artist={this.props.box.artist}
+                    artHash={this.props.box.artHash}
                 />
-                <BidHistory close={this.openDetails} box={this.props.box} isOpen={this.state.detailsModal}/>
-                <div className="card mb-3 widget-chart">
+                <div className="card mb-3 bg-white widget-chart" style={
+                    {
+                        'opacity': this.props.box.isFinished ? 0.6 : 1
+                    }
+                }>
+
+                    <b class="fsize-1 text-truncate" style={{marginTop: 8}}>{this.props.box.tokenName}</b>
+
                     <div className="widget-chart-actions">
-                        <UncontrolledButtonDropdown direction='left'>
+                        <UncontrolledButtonDropdown direction="left">
                             <DropdownToggle color="link">
                                 <FontAwesomeIcon icon={faEllipsisV}/>
                             </DropdownToggle>
@@ -134,12 +135,24 @@ export default class ActiveOther extends React.Component {
                                     </NavItem>
                                     <NavItem>
                                         <NavLink
-                                            href={'#/auction/specific/' + this.props.box.id}
-                                        >Go to Auction's Specific Link</NavLink>
+                                            href={
+                                                '#/auction/specific/' +
+                                                this.props.box.boxId
+                                            }
+                                        >
+                                            Link to Auction
+                                        </NavLink>
                                         <NavLink
-                                            onClick={() => {
-                                                this.setState({infoModal: true})
-                                            }}
+                                            onClick={() => this.openMyBids()}
+                                        >
+                                            My Bids
+                                        </NavLink>
+                                        <NavLink
+                                            onClick={() =>
+                                                this.setState({
+                                                    detailsModal: true,
+                                                })
+                                            }
                                         >
                                             Details
                                         </NavLink>
@@ -155,7 +168,7 @@ export default class ActiveOther extends React.Component {
                                 css={override}
                                 size={8}
                                 color={'#0086d3'}
-                                loading={this.props.box.loader}
+                                loading={this.state.loading}
                             />
                         </ResponsiveContainer>
 
@@ -166,9 +179,16 @@ export default class ActiveOther extends React.Component {
                         </div>
                         <div className="widget-chart-wrapper chart-wrapper-relative justify justify-content-lg-start">
                             <div
+                                onClick={() => {
+                                    this.setState({infoModal: true})
+                                }}
                                 style={{
                                     display: 'flex',
                                     justifyContent: 'center',
+                                    alignItems: 'center',
+                                    overflowY: 'hidden',
+                                    overflowX: 'hidden',
+                                    fontSize: '12px',
                                 }}
                                 className="widget-subheading m-1"
                             >
@@ -301,42 +321,101 @@ export default class ActiveOther extends React.Component {
                     </div>
                     <CardFooter>
                         <Col md={6} className="widget-description">
-                            Up by
-                            <span className="text-success pl-1 pr-1">
-                                <FontAwesomeIcon icon={faAngleUp}/>
-                                <span className="pl-1">
-                                    {this.props.box.increase}%
-                                </span>
-                            </span>
-                            since the initial bid
+                            <Row>
+                                {this.props.box.curBid >= this.props.box.minBid && <span>
+                                    <b className="fsize-1">
+                                        {longToCurrency(this.props.box.curBid, -1, this.props.box.currency)}{' '}{this.props.box.currency}
+                                    </b>{' '}
+                                    <text
+                                        style={{fontSize: '10px'}}
+                                        className="text-success pl-1 pr-1"
+                                    >
+                                        {this.props.box.increase}%
+                                        <FontAwesomeIcon icon={faAngleUp}/>
+                                    </text>
+                                </span>}
+                                {this.props.box.curBid < this.props.box.minBid && <span>
+                                    <i
+                                        style={{fontSize: '12px'}}
+                                        className="pl-1 pr-1"
+                                    >
+                                        No bids yet
+                                    </i>{' '}
+                                </span>}
+                            </Row>
                         </Col>
 
                         <Col md={6} className="justify-content-end ml-3">
                             <div className="widget-content">
                                 <div className="widget-content-outer">
                                     <div className="widget-content-wrapper">
-                                        <div className="widget-content-left mr-3">
-                                            <div className="widget-numbers fsize-2 text-muted">
-                                                {this.props.box.remBlock}
-                                            </div>
-                                        </div>
-                                        <div className="widget-content-right">
-                                            <div
-                                                className="text-muted opacity-6">
-                                                Blocks Remaining
-                                            </div>
-                                        </div>
+                                        {this.props.box.remTime}
                                     </div>
                                     <div className="widget-progress-wrapper">
                                         <Progress
                                             className="progress-bar-xs progress-bar-animated-alt"
-                                            value={this.props.box.doneBlock}
+                                            value={this.props.box.done}
                                         />
                                     </div>
                                 </div>
                             </div>
                         </Col>
+
+
                     </CardFooter>
+
+                    <ButtonGroup style={{'pointerEvents': this.props.box.isFinished ? "none" : null}}>
+                        <div className="d-block text-center">
+                            <button className="btn-icon btn-icon-only btn btn-outline-primary"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        this.openBid();
+                                    }}>
+                                <i className="pe-7s-edit btn-icon-wrapper"> </i>
+                            </button>
+                        </div>
+                        <button type="button" className="btn btn-outline-primary btn-sm"
+                                style={{fontSize: 13}}
+                                onClick={(e) => {
+                                    // e.preventDefault();
+                                    // this.openBid();
+                                    e.preventDefault();
+                                    this.setState({loading: true})
+                                    bidHelper(this.props.box.nextBid, this.props.box, this.props.assemblerModal)
+                                        .finally(() => this.setState({loading: false}))
+                                }}>
+                            <text>
+                                Place Bid
+                            </text>
+                            {' '}
+                            <text>
+                                for{' '}
+                                <b>
+                                    {longToCurrency(this.props.box.nextBid, -1, this.props.box.currency)}{' '} {this.props.box.currency}
+                                </b>
+                            </text>
+                        </button>
+                        {this.props.box.instantAmount !== -1 &&
+                        <button type="button" className="btn btn-outline-dark btn-sm"
+                                style={{fontSize: 13}}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    this.setState({loading: true})
+                                    bidHelper(this.props.box.instantAmount, this.props.box, this.props.assemblerModal)
+                                        .finally(() => this.setState({loading: false}))
+                                }}>
+                            <text>
+                                Buy
+                            </text>
+                            {' '}
+                            <text>
+                                for{' '}
+                                <b>
+                                    {longToCurrency(this.props.box.instantAmount, -1, this.props.box.currency)}{' '} {this.props.box.currency}
+                                </b>
+                            </text>
+                        </button>}
+                    </ButtonGroup>
                 </div>
             </Col>
         );

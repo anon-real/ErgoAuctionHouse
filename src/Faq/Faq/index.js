@@ -11,14 +11,13 @@ const data = {
         },
         {
             title: 'What tokens can I auction?',
-            content: 'You can auction any token that you think is valuable somehow. Whether it is PoW-backed NFTs or it is representing some business shares, digital art, etc.',
+            content: 'You can auction any token that you think is valuable somehow. Whether it is Artwork NFT, PoW-backed NFTs or it is representing some business shares, etc.',
         },
         {
             title: 'How can I trust Ergo Auction House with my wallet info?',
             content:
                 'Ergo Auction House is open source and serverless.' +
-                ' The hosting website is only there to serve the app for your browser, all the other things will be done locally without any communication with any servers.' +
-                ' Your wallet info will be saved in the session storage of your browser securely and will be removed as soon as you close the app.',
+                ' The hosting website is only there to serve the app for your browser, all the other things will be done locally without any communication with any servers.'
         },
         {
             title: 'When is my wallet info used?',
@@ -28,15 +27,14 @@ const data = {
         {
             title: 'What happens to my ERG when I place a bid?',
             content:
-                'Lets say you have placed a 10 ERG bid on an auction, then 10 ERG from your wallet will be locked with the auction contract.\
+                'Lets say you have placed a 10 ERG bid on an auction, then 10 ERG from your wallet will be locked within the auction contract.\
                  If you win the auction, then you will receive the auctioned token and your 10 ERG will be sent to the seller. Otherwise, \
                   immediately after someone places a higher bid, your 10 ERG will be returned to you.',
         },
         {
             title: 'What happens if I start an auction but no one places bid on it?',
             content:
-                'Basically when you start an auction, you are the first bidder for the auction. If auction duration finishes ' +
-                'and you remain the only bidder, then both your initial bid and your auctioned token will be returned to you.',
+                'You\'ll receive your token back while not being charged any fees.',
         },
         {
             title: "I have started an auction but can't see it in the Active Auction page!",
