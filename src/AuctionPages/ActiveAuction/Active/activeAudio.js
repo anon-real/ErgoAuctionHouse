@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+    ButtonGroup,
     CardFooter,
     Col,
     DropdownMenu,
@@ -14,8 +15,9 @@ import {friendlyAddress, getAddrUrl, isWalletSaved, showMsg,} from '../../../auc
 import {ResponsiveContainer} from 'recharts';
 import SyncLoader from 'react-spinners/SyncLoader';
 import ReactTooltip from 'react-tooltip';
+
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faAngleUp, faEllipsisV} from '@fortawesome/free-solid-svg-icons';
+import {faAngleUp, faEllipsisH, faEllipsisV} from '@fortawesome/free-solid-svg-icons';
 import {css} from '@emotion/core';
 import PlaceBidModal from './placeBid';
 import MyBidsModal from './myBids';
@@ -23,6 +25,8 @@ import BidHistory from './bidHistory';
 import {Row} from 'react-bootstrap';
 import ArtworkDetails from '../../artworkDetails';
 import {Link} from "react-router-dom";
+import {longToCurrency} from "../../../auction/serializer";
+import {bidHelper} from "../../../auction/newBidAssm";
 
 const override = css`
   display: block;
@@ -33,6 +37,7 @@ export default class ActiveAudio extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            loading: false,
             bidModal: false,
             myBidsModal: false,
             detailsModal: false,
@@ -46,15 +51,6 @@ export default class ActiveAudio extends React.Component {
         this.setState({detailsModal: !this.state.detailsModal});
     }
 
-    getTime(blockRem) {
-        let time = blockRem * 2
-        if (time <= 60) return [time, 'Minutes']
-        time = (time / 60).toFixed(0)
-        if (time <= 24) return [time, 'Hours']
-        time = (time / 24).toFixed(0)
-        return [time, 'Days']
-    }
-
     openBid() {
         if (this.state.bidModal) {
             this.setState({bidModal: !this.state.bidModal});
@@ -65,9 +61,9 @@ export default class ActiveAudio extends React.Component {
                 'In order to place bids, you have to configure the wallet first.',
                 true
             );
-        } else if (this.props.box.remBlock <= 0) {
+        } else if (this.props.box.remTime <= 0) {
             showMsg(
-                'This auction is finished! It is pending for withdrawal.',
+                'This auction is finished!',
                 true
             );
         } else {
@@ -85,7 +81,6 @@ export default class ActiveAudio extends React.Component {
 
     render() {
         let box = this.props.box;
-        let time = this.getTime(box.remBlock)
         return (
             <Col key={box.id} lg="6" xl="4" md="6">
                 <PlaceBidModal
@@ -120,7 +115,14 @@ export default class ActiveAudio extends React.Component {
                     artist={this.props.box.artist}
                     artHash={this.props.box.artHash}
                 />
-                <div className="card mb-3 widget-chart">
+                <div className="card mb-3 bg-white widget-chart" style={
+                    {
+                        'opacity': this.props.box.isFinished ? 0.6 : 1
+                    }
+                }>
+
+                    <b class="fsize-1 text-truncate" style={{marginTop: 8}}>{this.props.box.tokenName}</b>
+
                     <div className="widget-chart-actions">
                         <UncontrolledButtonDropdown direction="left">
                             <DropdownToggle color="link">
@@ -166,27 +168,11 @@ export default class ActiveAudio extends React.Component {
                                 css={override}
                                 size={8}
                                 color={'#0086d3'}
-                                loading={this.props.box.loader}
+                                loading={this.state.loading}
                             />
                         </ResponsiveContainer>
 
                         <div style={{cursor: 'pointer'}}>
-                            <ArtworkDetails
-                                isOpen={this.state.artDetail}
-                                close={() =>
-                                    this.setState({
-                                        artDetail: !this.state.artDetail,
-                                    })
-                                }
-                                tokenId={this.props.box.assets[0].tokenId}
-                                tokenName={this.props.box.tokenName}
-                                tokenDescription={
-                                    this.props.box.tokenDescription
-                                }
-                                artHash={this.props.box.artHash}
-                                artworkUrl={this.props.box.artworkUrl}
-                            />
-
                             <audio controls="controls" preload='none'>
                                 <source src={box.artworkUrl}/>
                             </audio>
@@ -205,7 +191,6 @@ export default class ActiveAudio extends React.Component {
                                     cursor: 'pointer',
                                     justifyContent: 'center',
                                     alignItems: 'center',
-                                    height: '100px',
                                     overflowY: 'hidden',
                                     overflowX: 'hidden',
                                     fontSize: '12px',
@@ -224,27 +209,6 @@ export default class ActiveAudio extends React.Component {
                                 </p>
                             </div>
                         </div>
-                    </div>
-                    <div className="widget-chart-wrapper chart-wrapper-relative mb-3">
-                        <a
-                            className="bold text-info"
-                            href="#"
-                            onClick={(e) => {
-                                e.preventDefault();
-                                this.openBid();
-                            }}
-                        >
-                            Place Bid
-                        </a>{' '}
-                        <text>
-                            for{' '}
-                            <b>
-                                {(this.props.box.value +
-                                    this.props.box.minStep) /
-                                1e9}{' '}
-                                ERG
-                            </b>
-                        </text>
                     </div>
 
                     <div className='mb-2'>
@@ -300,12 +264,9 @@ export default class ActiveAudio extends React.Component {
                     <CardFooter>
                         <Col md={6} className="widget-description">
                             <Row>
-                                <span>
+                                {this.props.box.curBid >= this.props.box.minBid && <span>
                                     <b className="fsize-1">
-                                        {(this.props.box.value / 1e9).toFixed(
-                                            2
-                                        )}{' '}
-                                        ERG
+                                        {longToCurrency(this.props.box.curBid, -1, this.props.box.currency)}{' '}{this.props.box.currency}
                                     </b>{' '}
                                     <text
                                         style={{fontSize: '10px'}}
@@ -314,7 +275,15 @@ export default class ActiveAudio extends React.Component {
                                         {this.props.box.increase}%
                                         <FontAwesomeIcon icon={faAngleUp}/>
                                     </text>
-                                </span>
+                                </span>}
+                                {this.props.box.curBid < this.props.box.minBid && <span>
+                                    <i
+                                        style={{fontSize: '12px'}}
+                                        className="pl-1 pr-1"
+                                    >
+                                        No bids yet
+                                    </i>{' '}
+                                </span>}
                             </Row>
                         </Col>
 
@@ -322,29 +291,73 @@ export default class ActiveAudio extends React.Component {
                             <div className="widget-content">
                                 <div className="widget-content-outer">
                                     <div className="widget-content-wrapper">
-                                        <div className="widget-content-left mr-3">
-                                            <div className="widget-numbers fsize-1 text-muted">
-                                                ~{time[0]}
-                                            </div>
-                                        </div>
-                                        <div className="widget-content-right">
-                                            <div
-                                                className="text-muted opacity-6"
-                                            >
-                                                {time[1]}
-                                            </div>
-                                        </div>
+                                        {this.props.box.remTime}
                                     </div>
                                     <div className="widget-progress-wrapper">
                                         <Progress
                                             className="progress-bar-xs progress-bar-animated-alt"
-                                            value={this.props.box.doneBlock}
+                                            value={this.props.box.done}
                                         />
                                     </div>
                                 </div>
                             </div>
                         </Col>
+
+
                     </CardFooter>
+
+                    <ButtonGroup style={{'pointerEvents': this.props.box.isFinished ? "none" : null}}>
+                        <div className="d-block text-center">
+                            <button className="btn-icon btn-icon-only btn btn-outline-primary"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        this.openBid();
+                                    }}>
+                                <i className="pe-7s-edit btn-icon-wrapper"> </i>
+                            </button>
+                        </div>
+                        <button type="button" className="btn btn-outline-primary btn-sm"
+                                style={{fontSize: 13}}
+                                onClick={(e) => {
+                                    // e.preventDefault();
+                                    // this.openBid();
+                                    e.preventDefault();
+                                    this.setState({loading: true})
+                                    bidHelper(this.props.box.nextBid, this.props.box, this.props.assemblerModal)
+                                        .finally(() => this.setState({loading: false}))
+                                }}>
+                            <text>
+                                Place Bid
+                            </text>
+                            {' '}
+                            <text>
+                                for{' '}
+                                <b>
+                                    {longToCurrency(this.props.box.nextBid, -1, this.props.box.currency)}{' '} {this.props.box.currency}
+                                </b>
+                            </text>
+                        </button>
+                        {this.props.box.instantAmount !== -1 &&
+                        <button type="button" className="btn btn-outline-dark btn-sm"
+                                style={{fontSize: 13}}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    this.setState({loading: true})
+                                    bidHelper(this.props.box.instantAmount, this.props.box, this.props.assemblerModal)
+                                        .finally(() => this.setState({loading: false}))
+                                }}>
+                            <text>
+                                Buy
+                            </text>
+                            {' '}
+                            <text>
+                                for{' '}
+                                <b>
+                                    {longToCurrency(this.props.box.instantAmount, -1, this.props.box.currency)}{' '} {this.props.box.currency}
+                                </b>
+                            </text>
+                        </button>}
+                    </ButtonGroup>
                 </div>
             </Col>
         );

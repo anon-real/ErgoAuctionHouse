@@ -130,13 +130,13 @@ export async function assembleFinishedAuctions(boxes) {
                 seller = {
                     value: box.value - txFee * 2 - auctionFee - artistFee - minimalErg,
                     address: box.seller,
-                    registers: {
-                        R4: boxEncoded
-                    },
                 };
                 feeBox = {
                     value: auctionFee,
                     address: feeTo,
+                    registers: {
+                        R4: boxEncoded
+                    },
                 };
                 artistFeeBox = {
                     value: artistFee + txFee,
@@ -189,7 +189,7 @@ export async function assembleFinishedAuctions(boxes) {
                 returnTo: trueAddress,
                 startWhen: {},
                 txSpec: {
-                    requests: [winner, seller, feeBox, artistFeeBox],
+                    requests: [winner, feeBox, seller, artistFeeBox],
                     fee: txFee,
                     inputs: [box.boxId],
                     dataInputs: [dataInput.boxId],
