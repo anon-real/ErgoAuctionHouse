@@ -153,10 +153,7 @@ export async function assembleFinishedAuctions(boxes) {
                     assets: [{
                         tokenId: box.assets[1].tokenId,
                         amount: box.assets[1].amount - auctionFee - artistFee
-                    }],
-                    registers: {
-                        R4: boxEncoded
-                    },
+                    }]
                 };
                 feeBox = {
                     value: minimalErg,
@@ -165,6 +162,9 @@ export async function assembleFinishedAuctions(boxes) {
                         tokenId: box.assets[1].tokenId,
                         amount: auctionFee
                     }],
+                    registers: {
+                        R4: boxEncoded
+                    },
                 };
                 artistFeeBox = {
                     value: minimalErg + txFee,
