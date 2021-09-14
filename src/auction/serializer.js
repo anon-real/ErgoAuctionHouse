@@ -1,7 +1,7 @@
 import {Serializer} from '@coinbarn/ergo-ts/dist/serializer';
 import moment from 'moment';
 import {Address, AddressKind} from "@coinbarn/ergo-ts/dist/models/address";
-import {boxById, getIssuingBox, getSpendingTx, txById} from "./explorer";
+import {boxById, getIssuingBox, txById} from "./explorer";
 import {supportedCurrencies} from "./consts";
 import {getEncodedBox} from "./assembler";
 
@@ -47,17 +47,18 @@ export async function decodeString(encoded) {
     return toHexString((await ergolib).Constant.decode_from_base16(encoded).to_byte_array())
 }
 
+async function decodeColTuple(str) {
+    const two = (await ergolib).Constant.decode_from_base16(str).to_tuple_coll_bytes()
+    const decoder = new TextDecoder()
+    return [decoder.decode(two[0]), decoder.decode(two[1])]
+}
+
 async function decodeStr(str) {
     return new TextDecoder().decode((await ergolib).Constant.decode_from_base16(str).to_byte_array())
 }
 
-export function getBoxBid(box) {
-
-}
-
 function resolveIpfs(url) {
     const ipfsPrefix = 'ipfs://'
-    console.log(url.replace(ipfsPrefix, 'https://cloudflare-ipfs.com/ipfs/'))
     if (!url.startsWith(ipfsPrefix)) return url
     else return url.replace(ipfsPrefix, 'https://cloudflare-ipfs.com/ipfs/')
 }
@@ -98,10 +99,10 @@ export async function decodeBox(box, block) {
     box.loader = false;
 
     box.isFinished = box.remTime === 0
-    if (box.instantAmount !== -1 &&  box.curBid >= box.instantAmount)
+    if (box.instantAmount !== -1 && box.curBid >= box.instantAmount)
         box.isFinished = true
 
-   await getIssuingBox(box.assets[0].tokenId)
+    await getIssuingBox(box.assets[0].tokenId)
         .then((res) => {
             if (Object.keys(res[0].additionalRegisters).length >= 5) {
                 box.isArtwork = true
@@ -128,8 +129,6 @@ export async function decodeBox(box, block) {
                 box.type = 'picture'
             } else if (box.artCode === '0e020102') {
                 box.isAudio = true
-                box.audioUrl = box.artworkUrl
-                box.artworkUrl = null
                 box.type = 'audio'
             } else if (box.artCode === '0e020103') {
                 box.isVideo = true
@@ -143,10 +142,18 @@ export async function decodeBox(box, block) {
                 box.tokenName = await decodeStr(box.tokenName)
                 if (box.tokenName.length === 0) box.tokenName = '-'
                 box.tokenDescription = await decodeStr(box.tokenDescription)
-                if (box.artworkUrl)
+                if (box.isAudio) {
+                    try {
+                        const two = await decodeColTuple(box.artworkUrl)
+                        box.audioUrl = resolveIpfs(two[0])
+                        box.artworkUrl = resolveIpfs(two[1])
+                    } catch (e) {
+                        box.audioUrl = resolveIpfs(await decodeStr(box.artworkUrl))
+                        box.artworkUrl = null
+                    }
+
+                } else if (box.artworkUrl)
                     box.artworkUrl = resolveIpfs(await decodeStr(box.artworkUrl))
-                if (box.audioUrl)
-                    box.audioUrl = resolveIpfs(await decodeStr(box.audioUrl))
             }
         } catch (e) {
             box.isArtwork = false
