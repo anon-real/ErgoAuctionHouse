@@ -16948,3 +16948,52 @@ svg {
     display: block;
     margin: auto;
 }
+
+.notificationContainer {
+    position: relative;
+    width:30px;
+    display: flex;
+    margin-right: 20px;
+    cursor: pointer;
+}
+
+.notificationItemContainer{
+    display: flex;
+    align-items: center;
+}
+
+.notificationItem {
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.notificationIcon {
+    color: var(--primary);
+    display:'flex';
+    align-items:'center';
+    font-size:25px;
+}
+
+.notificationBadge {
+    background-color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width:15px;
+    height:15px;
+    border-radius: 100%;
+    color: white;
+    font-size:10px;
+    position: absolute;
+    right: 2px;
+    top: 10px;
+}
+
+.notificationItemButton{
+    color: var(--primary)!important;
+    display:flex;
+    align-items:center;
+    cursor: pointer;
+    text-decoration: none;
+}

@@ -29,6 +29,7 @@ import SyncLoader from 'react-spinners/SyncLoader';
 import {css} from '@emotion/core';
 import {Address} from '@coinbarn/ergo-ts';
 import {getYoroiAddress, setupYoroi} from "../../../auction/yoroiUtils";
+import NotificationCenter from './NotificationCenter';
 
 const override = css`
   display: block;
@@ -130,8 +131,9 @@ class WalletModal extends React.Component {
 
     render() {
         return (
-            <span className="d-inline-block mb-2 mr-2">
+            <span className="mb-2 mr-2" style={{display:'flex',alignItems:'center'}}>
                 {/*{this.walletOk() ? <p>ok</p> : <p>fuck no</p>}*/}
+                <NotificationCenter/>
                 <Button
                     onClick={this.toggle}
                     className="mr-2 btn-transition"
