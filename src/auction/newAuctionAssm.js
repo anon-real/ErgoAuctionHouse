@@ -1,10 +1,10 @@
-import {addAssemblerBid, getWalletAddress, isAssembler, isYoroi, showMsg,} from './helpers';
+import {addAssemblerBid, getWalletAddress, isAssembler, isYoroi,} from './helpers';
 import {Address} from '@coinbarn/ergo-ts';
-import {currencyToLong, decodeLongTuple, encodeHex, encodeLongTuple, encodeNum, longToCurrency} from './serializer';
+import {encodeHex, encodeLongTuple, encodeNum, longToCurrency} from './serializer';
 import {follow, p2s} from "./assembler";
 import {Serializer} from "@coinbarn/ergo-ts/dist/serializer";
 import {additionalData, auctionAddress, supportedCurrencies, txFee} from "./consts";
-import {currentBlock, sendTx} from "./explorer";
+import {currentBlock} from "./explorer";
 import {yoroiSendFunds} from "./yoroiUtils";
 import moment from "moment";
 
@@ -40,6 +40,7 @@ export async function registerAuction(
     end,
     description
 ) {
+    let outs = []
     const block = await currentBlock()
     const p2s = (await getAuctionP2s(initial, end, step, buyItNow, currency)).address
     const bidder = getWalletAddress()
@@ -68,27 +69,38 @@ export async function registerAuction(
         ]
     }
 
-    let reqs = [
-        {
-            address: auctionAddress,
-            value: auctionErg,
-            assets: auctionAssets,
-            registers: {
-                R4: await encodeHex(tree),
-                R5: await encodeHex(tree),
-                R6: await encodeLongTuple(initial, step),
-                R7: await encodeNum(end.toString()),
-                R8: await encodeNum(buyItNow.toString()),
-                R9: await encodeHex(Serializer.stringToHex(info)),
-            },
+    outs = outs.concat([{
+        address: auctionAddress,
+        value: auctionErg,
+        assets: auctionAssets,
+        registers: {
+            R4: await encodeHex(tree),
+            R5: await encodeHex(tree),
+            R6: await encodeLongTuple(initial, step),
+            R7: await encodeNum(end.toString()),
+            R8: await encodeNum(buyItNow.toString()),
+            R9: await encodeHex(Serializer.stringToHex(info)),
         },
-    ]
+    }])
+
+    const dataInput = additionalData.dataInput;
+    let auctionStartFee = 0
+    if (dataInput.additionalRegisters.R9 !== undefined) {
+        auctionStartFee = parseInt(dataInput.additionalRegisters.R9.renderedValue)
+        const feeTo = Address.fromErgoTree(dataInput.additionalRegisters.R5.renderedValue).address;
+        start.erg += auctionStartFee
+        outs = outs.concat([{
+            address: feeTo,
+            value: auctionStartFee,
+        }])
+    }
+
     let request = {
         address: p2s,
         returnTo: bidder,
         startWhen: start,
         txSpec: {
-            requests: reqs,
+            requests: outs,
             fee: txFee,
             inputs: ['$userIns'],
             dataInputs: [additionalData.dataInput.boxId],
@@ -115,6 +127,7 @@ export async function registerAuction(
             }
             res.address = p2s
             res.block = block
+            res.startFee = auctionStartFee
             return res;
         });
 }
@@ -150,13 +163,15 @@ export async function newAuctionHelper(
     const r = await registerAuction(initial, currency, buyItNow, step, end, description)
     if (r.id === undefined) throw Error("Could not contact the assembler service")
     if (isAssembler()) {
-        assemblerModal(r.address, longToCurrency(currency.initial, -1, currency.name), true, currency.name)
+        let toSend = currency.initial
+        if (currency.name === 'ERG')
+            toSend += r.startFee
+        assemblerModal(r.address, longToCurrency(toSend, -1, currency.name), true, currency.name)
     } else if (isYoroi()) {
-        let need = {ERG: supportedCurrencies.ERG.initial}
+        let need = {ERG: supportedCurrencies.ERG.initial + r.startFee}
         need[selectedToken.value] = amount
         if (currency.id.length > 0)
             need[currency.id] = currency.initial
-        console.log(need)
         return await yoroiSendFunds(need, r.address, r.block)
     }
 }
