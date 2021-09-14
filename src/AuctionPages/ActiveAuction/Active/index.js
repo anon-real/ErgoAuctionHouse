@@ -1,6 +1,6 @@
 import React, {Fragment} from 'react';
 
-import {currentBlock, currentHeight, getAllActiveAuctions,} from '../../../auction/explorer';
+import {currentBlock, followAuction, getAllActiveAuctions,} from '../../../auction/explorer';
 import {friendlyAddress, getWalletAddress, isWalletSaved, showMsg,} from '../../../auction/helpers';
 import {css} from '@emotion/core';
 import PropagateLoader from 'react-spinners/PropagateLoader';
@@ -21,6 +21,7 @@ import {assembleFinishedAuctions} from '../../../auction/assembler';
 import NewAuctionAssembler from "./newAuctionAssembler";
 import ShowAuctions from "./showActives";
 import SendModal from "./sendModal";
+import { withRouter } from 'react-router-dom';
 
 const override = css`
   display: block;
@@ -37,31 +38,28 @@ const sortKeyToVal = {
     '6': 'Me As Bidder First',
 }
 
-const limit = 9
+const types = ['all', 'picture', 'audio', 'video', 'other']
 
-export default class ActiveAuctions extends React.Component {
+const limit = 9
+const updatePeriod = 40
+
+class ActiveAuctions extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             loading: true,
-            auctions: [],
+            allAuctions: [],
             sortKey: '0',
             end: limit,
-            lastLoaded: [],
-            values: []
+            values: [],
         };
-        this.refreshInfo = this.refreshInfo.bind(this);
         this.openAuction = this.openAuction.bind(this);
-        this.toggleModal = this.toggleModal.bind(this);
         this.sortAuctions = this.sortAuctions.bind(this);
+        this.filterAuctions = this.filterAuctions.bind(this);
         this.toggleAssemblerModal = this.toggleAssemblerModal.bind(this);
         this.trackScrolling = this.trackScrolling.bind(this);
-    }
-
-    toggleModal() {
-        this.setState({
-            modalAssembler: !this.state.modalAssembler,
-        });
+        this.updateParams = this.updateParams.bind(this);
+        this.getToShow = this.getToShow.bind(this);
     }
 
     toggleAssemblerModal(address = '', bid = 0, isAuction = false, currency = 'ERG') {
@@ -81,7 +79,9 @@ export default class ActiveAuctions extends React.Component {
                 true
             );
         } else {
-            this.toggleModal();
+            this.setState({
+                modalAssembler: !this.state.modalAssembler,
+            })
         }
     }
 
@@ -90,7 +90,7 @@ export default class ActiveAuctions extends React.Component {
     }
 
     trackScrolling = () => {
-        if (!this.state.loading && this.state.auctions.length >= this.state.end && document.getElementsByClassName('page-list-container') !== undefined) {
+        if (!this.state.loading && document.getElementsByClassName('page-list-container') !== undefined) {
             const wrappedElement = document.getElementsByClassName('page-list-container')[0]
             if (this.isBottom(wrappedElement)) {
                 this.setState({end: this.state.end + limit})
@@ -103,39 +103,49 @@ export default class ActiveAuctions extends React.Component {
         let queryMp = {}
         queries.forEach(query => {
             let cur = query.split('=')
-            queryMp[cur[0]] = cur[1]
+            if (cur[0].length > 0)
+                queryMp[cur[0]] = cur[1]
         })
+        if (!Object.keys(queryMp).includes('artist'))
+            queryMp['artist'] = undefined
         return queryMp
     }
 
+    encodeQueries(queries) {
+        return Object.keys(queries).filter(key => queries[key]).map(key => `${key}=${queries[key]}`).join('&')
+    }
+
+    updateParams(key, newVal) {
+        let queries = this.parseQueries(this.props.location.search)
+        queries[key] = newVal
+        this.props.history.push({
+            pathname: '/auction/active',
+            search: this.encodeQueries(queries)
+        })
+    }
+
     componentDidMount() {
-        let type = 'picture'
-        let artist = null
-        try {
-            const mp = this.parseQueries(this.props.location.search)
-            if (mp['type'] !== undefined) type = mp['type']
-            if (mp['artist'] !== undefined) artist = mp['artist']
-        } catch (e) {
-        }
-        this.refreshInfo(true, true, type, artist);
-        this.refreshTimer = setInterval(this.refreshInfo, 5000);
+        let queries = this.parseQueries(this.props.location.search)
+        this.updateAuctions().then(auctions => {
+            queries.allAuctions = auctions
+            queries.loading = false
+            queries.lastUpdated = 0
+            this.setState(queries)
+        })
+        this.refreshTimer = setInterval(() => {
+            const lastUpdated = this.state.lastUpdated
+            let newLastUpdate = lastUpdated + 10
+            if (lastUpdated > updatePeriod) {
+                this.updateAuctions().then(auctions => {
+                    this.setState({allAuctions: auctions, lastUpdated: 0, loading: false})
+                })
+            } else this.setState({lastUpdated: newLastUpdate})
+        }, 10000);
         document.addEventListener('scroll', this.trackScrolling); // add event listener
     }
 
     componentWillReceiveProps(nextProps, nextContext) {
-        let type = 'picture'
-        let artist = ''
-        try {
-            const mp = this.parseQueries(nextProps.location.search)
-            if (mp['type'] !== undefined) type = mp['type']
-            if (mp['artist'] !== undefined) artist = mp['artist']
-        } catch (e) {
-            console.log(e)
-        }
-        if (this.props.location.search !== nextProps.location.search) {
-            this.setState({loading: true})
-            this.refreshInfo(true, true, type, artist);
-        }
+        this.setState(this.parseQueries(nextProps.location.search))
     }
 
     componentWillUnmount() {
@@ -145,7 +155,32 @@ export default class ActiveAuctions extends React.Component {
         }
     }
 
-    sortAuctions(auctions, key) {
+    async updateAuctions() {
+        const block = await currentBlock()
+        let boxes
+        if (this.state.specific) {
+            boxes = [await followAuction(this.state.boxId)]
+        } else {
+            boxes = await getAllActiveAuctions()
+        }
+        const auctions = await decodeBoxes(boxes, block)
+        return auctions
+    }
+
+    filterAuctions(auctions) {
+        const artist = this.state.artist
+        const type = this.state.type
+        if (artist !== undefined) {
+
+            auctions = auctions.filter(auc => artist.split(',').includes(auc.artist))
+        }
+        if (type === 'all') return auctions
+        if (type) auctions = auctions.filter(auc => auc.type === type)
+        return auctions
+    }
+
+    sortAuctions(auctions) {
+        const key = this.state.sortKey.toString()
         if (key === '0')
             auctions.sort((a, b) => a.remTimeTimestamp - b.remTimeTimestamp)
         else if (key === '1')
@@ -160,71 +195,19 @@ export default class ActiveAuctions extends React.Component {
             auctions.sort((a, b) => (b.seller === getWalletAddress()) - (a.seller === getWalletAddress()))
         else if (key === '6' && isWalletSaved())
             auctions.sort((a, b) => (b.bidder === getWalletAddress()) - (a.bidder === getWalletAddress()))
-        this.setState({auctions: auctions, sortKey: key})
+        return auctions
     }
 
-    refreshInfo(force = false, firstTime = false, type = null, artist = null) {
-        if (type === null)
-            type = this.state.type
-        if (artist === null)
-            artist = this.state.artist
-        if (!force) {
-            this.setState({lastUpdated: this.state.lastUpdated + 5});
-            if (this.state.lastUpdated < 40) return;
-        }
-        this.setState({lastUpdated: 0});
-        currentBlock()
-            .then((block) => {
-                this.setState({currentHeight: block.height});
-                getAllActiveAuctions()
-                    .then((boxes) => {
-                        decodeBoxes(boxes, block)
-                            .then(boxes => {
-                                if (type === 'picture') return boxes.filter(box => box.isPicture)
-                                if (type === 'audio') return boxes.filter(box => box.isAudio)
-                                if (type === 'other') return boxes.filter(box => !box.isArtwork)
-                            }).then(boxes => {
-                            if (artist) {
-                                return boxes.filter(box => artist.split(',').includes(box.artist))
-                            } else return boxes
-                        })
-                            .then((boxes) => {
-                                let values = {ERG: 0}
-                                boxes.forEach(bx => {
-                                    if (bx.curBid >= bx.minBid) {
-                                        if (!Object.keys(values).includes(bx.currency))
-                                            values[bx.currency] = 0
-                                        values[bx.currency] += bx.curBid
-                                    }
-                                })
-                                this.setState({
-                                    loading: false,
-                                    type: type,
-                                    artist: artist,
-                                    values: values
-                                });
-                                this.sortAuctions(boxes, this.state.sortKey)
-                                if (firstTime) assembleFinishedAuctions(boxes);
-                            })
-                            .finally(() => {
-                                this.setState({loading: false});
-                            });
-                    })
-                    .catch((_) =>
-                        console.log('failed to get boxes from explorer!')
-                    );
-            })
-            .catch((_) => {
-                if (force) {
-                    showMsg(
-                        'Error connecting to the explorer. Will try again...',
-                        false,
-                        true
-                    );
-                }
-                if (!force) setTimeout(() => this.refreshInfo(true), 4000);
-                else setTimeout(() => this.refreshInfo(true), 20000);
-            });
+    calcValues(auctions) {
+        let values = {ERG: 0}
+        auctions.forEach(bx => {
+            if (bx.curBid >= bx.minBid) {
+                if (!Object.keys(values).includes(bx.currency))
+                    values[bx.currency] = 0
+                values[bx.currency] += bx.curBid
+            }
+        })
+        return values
     }
 
     friendlyArtist() {
@@ -232,12 +215,19 @@ export default class ActiveAuctions extends React.Component {
             .join(' - ')
     }
 
+    getToShow() {
+        const auctions = this.state.allAuctions
+        const filtered = this.filterAuctions(auctions)
+        return this.sortAuctions(filtered).slice(0, this.state.end)
+    }
+
     render() {
+        let values = this.calcValues(this.filterAuctions(this.state.allAuctions))
         return (
             <Fragment>
                 <NewAuctionAssembler
                     isOpen={this.state.modalAssembler}
-                    close={this.toggleModal}
+                    close={() => this.setState({modalAssembler: !this.state.modalAssembler})}
                     assemblerModal={this.toggleAssemblerModal}
                 />
 
@@ -268,7 +258,7 @@ export default class ActiveAuctions extends React.Component {
                                 }
                             </div>
                             <div>
-                                Active Auctions - {this.state.type}
+                                Active Auctions {this.state.type && this.state.type !== 'all' && <text>- {this.state.type}</text>}
                                 <div
                                     className={cx('page-title-subheading', {
                                         'd-none': false,
@@ -290,10 +280,10 @@ export default class ActiveAuctions extends React.Component {
                                         'd-none': false,
                                     })}
                                 >
-                                    <b>{this.state.auctions.length} active auctions with worth of: <br/></b>
-                                    <b>{longToCurrency(this.state.values.ERG, -1, 'ERG')} <i>ERG</i></b>
-                                    {Object.keys(this.state.values).filter(key => key !== 'ERG').map(key =>
-                                        <b>{', '}{longToCurrency(this.state.values[key], -1, key)} <i>{key}</i></b>
+                                    <b>{this.getToShow().length} active auctions with worth of: <br/></b>
+                                    <b>{longToCurrency(values.ERG, -1, 'ERG')} <i>ERG</i></b>
+                                    {Object.keys(values).filter(key => key !== 'ERG').map(key =>
+                                        <b>{', '}{longToCurrency(values[key], -1, key)} <i>{key}</i></b>
                                     )}
                                 </div>
                             </div>
@@ -317,8 +307,7 @@ export default class ActiveAuctions extends React.Component {
                                 </Col>
                             </Row>
                             <Row>
-                                <Col md='8'/>
-                                <Col md='4' className='text-right'>
+                                <Col className='text-right'>
                                     <UncontrolledButtonDropdown>
                                         <DropdownToggle caret outline className="mb-2 mr-2 border-0" color="primary">
                                             <i className="nav-link-icon lnr-sort-amount-asc"> </i>
@@ -327,9 +316,26 @@ export default class ActiveAuctions extends React.Component {
                                         <DropdownMenu>
                                             {Object.keys(sortKeyToVal).map(sortKey => <DropdownItem
                                                 onClick={() => {
-                                                    this.sortAuctions([].concat(this.state.auctions), sortKey)
+                                                    // this.sortAuctions([].concat(this.state.auctions), sortKey)
+                                                    this.updateParams('sortKey', sortKey)
                                                 }}>{sortKeyToVal[sortKey]}</DropdownItem>)}
                                         </DropdownMenu>
+
+                                    </UncontrolledButtonDropdown>
+
+
+                                    <UncontrolledButtonDropdown>
+                                    <DropdownToggle caret outline className="mb-2 mr-2 border-0" color="primary">
+                                        <i className="nav-link-icon pe-7s-filter"> </i>
+                                        {this.state.type}
+                                    </DropdownToggle>
+                                    <DropdownMenu>
+                                        {types.map(type => <DropdownItem
+                                            onClick={() => {
+                                                // this.sortAuctions([].concat(this.state.auctions), sortKey)
+                                                this.updateParams('type', type)
+                                            }}>{type}</DropdownItem>)}
+                                    </DropdownMenu>
                                     </UncontrolledButtonDropdown>
                                 </Col>
                             </Row>
@@ -355,7 +361,8 @@ export default class ActiveAuctions extends React.Component {
                 ) : (
                     <div className="page-list-container">
                         <ShowAuctions
-                            auctions={this.state.auctions.slice(0, this.state.end)}
+                            auctions={this.getToShow()}
+                            updateParams={this.updateParams}
                         />
                     </div>
                 )}
@@ -363,3 +370,5 @@ export default class ActiveAuctions extends React.Component {
         );
     }
 }
+
+export default withRouter(ActiveAuctions)
