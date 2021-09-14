@@ -125,9 +125,19 @@ export async function decodeBox(box, block) {
         try {
             if (box.artCode === "0e020101" || box.artCode === "0e0430313031") {
                 box.isPicture = true
+                box.type = 'picture'
             } else if (box.artCode === '0e020102') {
                 box.isAudio = true
-            } else box.isArtwork = false
+                box.audioUrl = box.artworkUrl
+                box.artworkUrl = null
+                box.type = 'audio'
+            } else if (box.artCode === '0e020103') {
+                box.isVideo = true
+                box.type = 'video'
+            } else {
+                box.isArtwork = false
+                box.type = 'other'
+            }
             if (box.isArtwork) {
                 box.artHash = await decodeString(box.artHash)
                 box.tokenName = await decodeStr(box.tokenName)
@@ -135,6 +145,8 @@ export async function decodeBox(box, block) {
                 box.tokenDescription = await decodeStr(box.tokenDescription)
                 if (box.artworkUrl)
                     box.artworkUrl = resolveIpfs(await decodeStr(box.artworkUrl))
+                if (box.audioUrl)
+                    box.audioUrl = resolveIpfs(await decodeStr(box.audioUrl))
             }
         } catch (e) {
             box.isArtwork = false
