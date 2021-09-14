@@ -194,6 +194,7 @@ export default class ActiveAuction extends React.Component {
                                     }
                                 />
                                 <AudioPlayer
+                                    style={{position: "absolute", bottom: "0px"}}
                                     src={box.audioUrl}
                                 />
                             </div>}
