@@ -4,7 +4,7 @@ import {currentHeight,} from '../../../auction/explorer';
 import {css} from '@emotion/core';
 import PropagateLoader from 'react-spinners/PropagateLoader';
 import {Row,} from 'reactstrap';
-import ActivePicture from './activePicture';
+import ActiveAuction from './activeAuction';
 import SendModal from "./sendModal";
 import ActiveAudio from "./activeAudio";
 import ActiveOther from "./activeOther";
@@ -56,28 +56,13 @@ export default class ShowAuctions extends React.Component {
 
     render() {
         const listItems = this.state.auctions.map((box) => {
-            if (box.isPicture) {
-                return (
-                    <ActivePicture
-                        box={box}
-                        assemblerModal={this.toggleAssemblerModal}
-                    />
-                );
-            } else if (box.isAudio) {
-                return (
-                    <ActiveAudio
-                        box={box}
-                        assemblerModal={this.toggleAssemblerModal}
-                    />
-                );
-            } else {
-                return (
-                    <ActiveOther
-                        box={box}
-                        assemblerModal={this.toggleAssemblerModal}
-                    />
-                );
-            }
+            return (
+                <ActiveAuction
+                    box={box}
+                    assemblerModal={this.toggleAssemblerModal}
+                    updateParams={this.props.updateParams}
+                />
+            );
         });
         return (
             <Fragment>

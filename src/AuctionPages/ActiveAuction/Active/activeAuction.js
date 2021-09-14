@@ -1,40 +1,29 @@
 import React from 'react';
-import {
-    ButtonGroup,
-    CardFooter,
-    Col,
-    DropdownMenu,
-    DropdownToggle,
-    Nav,
-    NavItem,
-    NavLink,
-    Progress,
-    UncontrolledButtonDropdown,
-} from 'reactstrap';
+import {Col, DropdownMenu, DropdownToggle, Nav, NavItem, NavLink, UncontrolledButtonDropdown,} from 'reactstrap';
 import {friendlyAddress, getAddrUrl, isWalletSaved, showMsg,} from '../../../auction/helpers';
 import {ResponsiveContainer} from 'recharts';
 import SyncLoader from 'react-spinners/SyncLoader';
 import ReactTooltip from 'react-tooltip';
 
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faAngleUp, faEllipsisH} from '@fortawesome/free-solid-svg-icons';
+import {faEllipsisH} from '@fortawesome/free-solid-svg-icons';
 import {css} from '@emotion/core';
 import PlaceBidModal from './placeBid';
 import MyBidsModal from './myBids';
 import BidHistory from './bidHistory';
-import {Row} from 'react-bootstrap';
 import ArtworkDetails from '../../artworkDetails';
 import {Link} from "react-router-dom";
-import {longToCurrency} from "../../../auction/serializer";
-import {bidHelper} from "../../../auction/newBidAssm";
 import FooterSection from "../../footerSection";
+import ReactPlayer from "react-player";
+import AudioPlayer from 'react-h5-audio-player';
+import 'react-h5-audio-player/lib/styles.css';
 
 const override = css`
   display: block;
   margin: 0 auto;
 `;
 
-export default class ActivePicture extends React.Component {
+export default class ActiveAuction extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -82,6 +71,11 @@ export default class ActivePicture extends React.Component {
 
     render() {
         let box = this.props.box;
+        let icon = 'lnr-picture'
+        if (box.isAudio)
+            icon = 'lnr-music-note'
+        else if (box.isVideo)
+            icon = 'lnr-film-play'
         return (
             <Col key={box.id} xs="12" md="6" lg="6" xl="4">
                 <PlaceBidModal
@@ -101,13 +95,29 @@ export default class ActivePicture extends React.Component {
                     box={this.props.box}
                     isOpen={this.state.detailsModal}
                 />
+                <ArtworkDetails
+                    isOpen={this.state.artDetail}
+                    close={() =>
+                        this.setState({
+                            artDetail: !this.state.artDetail,
+                        })
+                    }
+                    tokenId={this.props.box.assets[0].tokenId}
+                    tokenName={this.props.box.tokenName}
+                    tokenDescription={
+                        this.props.box.tokenDescription
+                    }
+                    artHash={this.props.box.artHash}
+                    artworkUrl={this.props.box.artworkUrl}
+                    artist={this.props.box.artist}
+                />
                 <div className="card mb-3 bg-white widget-chart" style={
                     {
                         'opacity': this.props.box.isFinished ? 0.6 : 1
                     }
                 }>
 
-                    <b class="fsize-1 text-truncate" style={{marginTop: 8}}>{this.props.box.tokenName}</b>
+                    <b className="fsize-1 text-truncate" style={{marginTop: 8}}>{this.props.box.tokenName}</b>
 
                     <div className="widget-chart-actions">
                         <UncontrolledButtonDropdown direction="left">
@@ -147,7 +157,6 @@ export default class ActivePicture extends React.Component {
                             </DropdownMenu>
                         </UncontrolledButtonDropdown>
                     </div>
-
                     <div className="widget-chart-content">
                         <ResponsiveContainer height={10}>
                             <SyncLoader
@@ -157,35 +166,41 @@ export default class ActivePicture extends React.Component {
                                 loading={this.state.loading}
                             />
                         </ResponsiveContainer>
-
                         <div style={{cursor: 'pointer'}} className="imgDiv">
-                            <ArtworkDetails
-                                isOpen={this.state.artDetail}
-                                close={() =>
-                                    this.setState({
-                                        artDetail: !this.state.artDetail,
-                                    })
-                                }
-                                tokenId={this.props.box.assets[0].tokenId}
-                                tokenName={this.props.box.tokenName}
-                                tokenDescription={
-                                    this.props.box.tokenDescription
-                                }
-                                artHash={this.props.box.artHash}
-                                artworkUrl={this.props.box.artworkUrl}
-                                artist={this.props.box.artist}
-                            />
-                            <img
-                                onClick={() =>
-                                    this.setState({artDetail: true})
-                                }
-                                className="auctionImg"
-                                src={
-                                    this.props.box.artworkUrl
-                                        ? this.props.box.artworkUrl
-                                        : 'http://revisionmanufacture.com/assets/uploads/no-image.png'
-                                }
-                            />
+                            <i className={icon + " text-white imgicon"}/>
+                            {box.isPicture && <div>
+                                <img
+                                    onClick={() =>
+                                        this.setState({artDetail: true})
+                                    }
+                                    className="auctionImg"
+                                    src={
+                                        this.props.box.artworkUrl
+                                            ? this.props.box.artworkUrl
+                                            : 'http://revisionmanufacture.com/assets/uploads/no-image.png'
+                                    }
+                                />
+                            </div>}
+                            {box.isAudio && <div>
+                                <img
+                                    onClick={() =>
+                                        this.setState({artDetail: true})
+                                    }
+                                    className="auctionImg"
+                                    src={
+                                        this.props.box.artworkUrl
+                                            ? this.props.box.artworkUrl
+                                            : 'http://revisionmanufacture.com/assets/uploads/no-image.png'
+                                    }
+                                />
+                                <AudioPlayer
+                                    style={{position: "absolute", bottom: "0px"}}
+                                    src={box.audioUrl}
+                                />
+                            </div>}
+                            {box.isVideo && <div>
+                                <ReactPlayer url={box.artworkUrl}/>
+                            </div>}
                         </div>
                         <ReactTooltip effect="solid" place="bottom"/>
 
@@ -202,13 +217,12 @@ export default class ActivePicture extends React.Component {
                             >
                                 <p className="text-primary mr-2 ml-2">
                                     <div className="text-truncate">{this.props.box.description}</div>
-                                    <Link
-                                        to={'/auction/active?type=picture&artist=' + this.props.box.artist}
-                                    >
                                         <b
+                                            style={{cursor: "pointer"}}
+                                            onClick={() => this.props.updateParams('artist', this.props.box.artist)}
                                         >
                                             {' '}- By {friendlyAddress(this.props.box.artist, 4)}
-                                        </b></Link>
+                                        </b>
                                 </p>
                             </div>
                         </div>
@@ -264,7 +278,8 @@ export default class ActivePicture extends React.Component {
                             />
                         </div>
                     </div>
-                    <FooterSection box={this.props.box} loading={(val) => this.setState({loading: val})} assemblerModal={this.props.assemblerModal} openBid={this.openBid}/>
+                    <FooterSection box={this.props.box} loading={(val) => this.setState({loading: val})}
+                                   assemblerModal={this.props.assemblerModal} openBid={this.openBid}/>
 
                 </div>
             </Col>
