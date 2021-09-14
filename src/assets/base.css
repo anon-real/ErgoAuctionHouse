@@ -16934,17 +16934,34 @@ a.badge-alternate:hover, a.badge-alternate:focus {
 
 
 .imgDiv {
-    height: 300px;
+    height: 330px;
     margin: 1rem;
     margin-top: 0.2rem;
     border-radius: 8px;
     overflow: hidden;
     box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.08);
     display: block;
-    height: 300px
 }
 
 svg {
     display: block;
     margin: auto;
+}
+
+.imgicon {
+    box-sizing: border-box;
+    margin: 0px;
+    min-width: 0px;
+    display: flex;
+    position: absolute;
+    top: 38px;
+    left: 28px;
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    background-color: gray;
+    -webkit-box-align: center;
+    align-items: center;
+    -webkit-box-pack: center;
+    justify-content: center;
 }

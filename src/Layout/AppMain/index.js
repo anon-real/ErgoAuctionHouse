@@ -75,7 +75,7 @@ const AppMain = () => {
             <Route
                 exact
                 path="/"
-                render={() => <Redirect to="/auction/active?type=picture"/>}
+                render={() => <Redirect to="/auction/active?type=all"/>}
             />
             {/*<Route*/}
             {/*    exact*/}

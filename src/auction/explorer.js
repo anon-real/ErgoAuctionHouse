@@ -92,7 +92,7 @@ export async function followAuction(id) {
     let cur = await getRequest(`/boxes/${id}`, explorerApiV1)
     while (cur.spentTransactionId) {
         let new_cur = (await txById(cur.spentTransactionId)).outputs[0]
-        if (auctionTrees.includes(new_cur.ergoTree))
+        if (new_cur.address === auctionAddress)
             cur = new_cur
         else break
     }
