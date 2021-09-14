@@ -8,7 +8,6 @@ import {
 } from 'reactstrap';
 
 function NotificationCenter(){
-    const [unRead ,setUnRead] = useState(false);
     const [modal ,setModal] = useState(false)
     let NotificationList = JSON.parse(localStorage.getItem('notification'));
 
@@ -28,11 +27,15 @@ function NotificationCenter(){
             <div className="notificationContainer" onClick={()=>setModal(true)}>
                 <span className="notificationIcon lnr lnr-alarm">
                 </span>
-                <div className={cx("notificationBadge", {
-                    'd-none': !NotificationList.unread
-                })}>
-                    {(NotificationList)? NotificationList.unread : null}
-                </div>
+                {(NotificationList)?
+                    <div className={cx("notificationBadge", {
+                        'd-none': NotificationList.unread === 0
+                    })}>
+                        {(NotificationList)? NotificationList.unread : null}
+                    </div>
+                    :
+                    null
+                }
             </div>
             <Modal
                 isOpen={modal}
@@ -41,10 +44,10 @@ function NotificationCenter(){
                     Notification Center
                 </ModalHeader>
                 <ModalBody>
-                    {(NotificationList.length !== 0)?
+                    {(NotificationList !== null)?
                         <>
-                            {NotificationList.data.map((data)=>(
-                                <div className="notificationItem">
+                            {NotificationList.data.map((data,index)=>(
+                                <div className="notificationItem" key={index}>
                                     <div className="notificationItemContainer">  
                                         <span class="lnr lnr-checkmark-circle mr-2"></span>
                                         <span>
@@ -62,11 +65,14 @@ function NotificationCenter(){
                                 </div>
                             ))
                             }
+                            <div className={cx({
+                                'd-none': NotificationList.data.length !== 0
+                            })}>
+                                No Notification Available
+                            </div>
                         </>
                         :
-                        <div>
-                            No Notification Available
-                        </div>
+                        null
                     }
                 </ModalBody>
             </Modal>
