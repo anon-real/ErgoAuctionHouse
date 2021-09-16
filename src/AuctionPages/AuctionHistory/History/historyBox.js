@@ -74,6 +74,7 @@ export default class HistoryBox extends React.Component {
         return (
             <Col key={this.props.box.id} md="4">
                 <ArtworkDetails
+                    box={this.props.box}
                     isOpen={this.state.infoModal}
                     close={() =>
                         this.setState({
@@ -142,6 +143,7 @@ export default class HistoryBox extends React.Component {
                                 className="icon-wrapper rounded-circle opacity-7 m-2 font-icon-wrapper">
                                 <i className="lnr-picture icon-gradient bg-plum-plate fsize-4"/>
                                 <ArtworkDetails
+                                    box={this.props.box}
                                     isOpen={this.state.artDetail}
                                     close={() => this.setState({artDetail: !this.state.artDetail})}
                                     tokenId={this.props.box.assets[0].tokenId}

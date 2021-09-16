@@ -52,6 +52,7 @@
     "i": "^0.3.6",
     "identicon.js": "^2.3.3",
     "jest": "24.9.0",
+    "jol-player": "^2.2.0",
     "jw-react-pagination": "^1.0.7",
     "lorem-ipsum": "^1.0.6",
     "moment": "^2.29.0",

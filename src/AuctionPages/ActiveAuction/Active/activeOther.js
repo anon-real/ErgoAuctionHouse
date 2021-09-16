@@ -102,6 +102,7 @@ export default class ActiveOther extends React.Component {
                     isOpen={this.state.detailsModal}
                 />
                 <ArtworkDetails
+                    box={this.props.box}
                     isOpen={this.state.infoModal}
                     close={() =>
                         this.setState({

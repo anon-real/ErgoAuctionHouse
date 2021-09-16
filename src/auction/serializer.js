@@ -57,10 +57,14 @@ async function decodeStr(str) {
     return new TextDecoder().decode((await ergolib).Constant.decode_from_base16(str).to_byte_array())
 }
 
-function resolveIpfs(url) {
+function resolveIpfs(url, isVideo=false) {
     const ipfsPrefix = 'ipfs://'
     if (!url.startsWith(ipfsPrefix)) return url
-    else return url.replace(ipfsPrefix, 'https://cloudflare-ipfs.com/ipfs/')
+    else {
+        if (isVideo)
+            return url.replace(ipfsPrefix, 'https://ipfs.blockfrost.dev/ipfs/')
+        return url.replace(ipfsPrefix, 'https://cloudflare-ipfs.com/ipfs/')
+    }
 }
 
 export async function decodeBox(box, block) {
@@ -153,7 +157,7 @@ export async function decodeBox(box, block) {
                     }
 
                 } else if (box.artworkUrl)
-                    box.artworkUrl = resolveIpfs(await decodeStr(box.artworkUrl))
+                    box.artworkUrl = resolveIpfs(await decodeStr(box.artworkUrl), box.isVideo)
             }
         } catch (e) {
             box.isArtwork = false
