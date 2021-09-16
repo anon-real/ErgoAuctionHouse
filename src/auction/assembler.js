@@ -91,56 +91,61 @@ export async function pendings() {
     // handle time
     const bids = getForKey('pending')
     for (let i = 0; i < bids.length; i++) {
-        const addr = bids[i].address
-        let bid = JSON.parse(JSON.stringify(bids[i]))
-        if (!bid.unc) {
-            const unc = (await stat(bid.id))
-            if (unc.tx) {
-                const tx = unc.tx
-                if (tx.outputs.length === 2) { // refund
-                    removeForKey('pending', bid.id)
-                    addNotification('Your funds are being returned!',
-                        getTxUrl(tx.id), 'error')
+        try {
+            const addr = bids[i].address
+            let bid = JSON.parse(JSON.stringify(bids[i]))
 
+            const txs = (await txByAddress(addr))
+            .filter(tx => tx.inputs.map(inp => inp.address).includes(addr) && tx.outputs.length > 2)
+            if (txs.length > 0) {
+                removeForKey('pending', bid.id)
+                const tx = txs[0]
+                let msg = 'your auctions is started!'
+                if (bid.key === 'bid') {
+                    msg = `Your bid for ${bid.box.tokenName} is placed`
+                    addForKey({
+                        name: bid.box.tokenName,
+                        id: tx.outputs[0].id
+                    }, 'my-bids')
+                    addBid({
+                        token: tx.outputs[0].assets[0],
+                        status: 'complete',
+                        amount: (tx.outputs[0].assets.length === 1 ? tx.outputs[0].value : tx.outputs[0].assets[1].amount),
+                        txId: tx.id
+                    })
                 } else {
-                    bid.unc = true
-                    let msg = `Your bid for ${bid.box.tokenName} is being placed`
-                    if (bid.key === 'auction')
-                        msg = 'Your auction is starting'
-                    addNotification(msg, getTxUrl(tx.id))
-                    updateForKey('pending', bid)
+                    addForKey({
+                        name: tx.outputs[0].assets[0].name,
+                        id: tx.outputs[0].id
+                    }, 'my-auctions')
+                }
+                addNotification(msg, getAuctionUrl(tx.outputs[0].id))
+            } else {
+
+                if (!bid.unc) {
+                    const unc = (await stat(bid.id))
+                    if (unc.tx) {
+                        const tx = unc.tx
+                        if (tx.outputs.length === 2) { // refund
+                            removeForKey('pending', bid.id)
+                            addNotification('Your funds are being returned!',
+                                getTxUrl(tx.id), 'error')
+
+                        } else {
+                            bid.unc = true
+                            let msg = 'Your auction is starting'
+                            if (bid.key === 'bid')
+                                msg = `Your bid for ${bid.box.tokenName} is being placed`
+                            addNotification(msg, getTxUrl(tx.id))
+                            updateForKey('pending', bid)
+                        }
+                    }
                 }
             }
-        }
-        const txs = (await txByAddress(addr))
-            .filter(tx => tx.inputs.map(inp => inp.address).includes(addr) && tx.outputs.length > 2)
-        if (txs.length > 0) {
-            removeForKey('pending', bid.id)
-            const tx = txs[0]
-            let msg = 'your auctions is started!'
-            if (bid.key === 'bid') {
-                msg = `Your bid for ${bid.box.tokenName} is placed`
-                addForKey({
-                    name: bid.box.tokenName,
-                    id: tx.outputs[0].id
-                }, 'my-bids')
-                addBid({
-                    token: tx.outputs[0].assets[0],
-                    status: 'complete',
-                    amount: (tx.outputs[0].assets.length === 1 ? tx.outputs[0].value : tx.outputs[0].assets[1].amount),
-                    txId: tx.id
-                })
-            } else {
-                addForKey({
-                    name: tx.outputs[0].assets[0].name,
-                    id: tx.outputs[0].id
-                }, 'my-auctions')
-            }
-            addNotification(msg, getAuctionUrl(tx.outputs[0].id))
-        }
-        const past = moment.duration(moment().diff(moment(bid.time))).asMinutes();
-        if (past > 120)
-            removeForKey('pending', bid.id)
+            const past = moment.duration(moment().diff(moment(bid.time))).asMinutes();
+            if (past > 120)
+                removeForKey('pending', bid.id)
+        } catch (e) {}
     }
 }
 
@@ -148,18 +153,22 @@ export async function handleAll() {
     try {
         await pendings()
     } catch (e) {
+        console.error(e)
     }
     try {
         await myAuctionBids()
     } catch (e) {
+        console.error(e)
     }
     try {
         await outBid()
     } catch (e) {
+        console.error(e)
     }
     try {
         await updateDataInput()
     } catch (e) {
+        console.error(e)
     }
 }
 
