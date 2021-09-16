@@ -17,6 +17,7 @@ import FooterSection from "../../footerSection";
 import ReactPlayer from "react-player";
 import AudioPlayer from 'react-h5-audio-player';
 import 'react-h5-audio-player/lib/styles.css';
+import ArtworkMedia from "../../artworkMedia";
 
 const override = css`
   display: block;
@@ -71,11 +72,6 @@ export default class ActiveAuction extends React.Component {
 
     render() {
         let box = this.props.box;
-        let icon = 'lnr-picture'
-        if (box.isAudio)
-            icon = 'lnr-music-note'
-        else if (box.isVideo)
-            icon = 'lnr-film-play'
         return (
             <Col key={box.id} xs="12" md="6" lg="6" xl="4">
                 <PlaceBidModal
@@ -110,6 +106,7 @@ export default class ActiveAuction extends React.Component {
                     artHash={this.props.box.artHash}
                     artworkUrl={this.props.box.artworkUrl}
                     artist={this.props.box.artist}
+                    box={this.props.box}
                 />
                 <div className="card mb-3 bg-white widget-chart" style={
                     {
@@ -166,43 +163,8 @@ export default class ActiveAuction extends React.Component {
                                 loading={this.state.loading}
                             />
                         </ResponsiveContainer>
-                        <div style={{cursor: 'pointer'}} className="imgDiv">
-                            <i className={icon + " text-white imgicon"}/>
-                            {box.isPicture && <div>
-                                <img
-                                    onClick={() =>
-                                        this.setState({artDetail: true})
-                                    }
-                                    className="auctionImg"
-                                    src={
-                                        this.props.box.artworkUrl
-                                            ? this.props.box.artworkUrl
-                                            : 'http://revisionmanufacture.com/assets/uploads/no-image.png'
-                                    }
-                                />
-                            </div>}
-                            {box.isAudio && <div>
-                                <img
-                                    onClick={() =>
-                                        this.setState({artDetail: true})
-                                    }
-                                    className="auctionImg"
-                                    src={
-                                        this.props.box.artworkUrl
-                                            ? this.props.box.artworkUrl
-                                            : 'http://revisionmanufacture.com/assets/uploads/no-image.png'
-                                    }
-                                />
-                                <AudioPlayer
-                                    style={{position: "absolute", bottom: "0px"}}
-                                    src={box.audioUrl}
-                                />
-                            </div>}
-                            {box.isVideo && <div>
-                                <ReactPlayer url={box.artworkUrl}/>
-                            </div>}
-                        </div>
                         <ReactTooltip effect="solid" place="bottom"/>
+                        <ArtworkMedia box={this.props.box} details={() => this.setState({artDetail: !this.state.artDetail})}/>
 
                         <div className="widget-chart-wrapper chart-wrapper-relative">
                             <div
