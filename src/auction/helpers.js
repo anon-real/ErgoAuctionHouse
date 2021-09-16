@@ -150,6 +150,7 @@ export function addNotification(msg, lnk, stat = 'info') {
             data: [],
             unread: 0
         }
+    console.log('ok')
     nots.unread += 1
     nots.data = nots.data.concat([{
         message: msg,
