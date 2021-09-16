@@ -113,7 +113,7 @@ export default class ActiveAuction extends React.Component {
                 />
                 <div className="card mb-3 bg-white widget-chart" style={
                     {
-                        'opacity': this.props.box.isFinished ? 0.6 : 1
+                        'opacity': this.props.box.isFinished || this.state.loading ? 0.6 : 1
                     }
                 }>
 

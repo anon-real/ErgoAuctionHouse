@@ -1,4 +1,4 @@
-import {addAssemblerBid, getWalletAddress, isAssembler, isYoroi,} from './helpers';
+import {addAssemblerBid, addForKey, getWalletAddress, isAssembler, isYoroi,} from './helpers';
 import {Address} from '@coinbarn/ergo-ts';
 import {encodeHex, encodeLongTuple, encodeNum, longToCurrency} from './serializer';
 import {follow, p2s} from "./assembler";
@@ -10,12 +10,15 @@ import moment from "moment";
 
 const template = `{
   val userAddress = fromBase64("$userAddress")
+  val implementor = fromBase64("$implementor")
+  val auctionAddress = fromBase64("$auctionAddress")
   val bidAmount = $bidAmountL
   val endTime = $endTimeL
   val bidDelta = $bidDeltaL
   val currencyId = fromBase64("$currencyId")
   val buyItNow = $buyItNow
   val startAuction = {
+      OUTPUTS(0).propositionBytes == auctionAddress &&
       OUTPUTS(0).tokens.size > 0 &&
       OUTPUTS(0).R4[Coll[Byte]].getOrElse(INPUTS(0).id) == userAddress &&
       OUTPUTS(0).R5[Coll[Byte]].getOrElse(INPUTS(0).id) == userAddress &&
@@ -23,7 +26,8 @@ const template = `{
       OUTPUTS(0).R6[Coll[Long]].get(1) == bidDelta &&
       OUTPUTS(0).R7[Long].getOrElse(0L) == endTime &&
       OUTPUTS(0).R8[Long].getOrElse(0L) == buyItNow &&
-      (currencyId.size == 0 || (currencyId.size > 0 && OUTPUTS(0).tokens(1)._1 == currencyId)) 
+      (currencyId.size == 0 || (currencyId.size > 0 && OUTPUTS(0).tokens(1)._1 == currencyId)) &&
+      OUTPUTS.size == 3 && OUTPUTS(1).propositionBytes == implementor && OUTPUTS(1).value == $startFeeL
   }
   val returnFunds = {
     val total = INPUTS.fold(0L, {(x:Long, b:Box) => x + b.value}) - 2000000
@@ -109,21 +113,13 @@ export async function registerAuction(
     return await follow(request)
         .then((res) => {
             if (res.id !== undefined) {
-                let bid = {
+                let pending = {
                     id: res.id,
-                    msg: "Your auction will be started soon!",
-                    info: {
-                        token: null,
-                        boxId: null,
-                        txId: null,
-                        tx: null,
-                        status: 'pending mining',
-                        amount: initial,
-                        currency: currency,
-                        isFirst: true,
-                    },
+                    address: p2s,
+                    time: moment().valueOf(),
+                    key: 'auction'
                 };
-                addAssemblerBid(bid);
+                addForKey(pending, 'pending')
             }
             res.address = p2s
             res.block = block
@@ -135,16 +131,25 @@ export async function registerAuction(
 export async function getAuctionP2s(initial, end, step, buyItNow, currency) {
     let userAddress = getWalletAddress()
     let userTree = Buffer.from(new Address(userAddress).ergoTree, 'hex').toString('base64');
+    let auctionTree = Buffer.from(new Address(auctionAddress).ergoTree, 'hex').toString('base64');
     let currencyID = Buffer.from(currency.id, 'hex').toString('base64');
+
+    const dataInput = additionalData.dataInput;
+    const auctionStartFee = parseInt(dataInput.additionalRegisters.R9.renderedValue)
+    const feeTo = Address.fromErgoTree(dataInput.additionalRegisters.R5.renderedValue).address;
+    let implementorTree = Buffer.from(new Address(feeTo).ergoTree, 'hex').toString('base64');
 
     let script = template
         .replace('$userAddress', userTree)
+        .replace('$auctionAddress', auctionTree)
         .replace('$bidAmount', initial)
         .replace('$endTime', end)
         .replace('$bidDelta', step)
         .replace('$currencyId', currencyID)
         .replace('$buyItNow', buyItNow)
         .replace('$timestamp', moment().valueOf())
+        .replace('$implementor', implementorTree)
+        .replace('$startFee', auctionStartFee)
         .replaceAll('\n', '\\n');
     return p2s(script);
 }

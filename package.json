@@ -74,6 +74,7 @@
     "react-bootstrap": "^0.32.4",
     "react-chartjs-2": "^2.7.4",
     "react-clipboard.js": "^2.0.16",
+    "react-coverflow": "^0.2.20",
     "react-datetime-picker": "^3.4.0",
     "react-dev-utils": "^4.2.3",
     "react-dom": "^16.7.0",

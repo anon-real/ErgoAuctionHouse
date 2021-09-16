@@ -40,16 +40,15 @@ export function getActiveAuctions(addr) {
         .then((boxes) => boxes.filter((box) => box.assets.length > 0));
 }
 
-export function getUnconfirmedTxsFor(addr, useV1=false) {
+export function getUnconfirmedTxsFor(addr) {
     return getRequest(
-        `/mempool/transactions/byAddress/${addr}`,
-        useV1 ? explorerApiV1 : explorerApi
+        `/mempool/transactions/byAddress/${addr}`, explorerApiV1
     )
         .then((res) => res.items);
 }
 
 export async function getAllActiveAuctions() {
-    const spending = (await getUnconfirmedTxsFor(auctionAddress, true)).filter(s => s.inputs.length > 1)
+    const spending = (await getUnconfirmedTxsFor(auctionAddress)).filter(s => s.inputs.length > 1)
     let idToNew = {}
     spending.forEach(s => {
         let curId = s.inputs[s.inputs.length - 1].boxId
@@ -84,12 +83,17 @@ export async function getCompleteAuctionHistory(limit, offset) {
         })
 }
 
+export function boxByAddress(id) {
+    return getRequest(`/transactions/boxes/${id}`)
+}
+
 export function boxById(id) {
     return getRequest(`/transactions/boxes/${id}`)
 }
 
 export async function followAuction(id) {
     let cur = await getRequest(`/boxes/${id}`, explorerApiV1)
+    if (!cur.id) cur.id = cur.boxId
     while (cur.spentTransactionId) {
         let new_cur = (await txById(cur.spentTransactionId)).outputs[0]
         if (new_cur.address === auctionAddress)
@@ -97,6 +101,11 @@ export async function followAuction(id) {
         else break
     }
     return cur
+}
+
+export function txByAddress(addr) {
+    return getRequest(`/addresses/${addr}/transactions`)
+        .then((res) => res.items);
 }
 
 export function txById(id) {
@@ -114,87 +123,6 @@ export async function getIssuingBox(tokenId) {
     const data = getRequest(`/assets/${tokenId}/issuingBox`);
     return data
         .catch((_) => null);
-}
-
-export function handlePendingBids(height) {
-    let bids = getMyBids().filter((bid) => bid.status === 'pending mining');
-    if (bids !== null) {
-        let res = bids.map((bid) => {
-            let txs = bid.tx.inputs
-                .map((inp) => inp.boxId)
-                .map((id) => getSpendingTx(id));
-            return Promise.all(txs).then((res) => {
-                let spent = res.filter((txId) => txId !== null && txId !== undefined)
-                if (spent.length > 0) {
-                    bid.tx = null;
-                    if (spent[0] === bid.txId) {
-                        bid.status = 'complete';
-                        let msg = `Your ${
-                            longToCurrency(bid.amount, -1, bid.currency.name)
-                        } ${bid.currency.name} bid for ${friendlyToken(
-                            bid.token,
-                            false,
-                            5
-                        )} has successfully been placed.`;
-                        if (bid.isFirst)
-                            msg = `Your auction for ${friendlyToken(
-                                bid.token,
-                                false,
-                                5
-                            )} successfully started.`;
-                        showStickyMsg(msg);
-                    } else {
-                        bid.status = 'rejected';
-                        let msg = `Your ${
-                            longToCurrency(bid.amount, -1, bid.currency.name)
-                        } ${bid.currency.name} bid for ${friendlyToken(
-                            bid.token,
-                            false,
-                            5
-                        )} is rejected. Potentially you are outbidded, try again!`;
-                        if (bid.isFirst)
-                            msg = `Your auction for ${friendlyToken(
-                                bid.token,
-                                false,
-                                5
-                            )} is rejected, you can try again!`;
-                        showStickyMsg(msg, true);
-                    }
-                } else {
-                    // maybe bid was in the mempool for a long time and the endTiem must be extened.
-                    if (!bid.isFirst && bid.shouldExtend) {
-                        if (bid.prevEndTime - height < 'extendThreshold') { // TODO fix
-                            bid.status = 'rejected';
-                            bid.tx = null
-                            let msg = `Your ${
-                                longToCurrency(bid.amount, -1, bid.currency.name)
-                            } ${bid.currency.name} bid for ${friendlyToken(
-                                bid.token,
-                                false,
-                                5
-                            )} is rejected, please try again!`;
-                            showStickyMsg(msg, true);
-                        }
-                    }
-                    try {
-                        console.log('broadcasting to explorer...');
-                        explorer.broadcastTx(Transaction.formObject(bid.tx));
-                    } catch (_) {
-                    }
-                }
-                return bid;
-            });
-            return getSpendingTx(bid.boxId).then((res) => {
-            });
-        });
-        Promise.all(res).then((res) => {
-            let curBids = getMyBids();
-            res = res.concat(
-                curBids.filter((bid) => !bids.find((x) => x.txId === bid.txId))
-            );
-            setMyBids(res);
-        });
-    }
 }
 
 export function sendTx(tx) {

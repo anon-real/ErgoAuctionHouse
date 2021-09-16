@@ -1,10 +1,9 @@
 import React from 'react';
 import {Flip, Slide, toast} from 'react-toastify';
 import {Address} from "@coinbarn/ergo-ts";
-import {currentBlock} from "./explorer";
-import {registerBid} from "./newBidAssm";
-import {currencyToLong} from "./serializer";
-import {supportedCurrencies} from "./consts";
+import {additionalData, auctionNFT, domain} from "./consts";
+import {getBoxesForAsset} from "./explorer";
+import moment from "moment";
 
 const explorerUrl = 'https://explorer.ergoplatform.com/en/';
 
@@ -33,6 +32,10 @@ export function friendlyName(name, tot = 80) {
 
 export function getTxUrl(txId) {
     return explorerUrl + 'transactions/' + txId;
+}
+
+export function getAuctionUrl(boxId) {
+    return '#/auction/specific/' + boxId;
 }
 
 export function getAddrUrl(addr) {
@@ -101,26 +104,60 @@ export function addBid(bid) {
     setMyBids(bids)
 }
 
-export function getAssemblerBids() {
-    let bids = JSON.parse(localStorage.getItem('assemblerBids'));
-    if (bids === null) bids = []
-    return bids
+export function getForKey(key) {
+    let reqs = JSON.parse(localStorage.getItem(key));
+    if (reqs === null) reqs = []
+    return reqs
 }
 
-export function setAssemblerBids(bids) {
-    localStorage.setItem('assemblerBids', JSON.stringify(bids));
+export function setForKey(reqs, key) {
+    localStorage.setItem(key, JSON.stringify(reqs));
 }
 
-export function addAssemblerBid(bid) {
-    let bids = getAssemblerBids()
-    bids = bids.concat([bid])
-    setAssemblerBids(bids)
+export function addForKey(req, key) {
+    let reqs = getForKey(key)
+    if (reqs.length < 100) {
+        if (reqs.map(cur => cur.id).includes(req.id))
+            return
+    }
+    reqs = reqs.concat([req])
+    setForKey(reqs, key)
+}
+
+export function removeForKey(key, toRem) {
+    let reqs = getForKey(key).filter(req => req.id !== toRem)
+    setForKey(reqs, key)
+}
+
+export function updateForKey(key, toUp) {
+    let reqs = getForKey(key).map(req => {
+        if (req.id !== toUp.id) return req
+        return toUp
+    })
+    setForKey(reqs, key)
 }
 
 export function getUrl(url) {
     if (!url.startsWith('http')) url = 'http://' + url;
     if (url.endsWith('/')) url = url.slice(0, url.length - 1);
     return url;
+}
+
+export function addNotification(msg, lnk, stat = 'info') {
+    let nots = JSON.parse(localStorage.getItem('notification'))
+    if (nots === null)
+        nots = {
+            data: [],
+            unread: 0
+        }
+    nots.unread += 1
+    nots.data = nots.data.concat([{
+        message: msg,
+        link: lnk,
+        status: stat,
+        time: moment().valueOf()
+    }])
+    setForKey(nots, 'notification')
 }
 
 export async function copyToClipboard(text) {
@@ -133,4 +170,8 @@ export function isAddressValid(address) {
     } catch (_) {
         return false
     }
+}
+
+export async function updateDataInput() {
+    additionalData['dataInput'] = (await getBoxesForAsset(auctionNFT)).items[0]
 }

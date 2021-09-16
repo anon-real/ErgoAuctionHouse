@@ -1,9 +1,20 @@
 import {get, post} from './rest';
-import {addBid, getAssemblerBids, getUrl, setAssemblerBids, showStickyMsg,} from './helpers';
+import {
+    addBid,
+    addForKey,
+    addNotification,
+    getAuctionUrl,
+    getForKey,
+    getTxUrl,
+    getUrl,
+    removeForKey, updateDataInput,
+    updateForKey,
+} from './helpers';
 import {Address} from '@coinbarn/ergo-ts';
-import {additionalData, assmUrl, trueAddress, txFee} from "./consts";
-import {boxById} from "./explorer";
+import {additionalData, assmUrl, auctionAddress, trueAddress, txFee} from "./consts";
+import {boxById, followAuction, txByAddress, txById} from "./explorer";
 import {getEncodedBoxSer, isP2pkAddr} from "./serializer";
+import moment from "moment";
 
 // const assmUrl = 'https://assm.sigmausd.io/';
 
@@ -44,38 +55,112 @@ export async function p2s(request) {
 function retry(id) {
 }
 
-export async function bidFollower() {
-    let bids = getAssemblerBids();
-    let all = bids.map((cur) => stat(cur.id));
-    Promise.all(all).then((res) => {
-        let newBids = [];
-        res.forEach((out) => {
-            if (out.id !== undefined) {
-                let bid = bids.find((cur) => cur.id === out.id);
-                if (out.detail === 'success') {
-                    showStickyMsg(bid.msg);
-                    let curBid = bid.info;
-                    curBid.tx = out.tx;
-                    curBid.txId = out.tx.id;
-                    if (!curBid.boxId) {
-                        curBid.boxId = out.tx.outputs[0].id
-                    }
-                    if (!curBid.token) {
-                        curBid.token = out.tx.outputs[0].assets[0]
-                    }
-                    addBid(curBid);
-                } else if (out.detail === 'returning') {
-                    showStickyMsg(
-                        'Your funds are being returned to you.',
-                        false
-                    );
-                } else if (out.detail !== 'pending') {
-                    retry(bid.id);
-                } else if (out.detail !== 'timeout') newBids.push(bid);
+export async function outBid() {
+    const bids = getForKey('my-bids')
+    for (let i = 0; i < bids.length; i++) {
+        const box = await boxById(bids[i].id)
+        if (box.spentTransactionId) {
+            removeForKey('my-bids', bids[i].id)
+            const tx = await txById(box.spentTransactionId)
+            if (tx.outputs[0].address === auctionAddress)
+                addNotification(`You've been outbidded for ${bids[i].name}`, getAuctionUrl(tx.outputs[0].id))
+            else
+                addNotification(`Congrats! You've won ${bids[i].name}`, getAuctionUrl(bids[i].id))
+        }
+    }
+}
+
+export async function myAuctionBids() {
+    const auctions = getForKey('my-auctions')
+    for (let i = 0; i < auctions.length; i++) {
+        const newBid = await followAuction(auctions[i].id)
+        if (newBid.id !== auctions[i].id) {
+            removeForKey('my-auctions', auctions[i].id)
+            if (newBid.address === auctionAddress) {
+                let cur = JSON.parse(JSON.stringify(auctions[i]))
+                cur.id = newBid.id
+                addForKey(cur, 'my-auctions')
+                addNotification(`New bid for your auction ${auctions[i].name} is placed`, getAuctionUrl(newBid.id))
+            } else
+                addNotification(`Your auction ${auctions[i].name} is finished`, getAuctionUrl(newBid.id))
+        }
+    }
+}
+
+export async function pendings() {
+    // handle time
+    const bids = getForKey('pending')
+    for (let i = 0; i < bids.length; i++) {
+        const addr = bids[i].address
+        let bid = JSON.parse(JSON.stringify(bids[i]))
+        if (!bid.unc) {
+            const unc = (await stat(bid.id))
+            if (unc.tx) {
+                const tx = unc.tx
+                if (tx.outputs.length === 2) { // refund
+                    removeForKey('pending', bid.id)
+                    addNotification('Your funds are being returned!',
+                        getTxUrl(tx.id), 'error')
+
+                } else {
+                    bid.unc = true
+                    let msg = `Your bid for ${bid.box.tokenName} is being placed`
+                    if (bid.key === 'auction')
+                        msg = 'Your auction is starting'
+                    addNotification(msg, getTxUrl(tx.id))
+                    updateForKey('pending', bid)
+                }
             }
-        });
-        setAssemblerBids(newBids);
-    });
+        }
+        const txs = (await txByAddress(addr))
+            .filter(tx => tx.inputs.map(inp => inp.address).includes(addr) && tx.outputs.length > 2)
+        if (txs.length > 0) {
+            removeForKey('pending', bid.id)
+            const tx = txs[0]
+            let msg = 'your auctions is started!'
+            if (bid.key === 'bid') {
+                msg = `Your bid for ${bid.box.tokenName} is placed`
+                addForKey({
+                    name: bid.box.tokenName,
+                    id: tx.outputs[0].id
+                }, 'my-bids')
+                addBid({
+                    token: tx.outputs[0].assets[0],
+                    status: 'complete',
+                    amount: (tx.outputs[0].assets.length === 1 ? tx.outputs[0].value : tx.outputs[0].assets[1].amount),
+                    txId: tx.id
+                })
+            } else {
+                addForKey({
+                    name: tx.outputs[0].assets[0].name,
+                    id: tx.outputs[0].id
+                }, 'my-auctions')
+            }
+            addNotification(msg, getAuctionUrl(tx.outputs[0].id))
+        }
+        const past = moment.duration(moment().diff(moment(bid.time))).asMinutes();
+        if (past > 120)
+            removeForKey('pending', bid.id)
+    }
+}
+
+export async function handleAll() {
+    try {
+        await pendings()
+    } catch (e) {
+    }
+    try {
+        await myAuctionBids()
+    } catch (e) {
+    }
+    try {
+        await outBid()
+    } catch (e) {
+    }
+    try {
+        await updateDataInput()
+    } catch (e) {
+    }
 }
 
 export async function assembleFinishedAuctions(boxes) {
