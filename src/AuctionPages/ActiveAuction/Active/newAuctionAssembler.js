@@ -20,7 +20,7 @@ import {
     ModalHeader,
     Row,
 } from 'reactstrap';
-import {friendlyAddress, isYoroi, showMsg,} from '../../../auction/helpers';
+import {addNotification, friendlyAddress, getAuctionUrl, isYoroi, showMsg,} from '../../../auction/helpers';
 import SyncLoader from 'react-spinners/SyncLoader';
 import {css} from '@emotion/core';
 import {currencyToLong, isFloat, longToCurrency} from "../../../auction/serializer";

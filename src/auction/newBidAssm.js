@@ -1,9 +1,9 @@
-import {addAssemblerBid, getWalletAddress, isAssembler, isYoroi,} from './helpers';
+import {addForKey, getWalletAddress, isAssembler, isYoroi,} from './helpers';
 import moment from 'moment';
 import {Address} from '@coinbarn/ergo-ts';
 import {encodeHex, encodeNum, longToCurrency} from './serializer';
 import {follow, p2s} from "./assembler";
-import {additionalData, auctionAddress, contracts, supportedCurrencies, txFee} from "./consts";
+import {additionalData, auctionAddress, contracts, txFee} from "./consts";
 import {currentBlock} from "./explorer";
 import {yoroiSendFunds} from "./yoroiUtils";
 
@@ -106,23 +106,14 @@ export async function registerBid(bidAmount, box) {
     return await follow(request)
         .then((res) => {
             if (res.id !== undefined) {
-                let bid = {
+                let pending = {
                     id: res.id,
-                    msg: "Your bid is being placed, see 'My Bids' section for more details.",
-                    info: {
-                        token: box.assets[0],
-                        boxId: box.id,
-                        txId: null,
-                        tx: null,
-                        prevEndTime: box.endTime,
-                        shouldExtend: nextEndTime === box.endTime,
-                        status: 'pending mining',
-                        amount: bidAmount,
-                        currency: supportedCurrencies[box.currency],
-                        isFirst: false,
-                    },
+                    address: p2s,
+                    time: moment().valueOf(),
+                    key: 'bid',
+                    box: box
                 };
-                addAssemblerBid(bid);
+                addForKey(pending, 'pending')
             }
             res.address = p2s
             res.block = block

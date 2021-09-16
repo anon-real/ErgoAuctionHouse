@@ -17004,8 +17004,8 @@ svg {
     min-width: 0px;
     display: flex;
     position: absolute;
-    top: 38px;
-    left: 28px;
+    top: 18px;
+    left: 18px;
     width: 28px;
     height: 28px;
     border-radius: 4px;
@@ -17015,4 +17015,8 @@ svg {
     -webkit-box-pack: center;
     justify-content: center;
 
+}
+
+.coverflow__container__1P-xE {
+    background: none !important;
 }

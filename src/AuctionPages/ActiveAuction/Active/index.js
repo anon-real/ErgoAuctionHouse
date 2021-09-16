@@ -1,9 +1,11 @@
 import React, {Fragment} from 'react';
+import Coverflow from 'react-coverflow';
 
 import {currentBlock, followAuction, getAllActiveAuctions,} from '../../../auction/explorer';
 import {friendlyAddress, getWalletAddress, isWalletSaved, showMsg,} from '../../../auction/helpers';
 import {css} from '@emotion/core';
 import PropagateLoader from 'react-spinners/PropagateLoader';
+import {assembleFinishedAuctions} from "../../../auction/assembler";
 import {
     Button,
     Col,
@@ -17,11 +19,10 @@ import {
 import cx from 'classnames';
 import TitleComponent2 from '../../../Layout/AppMain/PageTitleExamples/Variation2';
 import {decodeBoxes, longToCurrency,} from '../../../auction/serializer';
-import {assembleFinishedAuctions} from '../../../auction/assembler';
 import NewAuctionAssembler from "./newAuctionAssembler";
 import ShowAuctions from "./showActives";
 import SendModal from "./sendModal";
-import { withRouter } from 'react-router-dom';
+import {withRouter} from 'react-router-dom';
 
 const override = css`
   display: block;
@@ -131,6 +132,7 @@ class ActiveAuctions extends React.Component {
             queries.loading = false
             queries.lastUpdated = 0
             this.setState(queries)
+            assembleFinishedAuctions(auctions).then(r => {})
         })
         this.refreshTimer = setInterval(() => {
             const lastUpdated = this.state.lastUpdated
@@ -258,7 +260,8 @@ class ActiveAuctions extends React.Component {
                                 }
                             </div>
                             <div>
-                                Active Auctions {this.state.type && this.state.type !== 'all' && <text>- {this.state.type}</text>}
+                                Active Auctions {this.state.type && this.state.type !== 'all' &&
+                            <text>- {this.state.type}</text>}
                                 <div
                                     className={cx('page-title-subheading', {
                                         'd-none': false,
@@ -325,17 +328,17 @@ class ActiveAuctions extends React.Component {
 
 
                                     <UncontrolledButtonDropdown>
-                                    <DropdownToggle caret outline className="mb-2 mr-2 border-0" color="primary">
-                                        <i className="nav-link-icon pe-7s-filter"> </i>
-                                        {this.state.type}
-                                    </DropdownToggle>
-                                    <DropdownMenu>
-                                        {types.map(type => <DropdownItem
-                                            onClick={() => {
-                                                // this.sortAuctions([].concat(this.state.auctions), sortKey)
-                                                this.updateParams('type', type)
-                                            }}>{type}</DropdownItem>)}
-                                    </DropdownMenu>
+                                        <DropdownToggle caret outline className="mb-2 mr-2 border-0" color="primary">
+                                            <i className="nav-link-icon pe-7s-filter"> </i>
+                                            {this.state.type}
+                                        </DropdownToggle>
+                                        <DropdownMenu>
+                                            {types.map(type => <DropdownItem
+                                                onClick={() => {
+                                                    // this.sortAuctions([].concat(this.state.auctions), sortKey)
+                                                    this.updateParams('type', type)
+                                                }}>{type}</DropdownItem>)}
+                                        </DropdownMenu>
                                     </UncontrolledButtonDropdown>
                                 </Col>
                             </Row>
@@ -343,6 +346,32 @@ class ActiveAuctions extends React.Component {
 
                     </div>
                 </div>
+                {/*<div*/}
+                {/*    className="mb-4"*/}
+                {/*>*/}
+                {/*    <Coverflow*/}
+                {/*        classes={{background: 'rgb(233, 23, 23)'}}*/}
+                {/*        className='coverflow'*/}
+                {/*        width={960}*/}
+                {/*        height={480}*/}
+                {/*        displayQuantityOfSide={2}*/}
+                {/*        navigation={false}*/}
+                {/*        enableHeading={true}*/}
+                {/*        enableScroll={false}*/}
+                {/*    >*/}
+                {/*        <img style={{position: "relative"}} src='https://i.ibb.co/LtkLMjN/adventure.gif' alt='Album one'*/}
+                {/*             data-action="https://facebook.github.io/react/"/>*/}
+                {/*        <img src='https://i.ibb.co/NNq54JV/nft-2.jpg' alt='Album two' data-action="http://passer.cc"/>*/}
+                {/*        <img*/}
+                {/*            src='https://cloudflare-ipfs.com/ipfs/bafkreig663mrnjwm27len5atvo7ihn4zo3kysrqajkqdc2ubz2kywnozwa'*/}
+                {/*            alt='Album three' data-action="https://doce.cc/"/>*/}
+                {/*        <img*/}
+                {/*            src='https://cloudflare-ipfs.com/ipfs/bafybeiapu5b6ct7oxdkapmpagycserzojynpatavuzw2n2xpfln3m7scu4'*/}
+                {/*            alt='Album four' data-action="http://tw.yahoo.com"/>*/}
+                {/*        <img src='https://i.ibb.co/34FcNP5/ASEGH.gif' alt='Album four'*/}
+                {/*             data-action="http://tw.yahoo.com"/>*/}
+                {/*    </Coverflow>*/}
+                {/*</div>*/}
                 {this.state.loading ? (
                     <div
                         style={{
