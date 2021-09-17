@@ -24,6 +24,8 @@ export default class ArtworkMedia extends React.Component {
         let style = {}
         if (this.props.height)
             style.height = this.props.height
+        if (this.props.width)
+            style.width = this.props.width
         return (
             <div className="imgDiv"
                  style={style}
@@ -64,6 +66,8 @@ export default class ArtworkMedia extends React.Component {
                         }
                     />
                     <AudioPlayer
+                        autoPlay={false}
+                        controls={true}
                         style={{position: "absolute", bottom: "0px"}}
                         src={box.audioUrl}
                     />

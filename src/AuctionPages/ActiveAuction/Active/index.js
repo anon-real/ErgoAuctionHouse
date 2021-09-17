@@ -2,7 +2,7 @@ import React, {Fragment} from 'react';
 import Coverflow from 'react-coverflow';
 
 import {currentBlock, followAuction, getAllActiveAuctions,} from '../../../auction/explorer';
-import {friendlyAddress, getWalletAddress, isWalletSaved, showMsg,} from '../../../auction/helpers';
+import {friendlyAddress, getAuctionUrl, getWalletAddress, isWalletSaved, showMsg,} from '../../../auction/helpers';
 import {css} from '@emotion/core';
 import PropagateLoader from 'react-spinners/PropagateLoader';
 import {assembleFinishedAuctions} from "../../../auction/assembler";
@@ -23,6 +23,7 @@ import NewAuctionAssembler from "./newAuctionAssembler";
 import ShowAuctions from "./showActives";
 import SendModal from "./sendModal";
 import {withRouter} from 'react-router-dom';
+import ArtworkMedia from "../../artworkMedia";
 
 const override = css`
   display: block;
@@ -61,6 +62,7 @@ class ActiveAuctions extends React.Component {
         this.trackScrolling = this.trackScrolling.bind(this);
         this.updateParams = this.updateParams.bind(this);
         this.getToShow = this.getToShow.bind(this);
+        this.getHottest = this.getHottest.bind(this);
     }
 
     toggleAssemblerModal(address = '', bid = 0, isAuction = false, currency = 'ERG') {
@@ -132,7 +134,8 @@ class ActiveAuctions extends React.Component {
             queries.loading = false
             queries.lastUpdated = 0
             this.setState(queries)
-            assembleFinishedAuctions(auctions).then(r => {})
+            assembleFinishedAuctions(auctions).then(r => {
+            })
         })
         this.refreshTimer = setInterval(() => {
             const lastUpdated = this.state.lastUpdated
@@ -169,9 +172,10 @@ class ActiveAuctions extends React.Component {
         return auctions
     }
 
-    filterAuctions(auctions) {
+    filterAuctions(auctions, forceType=null) {
         const artist = this.state.artist
-        const type = this.state.type
+        let type = this.state.type
+        if (forceType) type = forceType
         if (artist !== undefined) {
 
             auctions = auctions.filter(auc => artist.split(',').includes(auc.artist))
@@ -181,8 +185,9 @@ class ActiveAuctions extends React.Component {
         return auctions
     }
 
-    sortAuctions(auctions) {
-        const key = this.state.sortKey.toString()
+    sortAuctions(auctions, forceKey=null) {
+        let key = this.state.sortKey.toString()
+        if (forceKey) key = forceKey
         if (key === '0')
             auctions.sort((a, b) => a.remTimeTimestamp - b.remTimeTimestamp)
         else if (key === '1')
@@ -221,6 +226,14 @@ class ActiveAuctions extends React.Component {
         const auctions = this.state.allAuctions
         const filtered = this.filterAuctions(auctions)
         return this.sortAuctions(filtered).slice(0, this.state.end)
+    }
+
+    getHottest() {
+        // const pictureAuctions = this.filterAuctions(this.state.allAuctions, 'picture')
+        const pictureAuctions = this.state.allAuctions
+        if (pictureAuctions.length > 2)
+            return this.sortAuctions(this.state.allAuctions, '4').slice(0, 5)
+        return []
     }
 
     render() {
@@ -346,32 +359,28 @@ class ActiveAuctions extends React.Component {
 
                     </div>
                 </div>
-                {/*<div*/}
-                {/*    className="mb-4"*/}
-                {/*>*/}
-                {/*    <Coverflow*/}
-                {/*        classes={{background: 'rgb(233, 23, 23)'}}*/}
-                {/*        className='coverflow'*/}
-                {/*        width={960}*/}
-                {/*        height={480}*/}
-                {/*        displayQuantityOfSide={2}*/}
-                {/*        navigation={false}*/}
-                {/*        enableHeading={true}*/}
-                {/*        enableScroll={false}*/}
-                {/*    >*/}
-                {/*        <img style={{position: "relative"}} src='https://i.ibb.co/LtkLMjN/adventure.gif' alt='Album one'*/}
-                {/*             data-action="https://facebook.github.io/react/"/>*/}
-                {/*        <img src='https://i.ibb.co/NNq54JV/nft-2.jpg' alt='Album two' data-action="http://passer.cc"/>*/}
-                {/*        <img*/}
-                {/*            src='https://cloudflare-ipfs.com/ipfs/bafkreig663mrnjwm27len5atvo7ihn4zo3kysrqajkqdc2ubz2kywnozwa'*/}
-                {/*            alt='Album three' data-action="https://doce.cc/"/>*/}
-                {/*        <img*/}
-                {/*            src='https://cloudflare-ipfs.com/ipfs/bafybeiapu5b6ct7oxdkapmpagycserzojynpatavuzw2n2xpfln3m7scu4'*/}
-                {/*            alt='Album four' data-action="http://tw.yahoo.com"/>*/}
-                {/*        <img src='https://i.ibb.co/34FcNP5/ASEGH.gif' alt='Album four'*/}
-                {/*             data-action="http://tw.yahoo.com"/>*/}
-                {/*    </Coverflow>*/}
-                {/*</div>*/}
+                {!this.state.loading && this.getHottest().length > 0  && <div
+                    className="mb-4"
+                >
+                    <Coverflow
+                        className='coverflow'
+                        width={960}
+                        height={330}
+                        displayQuantityOfSide={2}
+                        navigation={false}
+                        enableHeading={true}
+                        enableScroll={false}
+                    >
+                        {this.getHottest().map(hot => {
+                            // return <img style={{position: "relative"}} src={hot.artworkUrl} alt={hot.tokenName}
+                            //      data-action={getAuctionUrl(hot.boxId)}/>
+                            return <ArtworkMedia box={hot} height='100%' width='100%'
+                                                 alt={hot.tokenName}
+                                                 data-action={getAuctionUrl(hot.boxId)}/>
+                        })}
+                        {/*     data-action="http://tw.yahoo.com"/>*/}
+                    </Coverflow>
+                </div>}
                 {this.state.loading ? (
                     <div
                         style={{
