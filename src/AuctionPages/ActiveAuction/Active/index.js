@@ -360,7 +360,7 @@ class ActiveAuctions extends React.Component {
                     </div>
                 </div>
                 {!this.state.loading && this.getHottest().length > 0  && <div
-                    className="mb-4"
+                    className="mb-xl-5"
                 >
                     <Coverflow
                         className='coverflow'

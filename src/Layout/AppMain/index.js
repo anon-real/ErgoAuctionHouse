@@ -5,6 +5,8 @@ import ActiveAuction from '../../AuctionPages/ActiveAuction';
 
 import {ToastContainer} from 'react-toastify';
 import FaqPage from "../../Faq";
+import OwnedArtworks from "../../AuctionPages/Owned/History/ownedArtworks";
+import Owned from "../../AuctionPages/Owned";
 
 const AppMain = () => {
     return (
@@ -54,6 +56,22 @@ const AppMain = () => {
                 }
             >
                 <Route path="/auction/history" component={AuctionHistory}/>
+            </Suspense>
+
+            {/* My artworks */}
+            <Suspense
+                fallback={
+                    <div className="loader-container">
+                        <div className="loader-container-inner">
+                            <h6 className="mt-5">
+                                Please wait while we load all the Components
+                                examples
+                            </h6>
+                        </div>
+                    </div>
+                }
+            >
+                <Route path="/owned" component={Owned}/>
             </Suspense>
 
             {/* Homepage */}
