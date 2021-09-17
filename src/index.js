@@ -30,6 +30,15 @@ const renderApp = (Component) => {
         </Provider>,
         rootElement
     );
+
+    document.addEventListener('DOMContentLoaded', function() {
+        if (!Notification) {
+            return;
+        }
+
+        if (Notification.permission !== 'granted')
+            Notification.requestPermission().then(r => console.log(r));
+    });
 };
 
 renderApp(Main);

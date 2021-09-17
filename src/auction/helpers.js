@@ -150,7 +150,6 @@ export function addNotification(msg, lnk, stat = 'info') {
             data: [],
             unread: 0
         }
-    console.log('ok')
     nots.unread += 1
     nots.data = nots.data.concat([{
         message: msg,
@@ -159,6 +158,21 @@ export function addNotification(msg, lnk, stat = 'info') {
         time: moment().valueOf()
     }])
     setForKey(nots, 'notification')
+    notifyMe(msg, lnk).then(r => {})
+}
+
+async function notifyMe(msg, lnk) {
+    if (Notification.permission !== 'granted')
+        await Notification.requestPermission();
+    else {
+         const notification = new Notification('Notification title', {
+            icon: 'https://developers.google.com/web/updates/images/generic/notifications.png',
+            body: msg,
+        });
+        notification.onclick = function() {
+            window.open(lnk);
+        };
+    }
 }
 
 export async function copyToClipboard(text) {
