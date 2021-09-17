@@ -16935,13 +16935,12 @@ a.badge-alternate:hover, a.badge-alternate:focus {
 
 .imgDiv {
     height: 350px;
-    margin: 1rem;
-    margin-top: 0.2rem;
     border-radius: 8px;
     overflow: hidden;
     box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.08);
     display: block;
     position: relative;
+    background: whitesmoke;
 }
 
 svg {
