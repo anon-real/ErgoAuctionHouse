@@ -16,6 +16,14 @@ export const ActiveNav = [
     },
 ];
 
+export const MyArtworks = [
+    {
+        icon: 'pe-7s-diamond',
+        label: 'Owned Artworks',
+        to: '#/owned'
+    },
+];
+
 export const Home = [
     {
         icon: 'pe-7s-home',

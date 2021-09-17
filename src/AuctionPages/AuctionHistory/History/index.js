@@ -5,7 +5,7 @@ import {currentBlock, getCompleteAuctionHistory,} from '../../../auction/explore
 import PropagateLoader from 'react-spinners/PropagateLoader';
 import {css} from '@emotion/core';
 import {showMsg} from '../../../auction/helpers';
-import {decodeBox} from '../../../auction/serializer';
+import {decodeAuction} from '../../../auction/serializer';
 import {Row} from 'react-bootstrap';
 import {Button} from 'reactstrap';
 import {ResponsiveContainer} from 'recharts';
@@ -49,7 +49,7 @@ export default class AuctionsHistory extends React.Component {
                         tx.inputs[0].spentTransactionId = tx.id
                         return tx.inputs[0]
                     })
-                        .map(bx => decodeBox(bx, block));
+                        .map(bx => decodeAuction(bx, block));
                     Promise.all(boxes).then((res) => {
                         res.forEach((box) => {
                             box.finalTx = box.spentTransactionId;

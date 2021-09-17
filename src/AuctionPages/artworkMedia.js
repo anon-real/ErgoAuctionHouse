@@ -31,10 +31,10 @@ export default class ArtworkMedia extends React.Component {
                  style={style}
             >
                 {!this.props.removeIcon && <i
-                    style={{zIndex: 100, cursor: "pointer"}}
+                    style={{zIndex: 1, cursor: "pointer"}}
                     onClick={() => {
                         if (this.props.details)
-                            this.props.details()
+                            this.props.details(this.props.box)
                     }}
                     className={icon + " text-white imgicon"}/>}
                 {box.isPicture && <div>

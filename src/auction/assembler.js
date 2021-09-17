@@ -63,9 +63,9 @@ export async function outBid() {
             removeForKey('my-bids', bids[i].id)
             const tx = await txById(box.spentTransactionId)
             if (tx.outputs[0].address === auctionAddress)
-                addNotification(`You've been outbidded for ${bids[i].name}`, getAuctionUrl(tx.outputs[0].id))
+                addNotification(`You've been outbidded for the "${bids[i].name}" auction`, getAuctionUrl(tx.outputs[0].id))
             else
-                addNotification(`Congrats! You've won ${bids[i].name}`, getAuctionUrl(bids[i].id))
+                addNotification(`Congrats! You've won the "${bids[i].name}" auction`, getAuctionUrl(bids[i].id))
         }
     }
 }
