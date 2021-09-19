@@ -61,10 +61,10 @@ export default class OwnedArtworks extends React.Component {
                         className="mb-3">
                         <p className='text-center'><b>{box.tokenName}</b></p>
                         <ArtworkMedia box={box}/>
-                        <button type="button"
+                        {isYoroi() && <button type="button"
                                 onClick={() => this.setState({modalAssembler: true, selected: box.assets[0].tokenId})}
                                 className="btn btn-sm border-0 btn-link">Auction it
-                        </button>
+                        </button>}
                     </div>
                 </Col>
             );
