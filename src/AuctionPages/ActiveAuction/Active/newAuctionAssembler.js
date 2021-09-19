@@ -20,7 +20,7 @@ import {
     ModalHeader,
     Row,
 } from 'reactstrap';
-import {addNotification, friendlyAddress, getAuctionUrl, isYoroi, showMsg,} from '../../../auction/helpers';
+import {friendlyAddress, isYoroi, showMsg,} from '../../../auction/helpers';
 import SyncLoader from 'react-spinners/SyncLoader';
 import {css} from '@emotion/core';
 import {currencyToLong, isFloat, longToCurrency} from "../../../auction/serializer";
@@ -68,7 +68,10 @@ class NewAuctionAssembler extends React.Component {
                         amount: res[key].amount,
                     }
                 })
-                this.setState({tokens: rendered, tokenLoading: false})
+                let st = {tokens: rendered, tokenLoading: false}
+                if (this.props.selected)
+                    st.selectedToken = rendered.filter(tok => tok.value === this.props.selected)[0]
+                this.setState(st)
             })
         }
     }
@@ -146,6 +149,8 @@ class NewAuctionAssembler extends React.Component {
                                             classNamePrefix="select"
                                             isDisabled={false}
                                             isLoading={this.state.tokenLoading}
+                                            defaultValue={this.state.selectedToken}
+                                            value={this.state.selectedToken}
                                             isClearable={false}
                                             isRtl={false}
                                             isSearchable={true}
@@ -405,7 +410,7 @@ class NewAuctionAssembler extends React.Component {
                     <Button
                         className="mr-2 btn-transition"
                         color="secondary"
-                        disabled={!this.canStartAuction()}
+                        disabled={!this.canStartAuction() || this.state.tokenLoading}
                         onClick={() => this.startAuction()}
                     >
                         Create Auction
