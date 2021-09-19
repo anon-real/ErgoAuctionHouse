@@ -8,6 +8,7 @@ import {getYoroiTokens} from "../../../auction/yoroiUtils";
 import {decodeArtwork} from "../../../auction/serializer";
 import PropagateLoader from "react-spinners/PropagateLoader";
 import {getBalance} from "../../../auction/explorer";
+import NewAuctionAssembler from "../../ActiveAuction/Active/newAuctionAssembler";
 
 const override = css`
   display: block;
@@ -48,15 +49,34 @@ export default class OwnedArtworks extends React.Component {
         const listItems = this.state.artworks.map((box) => {
             return (
                 <Col key={box.id} xs="12" md="6" lg="6" xl="3">
-                    <div>
-                    <p className='text-center'><b>{box.tokenName}</b></p>
-                    <ArtworkMedia box={box}/>
+                    <div
+                        style={{
+                            borderWidth: '1px',
+                            borderRadius: '8px',
+                            borderColor: 'lightgrey',
+                            boxShadow: '0px 0px 0px 1px rgba(0, 0, 0, 0.08)',
+                            borderStyle: 'solid',
+                            textAlign: "center"
+                        }}
+                        className="mb-3">
+                        <p className='text-center'><b>{box.tokenName}</b></p>
+                        <ArtworkMedia box={box}/>
+                        <button type="button"
+                                onClick={() => this.setState({modalAssembler: true, selected: box.assets[0].tokenId})}
+                                className="btn btn-sm border-0 btn-link">Auction it
+                        </button>
                     </div>
                 </Col>
             );
         });
         return (
             <Fragment>
+                <NewAuctionAssembler
+                    isOpen={this.state.modalAssembler}
+                    close={() => this.setState({modalAssembler: !this.state.modalAssembler})}
+                    selected={this.state.selected}
+                    assemblerModal={this.toggleAssemblerModal}
+                />
                 {!isWalletSaved() && (
                     <strong
                         style={{
