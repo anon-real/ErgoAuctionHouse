@@ -44,3 +44,9 @@ export const supportedCurrencies = {
 }
 export const assmUrl = 'https://assembler.ergoauctions.org/';
 export const startFee = 100000000
+
+export const artworkTypes = {
+    image: [0x01, 0x01],
+    audio: [0x01, 0x02],
+    video: [0x01, 0x03],
+}
