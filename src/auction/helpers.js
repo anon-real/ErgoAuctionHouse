@@ -1,7 +1,7 @@
 import React from 'react';
 import {Flip, Slide, toast} from 'react-toastify';
 import {Address} from "@coinbarn/ergo-ts";
-import {additionalData, auctionNFT, domain} from "./consts";
+import {additionalData, auctionNFT} from "./consts";
 import {getBoxesForAsset} from "./explorer";
 import moment from "moment";
 
@@ -158,18 +158,19 @@ export function addNotification(msg, lnk, stat = 'info') {
         time: moment().valueOf()
     }])
     setForKey(nots, 'notification')
-    notifyMe(msg, lnk).then(r => {})
+    notifyMe(msg, lnk).then(r => {
+    })
 }
 
 async function notifyMe(msg, lnk) {
     if (Notification.permission !== 'granted')
         await Notification.requestPermission();
     else {
-         const notification = new Notification('Notification title', {
+        const notification = new Notification('Notification title', {
             icon: 'https://developers.google.com/web/updates/images/generic/notifications.png',
             body: msg,
         });
-        notification.onclick = function() {
+        notification.onclick = function () {
             window.open(lnk);
         };
     }
@@ -189,4 +190,17 @@ export function isAddressValid(address) {
 
 export async function updateDataInput() {
     additionalData['dataInput'] = (await getBoxesForAsset(auctionNFT)).items[0]
+}
+
+export async function uploadArtwork(file) {
+    let form = new FormData();
+    form.append('file', file);
+
+    return fetch('https://ergoutilsupload.azurewebsites.net/ipfs/', {
+        method: 'POST',
+        body: form,
+    }).then(res => res.json())
+        .then(res => {
+            return `ipfs://${res.value.cid}`
+        })
 }

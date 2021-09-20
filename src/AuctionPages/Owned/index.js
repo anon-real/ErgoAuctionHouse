@@ -5,7 +5,7 @@ import {Route} from 'react-router-dom';
 import AppHeader from '../../Layout/AppHeader/';
 import AppSidebar from '../../Layout/AppSidebar/';
 import AppFooter from '../../Layout/AppFooter/';
-import OwnedArtworks from "./History/ownedArtworks";
+import OwnedArtworks from "./ownedArtworks";
 
 const Owned = ({match}) => (
     <Fragment>

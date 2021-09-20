@@ -1,14 +1,15 @@
 import React, {Fragment} from 'react';
-import {Col, Row,} from 'reactstrap';
-import {getWalletAddress, isWalletSaved, isYoroi,} from '../../../auction/helpers';
+import {Button, Col, Row,} from 'reactstrap';
+import {getWalletAddress, isWalletSaved, isYoroi,} from '../../auction/helpers';
 import {css} from '@emotion/core';
 import 'react-h5-audio-player/lib/styles.css';
-import ArtworkMedia from "../../artworkMedia";
-import {getYoroiTokens} from "../../../auction/yoroiUtils";
-import {decodeArtwork} from "../../../auction/serializer";
+import ArtworkMedia from "../artworkMedia";
+import {getYoroiTokens} from "../../auction/yoroiUtils";
+import {decodeArtwork} from "../../auction/serializer";
 import PropagateLoader from "react-spinners/PropagateLoader";
-import {getBalance} from "../../../auction/explorer";
-import NewAuctionAssembler from "../../ActiveAuction/Active/newAuctionAssembler";
+import {getBalance} from "../../auction/explorer";
+import NewAuctionAssembler from "../ActiveAuction/Active/newAuctionAssembler";
+import NewArtwork from "./newArtwork";
 
 const override = css`
   display: block;
@@ -62,8 +63,11 @@ export default class OwnedArtworks extends React.Component {
                         <p className='text-center'><b>{box.tokenName}</b></p>
                         <ArtworkMedia box={box}/>
                         {isYoroi() && <button type="button"
-                                onClick={() => this.setState({modalAssembler: true, selected: box.assets[0].tokenId})}
-                                className="btn btn-sm border-0 btn-link">Auction it
+                                              onClick={() => this.setState({
+                                                  modalAssembler: true,
+                                                  selected: box.assets[0].tokenId
+                                              })}
+                                              className="btn btn-sm border-0 btn-link">Auction it
                         </button>}
                     </div>
                 </Col>
@@ -71,6 +75,22 @@ export default class OwnedArtworks extends React.Component {
         });
         return (
             <Fragment>
+                <NewArtwork isOpen={this.state.newArtworkModal}
+                            close={() => this.setState({newArtworkModal: !this.state.newArtworkModal})}/>
+                {isYoroi() && <Row>
+                    <Col md='8'/>
+                    <Col md='4' className='text-right'>
+                        <Button
+                            onClick={() => this.setState({newArtworkModal: true})}
+                            outline
+                            className="btn-outline-lin m-2 border-0"
+                            color="primary"
+                        >
+                            <i className="nav-link-icon lnr-picture"> </i>
+                            <span>Create Artwork</span>
+                        </Button>
+                    </Col>
+                </Row>}
                 <NewAuctionAssembler
                     isOpen={this.state.modalAssembler}
                     close={() => this.setState({modalAssembler: !this.state.modalAssembler})}

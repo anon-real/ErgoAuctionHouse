@@ -5,7 +5,7 @@ import ActiveAuction from '../../AuctionPages/ActiveAuction';
 
 import {ToastContainer} from 'react-toastify';
 import FaqPage from "../../Faq";
-import OwnedArtworks from "../../AuctionPages/Owned/History/ownedArtworks";
+import OwnedArtworks from "../../AuctionPages/Owned/ownedArtworks";
 import Owned from "../../AuctionPages/Owned";
 
 const AppMain = () => {

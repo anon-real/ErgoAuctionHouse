@@ -17019,3 +17019,11 @@ svg {
 .coverflow__container__1P-xE {
     background: none !important;
 }
+
+.dropzone {
+    text-align: center;
+    padding: 20px;
+    border: 3px dashed #eeeeee;
+    background-color: #fafafa;
+    color: #bdbdbd;
+}
