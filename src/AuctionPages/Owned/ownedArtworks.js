@@ -40,11 +40,8 @@ export default class OwnedArtworks extends React.Component {
         else ids = (await getBalance(getWalletAddress())).tokens.map(tok => tok.tokenId)
         let decoded = []
         for (let i = 0; i < ids.length; i++) {
-            const startTime = performance.now()
             const dec = await decodeArtwork(null, ids[i], false)
             decoded = decoded.concat([dec])
-            const endTime = performance.now()
-            console.log(endTime - startTime)
         }
         this.setState({artworks: decoded.filter(bx => bx.isArtwork), loading: false})
     }

@@ -50,3 +50,5 @@ export const artworkTypes = {
     audio: [0x01, 0x02],
     video: [0x01, 0x03],
 }
+
+export const remFavNotif = 12

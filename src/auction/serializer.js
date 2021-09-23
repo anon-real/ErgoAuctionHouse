@@ -4,6 +4,7 @@ import {Address, AddressKind} from "@coinbarn/ergo-ts/dist/models/address";
 import {boxById, getIssuingBox, txById} from "./explorer";
 import {supportedCurrencies} from "./consts";
 import {getEncodedBox} from "./assembler";
+import {getForKey, removeForKey} from "./helpers";
 
 var momentDurationFormatSetup = require("moment-duration-format");
 
@@ -205,6 +206,10 @@ export async function decodeBoxes(boxes, block) {
     let cur = await Promise.all(boxes.map((box) => decodeAuction(box, block)))
     cur = cur.filter(res => res !== undefined)
     cur.sort((a, b) => a.remTime - b.remTime)
+    const favs = getForKey('fav-artworks').map(fav => fav.id)
+    cur.forEach(bx => {
+        if (favs.includes(bx.assets[0].tokenId)) bx.isFav = true
+    })
     return cur
 }
 

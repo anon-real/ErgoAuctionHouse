@@ -79,7 +79,7 @@ export default class ArtworkDetails extends React.Component {
                         <div
                             style={{overflow: 'auto', display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
                             {this.props.artworkUrl &&
-                            <ArtworkMedia box={this.props.box} height='100%' removeIcon={true}/>
+                            <ArtworkMedia avoidFav={true} preload={true} box={this.props.box} height='100%' removeIcon={true}/>
                             }
                             {!this.props.artworkUrl && <p>
                                 No artwork image detected, see the Artwork Description above for more details.
