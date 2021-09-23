@@ -40,8 +40,11 @@ export default class OwnedArtworks extends React.Component {
         else ids = (await getBalance(getWalletAddress())).tokens.map(tok => tok.tokenId)
         let decoded = []
         for (let i = 0; i < ids.length; i++) {
-            const dec = await decodeArtwork(null, ids[i])
+            const startTime = performance.now()
+            const dec = await decodeArtwork(null, ids[i], false)
             decoded = decoded.concat([dec])
+            const endTime = performance.now()
+            console.log(endTime - startTime)
         }
         this.setState({artworks: decoded.filter(bx => bx.isArtwork), loading: false})
     }
@@ -61,7 +64,7 @@ export default class OwnedArtworks extends React.Component {
                         }}
                         className="mb-3">
                         <p className='text-center'><b>{box.tokenName}</b></p>
-                        <ArtworkMedia box={box}/>
+                        <ArtworkMedia avoidFav={true} box={box}/>
                         {isYoroi() && <button type="button"
                                               onClick={() => this.setState({
                                                   modalAssembler: true,

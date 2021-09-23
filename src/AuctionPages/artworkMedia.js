@@ -40,11 +40,11 @@ export default class ArtworkMedia extends React.Component {
                             this.props.details(this.props.box)
                     }}
                     className={icon + " text-white imgicon"}/>}
-                <div
+                {!this.props.avoidFav && <div
                     style={{zIndex: 1, cursor: "pointer"}}
                     className="font-icon-wrapper text-info imgfav">
                     <FontAwesomeIcon icon={this.props.box.isFav? faStarSolid : faStar}/>
-                </div>
+                </div>}
                 {box.isPicture && <div>
                     <img
                         style={{cursor: 'pointer'}}

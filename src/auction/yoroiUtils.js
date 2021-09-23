@@ -43,7 +43,7 @@ export async function getYoroiAddress() {
 export async function yoroiSendFunds(need, addr, block) {
     const wasm = await ergolib
 
-    await setupYoroi()
+    // await setupYoroi()
     let have = JSON.parse(JSON.stringify(need))
     have['ERG'] += txFee
     let ins = []
