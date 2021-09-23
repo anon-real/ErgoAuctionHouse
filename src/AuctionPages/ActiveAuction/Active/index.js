@@ -54,6 +54,9 @@ class ActiveAuctions extends React.Component {
             sortKey: '0',
             end: limit,
             values: [],
+            lastLoaded: [],
+            searchValue:'',
+            selectedAuctions:[]
         };
         this.openAuction = this.openAuction.bind(this);
         this.sortAuctions = this.sortAuctions.bind(this);
@@ -63,6 +66,9 @@ class ActiveAuctions extends React.Component {
         this.updateParams = this.updateParams.bind(this);
         this.getToShow = this.getToShow.bind(this);
         this.getHottest = this.getHottest.bind(this);
+        this.SubmitSearch = this.SubmitSearch.bind(this);
+        this.clearSearch = this.clearSearch.bind(this);
+        this.setSelectedAuctions = this.setSelectedAuctions.bind(this);
     }
 
     toggleAssemblerModal(address = '', bid = 0, isAuction = false, currency = 'ERG') {
@@ -223,7 +229,7 @@ class ActiveAuctions extends React.Component {
     }
 
     getToShow() {
-        const auctions = this.state.allAuctions
+        const auctions = (this.state.selectedAuctions.length === 0)? this.state.allAuctions.slice(0, this.state.end):this.state.selectedAuctions.slice(0, this.state.end)
         const filtered = this.filterAuctions(auctions)
         return this.sortAuctions(filtered).slice(0, this.state.end)
     }
@@ -234,6 +240,44 @@ class ActiveAuctions extends React.Component {
         if (pictureAuctions.length > 2)
             return this.sortAuctions(this.state.allAuctions, '4').slice(0, 5)
         return []
+    }
+
+    setSelectedAuctions(selectedAuctions){
+        this.setState({loading:true})
+        setTimeout(()=>this.setState({selectedAuctions: selectedAuctions,loading:false}),1000) // SetTimeout For better UX 
+    }
+
+    clearSearch(){
+        this.setState({selectedAuctions: [],loading:false,searchValue:''})
+    }
+
+    SubmitSearch(){
+        let SelectedAuctions = [];
+        var re = new RegExp(this.state.searchValue, 'i');
+        this.state.allAuctions.map((data) => {
+            if(data.description.match(re)  !== null || data.artist.search(this.state.searchValue) !== -1)
+                SelectedAuctions.push(data)
+        })
+        this.setSelectedAuctions(SelectedAuctions)
+    }
+    
+    SubmitSearch(){
+        let SelectedAuctions = [];
+        var re = new RegExp(this.state.searchValue, 'i');
+        this.state.allAuctions.map((data)=>{
+            if(data.description.match(re)  !== null || data.artist.search(this.state.searchValue) !== -1)
+                SelectedAuctions.push(data)
+        })
+        this.setSelectedAuctions(SelectedAuctions)
+    }
+
+    setSelectedAuctions(selectedAuctions){
+        this.setState({loading:true})
+        setTimeout(()=>this.setState({selectedAuctions: selectedAuctions,loading:false}),1000) // SetTimeout For better UX 
+    }
+
+    clearSearch(){
+        this.setState({selectedAuctions: [],loading:false,searchValue:''})
     }
 
     render() {
@@ -356,7 +400,35 @@ class ActiveAuctions extends React.Component {
                                 </Col>
                             </Row>
                         </Container>
-
+                    </div>
+                    <div className="search-container">
+                        <div className="search-box">
+                            <form className="d-flex justify-content-between align-items-center" onSubmit={(e)=>{
+                                e.preventDefault();
+                                this.SubmitSearch();
+                            }}>
+                                <input 
+                                    disabled={false} 
+                                    className="search-input ml-1" 
+                                    placeholder="Search by Description or Artist Address" 
+                                    value={this.state.searchValue} 
+                                    onChange={(e)=>this.setState({searchValue:e.target.value})}
+                                />
+                                <button className="search-icon-container" type="submit">
+                                    <i className="lnr lnr-magnifier search-icon"/>
+                                </button>
+                            </form>
+                        </div>
+                        <div
+                            className={cx('page-title-subheading d-flex flex-column flex-md-row align-items-center', {
+                                'invisible': this.state.selectedAuctions.length === 0,
+                            })}
+                        >
+                            <button type="button" class="btn-outline-lin m-2 border-0 btn btn-outline-primary" onClick={this.clearSearch}>
+                                <i class="lnr lnr-cross mr-2"/>
+                                <span>Clear Search</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
                 {!this.state.loading && this.getHottest().length > 0  && <div
