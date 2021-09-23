@@ -5,16 +5,30 @@ import ReactPlayer from "react-player";
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faStar} from "@fortawesome/free-regular-svg-icons";
 import {faStar as faStarSolid} from "@fortawesome/free-solid-svg-icons";
-
-const override = css`
-  display: block;
-  margin: 0 auto;
-`;
+import {addForKey, removeForKey} from "../auction/helpers";
 
 export default class ArtworkMedia extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {};
+        this.state = {
+            isFav: props.box.isFav
+        };
+        this.favNFT = this.favNFT.bind(this);
+    }
+
+    favNFT() {
+        if (this.state.isFav) {
+            this.setState({isFav: false})
+            removeForKey('fav-artworks', this.props.box.assets[0].tokenId)
+        } else {
+            this.setState({isFav: true})
+            addForKey({
+                asset: this.props.box.assets[0],
+                id: this.props.box.assets[0].tokenId,
+                boxId: this.props.box.boxId
+            }, 'fav-artworks')
+        }
+
     }
 
     render() {
@@ -39,11 +53,12 @@ export default class ArtworkMedia extends React.Component {
                         if (this.props.details)
                             this.props.details(this.props.box)
                     }}
-                    className={icon + " text-white imgicon"}/>}
+                    className={icon + " text-dark font-weight-bold imgicon"}/>}
                 {!this.props.avoidFav && <div
                     style={{zIndex: 1, cursor: "pointer"}}
-                    className="font-icon-wrapper text-info imgfav">
-                    <FontAwesomeIcon icon={this.props.box.isFav? faStarSolid : faStar}/>
+                    onClick={() => this.favNFT()}
+                    className="font-icon-wrapper font-weight-bold text-dark imgfav">
+                    <FontAwesomeIcon icon={this.state.isFav? faStarSolid : faStar}/>
                 </div>}
                 {box.isPicture && <div>
                     <img
@@ -89,8 +104,10 @@ export default class ArtworkMedia extends React.Component {
                 {box.isVideo && <div>
                     <ReactPlayer
                         pip={true}
+                        light={!this.props.preload}
                         playing={false}
                         url={[{src: box.artworkUrl}]} // video location
+                        previewTabIndex={1}
                         controls  // gives the front end video controls
                         width='100%'
                         height='100%'
