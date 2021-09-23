@@ -24,6 +24,8 @@ import ShowAuctions from "./showActives";
 import SendModal from "./sendModal";
 import {withRouter} from 'react-router-dom';
 import ArtworkMedia from "../../artworkMedia";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faCoffee} from "@fortawesome/free-solid-svg-icons";
 
 const override = css`
   display: block;

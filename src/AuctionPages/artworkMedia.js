@@ -2,6 +2,9 @@ import React from 'react';
 import {css} from '@emotion/core';
 import AudioPlayer from "react-h5-audio-player";
 import ReactPlayer from "react-player";
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {faStar} from "@fortawesome/free-regular-svg-icons";
+import {faStar as faStarSolid} from "@fortawesome/free-solid-svg-icons";
 
 const override = css`
   display: block;
@@ -37,12 +40,17 @@ export default class ArtworkMedia extends React.Component {
                             this.props.details(this.props.box)
                     }}
                     className={icon + " text-white imgicon"}/>}
+                <div
+                    style={{zIndex: 1, cursor: "pointer"}}
+                    className="font-icon-wrapper text-info imgfav">
+                    <FontAwesomeIcon icon={this.props.box.isFav? faStarSolid : faStar}/>
+                </div>
                 {box.isPicture && <div>
                     <img
                         style={{cursor: 'pointer'}}
                         onClick={() => {
                             if (this.props.details)
-                            this.props.details()
+                                this.props.details()
                         }}
                         className="auctionImg"
                         src={
@@ -66,8 +74,14 @@ export default class ArtworkMedia extends React.Component {
                         }
                     />
                     <AudioPlayer
+                        customAdditionalControls={[]}
+                        showSkipControls={false}
+                        showJumpControls={false}
+                        showFilledVolume={false}
+                        defaultCurrentTime={"00:00"}
+                        layout={"horizontal-reverse"}
+                        preload={"none"}
                         autoPlay={false}
-                        controls={true}
                         style={{position: "absolute", bottom: "0px"}}
                         src={box.audioUrl}
                     />
