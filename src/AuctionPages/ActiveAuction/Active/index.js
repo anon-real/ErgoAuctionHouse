@@ -377,6 +377,7 @@ class ActiveAuctions extends React.Component {
                             // return <img style={{position: "relative"}} src={hot.artworkUrl} alt={hot.tokenName}
                             //      data-action={getAuctionUrl(hot.boxId)}/>
                             return <ArtworkMedia box={hot} height='100%' width='100%'
+                                                 avoidFav={true}
                                                  alt={hot.tokenName}
                                                  data-action={getAuctionUrl(hot.boxId)}/>
                         })}

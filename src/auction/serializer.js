@@ -75,7 +75,7 @@ function resolveIpfs(url, isVideo = false) {
     }
 }
 
-export async function decodeArtwork(box, tokenId) {
+export async function decodeArtwork(box, tokenId, considerArtist=true) {
     const res = await getIssuingBox(tokenId)
     if (box === null)
         box = res[0]
@@ -131,13 +131,6 @@ export async function decodeArtwork(box, tokenId) {
             box.isArtwork = false
         }
 
-        await getIssuingBox(box.assets[0].tokenId)
-            .then((res) => {
-            })
-            .catch(err => {
-                console.log(err)
-            });
-
     } else {
         if (box.tokenName) {
             box.tokenName = await decodeStr(box.tokenName)
@@ -147,18 +140,20 @@ export async function decodeArtwork(box, tokenId) {
         }
     }
 
-    try {
-        box.artist = 'Unknown'
-        const tokBox = await boxById(box.assets[0].tokenId)
-        if (AddressKind.P2PK === new Address(tokBox.address).getType())
-            box.artist = tokBox.address
-        else {
-            const tokTx = await txById(tokBox.txId)
-            if (AddressKind.P2PK === new Address(tokTx.inputs[0].address).getType())
-                box.artist = tokTx.inputs[0].address
+    if (considerArtist) {
+        try {
+            box.artist = 'Unknown'
+            const tokBox = await boxById(box.assets[0].tokenId)
+            if (AddressKind.P2PK === new Address(tokBox.address).getType())
+                box.artist = tokBox.address
+            else {
+                const tokTx = await txById(tokBox.txId)
+                if (AddressKind.P2PK === new Address(tokTx.inputs[0].address).getType())
+                    box.artist = tokTx.inputs[0].address
+            }
+        } catch (e) {
+            console.error(e)
         }
-    } catch (e) {
-        console.error(e)
     }
     return box
 }

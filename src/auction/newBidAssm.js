@@ -148,7 +148,6 @@ export async function bidHelper(bid, box, modal) {
             need = {ERG: 2000000}
             need[box.assets[1].tokenId] = bid
         }
-        const res = await yoroiSendFunds(need, r.address, r.block)
-        return res
+        return await yoroiSendFunds(need, r.address, r.block)
     }
 }
