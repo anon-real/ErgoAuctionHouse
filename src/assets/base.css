@@ -17016,6 +17016,25 @@ svg {
 
 }
 
+.imgfav {
+    box-sizing: border-box;
+    margin: 0px;
+    min-width: 0px;
+    display: flex;
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    background-color: gray;
+    -webkit-box-align: center;
+    align-items: center;
+    -webkit-box-pack: center;
+    justify-content: center;
+
+}
+
 .coverflow__container__1P-xE {
     background: none !important;
 }
