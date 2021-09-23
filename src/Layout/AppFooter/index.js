@@ -1,5 +1,5 @@
 import React, {Fragment} from 'react';
-import ergo from "../../assets/images/Ergo_auction_house_logo.png";
+import ergo from "../../assets/images/symbol_bold__1080px__black.svg";
 import github from "../../assets/images/GitHub-Mark.png";
 
 class AppFooter extends React.Component {
