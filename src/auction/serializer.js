@@ -145,6 +145,9 @@ export async function decodeArtwork(box, tokenId, considerArtist=true) {
         try {
             box.artist = 'Unknown'
             const tokBox = await boxById(box.assets[0].tokenId)
+            box.royalty = 0
+            if (tokBox.additionalRegisters.R4)
+                box.royalty = await decodeNum(tokBox.additionalRegisters.R4, true)
             if (AddressKind.P2PK === new Address(tokBox.address).getType())
                 box.artist = tokBox.address
             else {
