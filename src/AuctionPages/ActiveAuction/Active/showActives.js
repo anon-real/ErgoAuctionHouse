@@ -6,7 +6,6 @@ import PropagateLoader from 'react-spinners/PropagateLoader';
 import {Row,} from 'reactstrap';
 import ActiveAuction from './activeAuction';
 import SendModal from "./sendModal";
-import ActiveAudio from "./activeAudio";
 import ActiveOther from "./activeOther";
 
 const override = css`

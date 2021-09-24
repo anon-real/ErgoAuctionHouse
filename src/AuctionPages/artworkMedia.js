@@ -6,6 +6,7 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faStar} from "@fortawesome/free-regular-svg-icons";
 import {faStar as faStarSolid} from "@fortawesome/free-solid-svg-icons";
 import {addForKey, removeForKey} from "../auction/helpers";
+import ArtworkDetails from "./artworkDetails";
 
 export default class ArtworkMedia extends React.Component {
     constructor(props) {
@@ -47,11 +48,17 @@ export default class ArtworkMedia extends React.Component {
             <div className="imgDiv"
                  style={style}
             >
+
+                {!this.props.avoidDetail && <ArtworkDetails
+                    box={this.props.box}
+                    isOpen={this.state.artDetail}
+                    close={() => this.setState({artDetail: !this.state.artDetail})}
+                />}
+
                 {!this.props.removeIcon && <i
                     style={{zIndex: 1, cursor: "pointer"}}
                     onClick={() => {
-                        if (this.props.details)
-                            this.props.details(this.props.box)
+                        if (!this.props.avoidDetail) this.setState({artDetail: true})
                     }}
                     className={icon + " text-dark font-weight-bold imgicon"}/>}
                 {!this.props.avoidFav && <div
@@ -64,8 +71,7 @@ export default class ArtworkMedia extends React.Component {
                     <img
                         style={{cursor: 'pointer'}}
                         onClick={() => {
-                            if (this.props.details)
-                                this.props.details()
+                            if (!this.props.avoidDetail) this.setState({artDetails: true})
                         }}
                         className="auctionImg"
                         src={
@@ -78,9 +84,6 @@ export default class ArtworkMedia extends React.Component {
                 {box.isAudio && <div>
                     <img
                         style={{cursor: 'pointer'}}
-                        onClick={() =>
-                            this.setState({artDetail: true})
-                        }
                         className="auctionImg"
                         src={
                             box.artworkUrl
