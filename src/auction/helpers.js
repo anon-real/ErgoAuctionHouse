@@ -204,3 +204,12 @@ export async function uploadArtwork(file) {
             return `ipfs://${res.value.cid}`
         })
 }
+
+export function isJson(str) {
+    try {
+        JSON.parse(str);
+    } catch (e) {
+        return false;
+    }
+    return true;
+}
