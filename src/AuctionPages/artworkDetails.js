@@ -84,13 +84,10 @@ export default class ArtworkDetails extends React.Component {
                         <div className="divider text-muted bg-premium-dark opacity-1"/>
                         <div
                             style={{overflow: 'auto', display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
-                            {this.props.box.artworkUrl &&
-                            <ArtworkMedia avoidDetail={true} avoidFav={true} preload={true} box={this.props.box} height='100%'
-                                          removeIcon={true}/>
-                            }
-                            {!this.props.box.artworkUrl && <p>
-                                No artwork image detected, see the Artwork Description above for more details.
-                            </p>}
+                            {this.props.box.isArtwork &&
+                            <ArtworkMedia avoidDetail={true} avoidFav={true} preload={true} box={this.props.box}
+                                          height='100%'
+                                          removeIcon={true}/>}
 
 
                         </div>
@@ -101,4 +98,5 @@ export default class ArtworkDetails extends React.Component {
         </span>
         );
     }
+
 }
