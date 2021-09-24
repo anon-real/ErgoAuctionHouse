@@ -91,23 +91,6 @@ export default class ActiveAuction extends React.Component {
                     box={this.props.box}
                     isOpen={this.state.detailsModal}
                 />
-                <ArtworkDetails
-                    isOpen={this.state.artDetail}
-                    close={() =>
-                        this.setState({
-                            artDetail: !this.state.artDetail,
-                        })
-                    }
-                    tokenId={this.props.box.assets[0].tokenId}
-                    tokenName={this.props.box.tokenName}
-                    tokenDescription={
-                        this.props.box.tokenDescription
-                    }
-                    artHash={this.props.box.artHash}
-                    artworkUrl={this.props.box.artworkUrl}
-                    artist={this.props.box.artist}
-                    box={this.props.box}
-                />
                 <div className="card mb-3 bg-white widget-chart" style={
                     {
                         'opacity': this.props.box.isFinished || this.state.loading ? 0.6 : 1
@@ -164,7 +147,7 @@ export default class ActiveAuction extends React.Component {
                             />
                         </ResponsiveContainer>
                         <ReactTooltip effect="solid" place="bottom"/>
-                        <ArtworkMedia preload={this.props.preload} box={this.props.box} details={() => this.setState({artDetail: !this.state.artDetail})}/>
+                        <ArtworkMedia preload={this.props.preload} box={this.props.box}/>
 
                         <div className="widget-chart-wrapper chart-wrapper-relative">
                             <div

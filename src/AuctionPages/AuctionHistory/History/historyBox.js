@@ -81,15 +81,6 @@ export default class HistoryBox extends React.Component {
                             infoModal: !this.state.infoModal,
                         })
                     }
-                    tokenId={this.props.box.assets[0].tokenId}
-                    tokenName={this.props.box.tokenName}
-                    tokenDescription={
-                        this.props.box.tokenDescription
-                    }
-                    simple={true}
-                    artHash={this.props.box.artHash}
-                    artworkUrl={this.props.box.artworkUrl}
-                    artist={this.props.box.artist}
                 />
 
                 <MyBidsModal
@@ -146,11 +137,6 @@ export default class HistoryBox extends React.Component {
                                     box={this.props.box}
                                     isOpen={this.state.artDetail}
                                     close={() => this.setState({artDetail: !this.state.artDetail})}
-                                    tokenId={this.props.box.assets[0].tokenId}
-                                    tokenName={this.props.box.tokenName}
-                                    tokenDescription={this.props.box.tokenDescription}
-                                    artHash={this.props.box.artHash}
-                                    artworkUrl={this.props.box.artworkUrl}
                                 />
                             </span>}
                         </div>

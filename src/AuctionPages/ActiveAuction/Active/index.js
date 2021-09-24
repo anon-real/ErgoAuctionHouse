@@ -375,6 +375,7 @@ class ActiveAuctions extends React.Component {
                     >
                         {this.getHottest().map(hot => {
                             return <ArtworkMedia box={hot} height='100%' width='100%'
+                                                 avoidDetail={true}
                                                  avoidFav={true}
                                                  alt={hot.tokenName}
                                                  data-action={getAuctionUrl(hot.boxId)}/>

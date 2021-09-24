@@ -13,68 +13,70 @@ export default class ArtworkDetails extends React.Component {
 
     render() {
         return (
-            <Modal
+            <span>
+            {this.props.box && <Modal
                 size="lg"
                 isOpen={this.props.isOpen}
                 toggle={this.props.close}
             >
                 <ModalHeader toggle={this.props.close}>
-                    {!this.props.simple && <span className="fsize-1 text-muted">
+                    {this.props.box.isArtwork && <span className="fsize-1 text-muted">
                         Artwork details for NFT {' '}
-                        {friendlyAddress(this.props.tokenId, 5)}.
+                        {friendlyAddress(this.props.box.assets[0].tokenId, 5)}.
                     </span>}
-                    {this.props.simple && <span className="fsize-1 text-muted">
-                        Details for {' '} {friendlyAddress(this.props.tokenId, 5)}.
+                    {this.props.box.isArtwork && <span className="fsize-1 text-muted">
+                        Details for {' '} {friendlyAddress(this.props.box.assets[0].tokenId, 5)}.
                     </span>}
                 </ModalHeader>
                 <ModalBody>
                     <Container>
                         <Row>
                             <Col md="3">
-                                {!this.props.simple && <span>Artwork</span>} Name:
+                                {this.props.box.isArtwork && <span>Artwork</span>} Name:
                             </Col>
                             <Col md="9">
-                                <b>{this.props.tokenName}</b>
+                                <b>{this.props.box.tokenName}</b>
                             </Col>
                         </Row>
                         <Row>
                             <Col md="3">
-                                {!this.props.simple && <span>Artwork</span>} Description:
+                                {this.props.box.isArtwork && <span>Artwork</span>} Description:
                             </Col>
                             <Col md="9" style={{overflowY: "auto"}}>
                                 <b>
-                                    {isJson(this.props.tokenDescription) && <JSONPretty id="json-pretty"
-                                                                                        data={JSON.parse(this.props.tokenDescription)}/>}
-                                    {!isJson(this.props.tokenDescription) && <pre>{this.props.tokenDescription}</pre>}
+                                    {isJson(this.props.box.tokenDescription) && <JSONPretty id="json-pretty"
+                                                                                            data={JSON.parse(this.props.box.tokenDescription)}/>}
+                                    {!isJson(this.props.box.tokenDescription) &&
+                                    <pre>{this.props.box.tokenDescription}</pre>}
 
                                 </b>
                             </Col>
                         </Row>
-                        {!this.props.simple && <Row>
+                        {this.props.box.isArtwork && <Row>
                             <Col md="3">
                                 Artwork Checksum:
                             </Col>
                             <Col md="9">
                                 <Clipboard
                                     component="b"
-                                    data-clipboard-text={this.props.artHash}
+                                    data-clipboard-text={this.props.box.artHash}
                                     onSuccess={() => showMsg('Copied!')}
                                 >
-                                    {friendlyAddress(this.props.artHash, 15)}
+                                    {friendlyAddress(this.props.box.artHash, 15)}
                                 </Clipboard>{' '}
                             </Col>
                         </Row>}
-                        {this.props.artist && <Row>
+                        {this.props.box.artist && <Row>
                             <Col md="3">
                                 Artist Address:
                             </Col>
                             <Col md="9">
                                 <Clipboard
                                     component="b"
-                                    data-clipboard-text={this.props.artist}
+                                    data-clipboard-text={this.props.box.artist}
                                     onSuccess={() => showMsg('Copied!')}
                                 >
-                                    {friendlyAddress(this.props.artist, 10)}
+                                    {friendlyAddress(this.props.box.artist, 10)}
                                 </Clipboard>{' '}
                             </Col>
                         </Row>}
@@ -82,11 +84,11 @@ export default class ArtworkDetails extends React.Component {
                         <div className="divider text-muted bg-premium-dark opacity-1"/>
                         <div
                             style={{overflow: 'auto', display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
-                            {this.props.artworkUrl &&
-                            <ArtworkMedia avoidFav={true} preload={true} box={this.props.box} height='100%'
+                            {this.props.box.artworkUrl &&
+                            <ArtworkMedia avoidDetail={true} avoidFav={true} preload={true} box={this.props.box} height='100%'
                                           removeIcon={true}/>
                             }
-                            {!this.props.artworkUrl && <p>
+                            {!this.props.box.artworkUrl && <p>
                                 No artwork image detected, see the Artwork Description above for more details.
                             </p>}
 
@@ -94,7 +96,9 @@ export default class ArtworkDetails extends React.Component {
                         </div>
                     </Container>
                 </ModalBody>
-            </Modal>
+            </Modal>}
+                {!this.props.box && <b>No auction provided</b>}
+        </span>
         );
     }
 }
