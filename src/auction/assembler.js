@@ -179,6 +179,12 @@ export async function pendings() {
 
 export async function handleAll() {
     try {
+        await updateDataInput()
+    } catch (e) {
+        console.error(e)
+    }
+
+    try {
         await pendings()
     } catch (e) {
         console.error(e)
@@ -190,11 +196,6 @@ export async function handleAll() {
     }
     try {
         await outBid()
-    } catch (e) {
-        console.error(e)
-    }
-    try {
-        await updateDataInput()
     } catch (e) {
         console.error(e)
     }
@@ -231,9 +232,9 @@ export async function assembleFinishedAuctions(boxes) {
             };
         } else {
             const dataInput = additionalData.dataInput;
-            const auctionFee = Math.floor(box.curBid / parseInt(dataInput.additionalRegisters.R4.renderedValue))
+            const auctionFee = Math.floor((box.curBid * parseInt(dataInput.additionalRegisters.R4.renderedValue)) / 1000)
             const feeTo = Address.fromErgoTree(dataInput.additionalRegisters.R5.renderedValue).address;
-            const artistFee = Math.floor(box.curBid / parseInt(dataInput.additionalRegisters.R6.renderedValue))
+            const artistFee = Math.floor((box.curBid * box.royalty) / 1000)
             const minimalErg = 500000
 
             let artBox = await boxById(box.assets[0].tokenId)
@@ -311,17 +312,20 @@ export async function assembleFinishedAuctions(boxes) {
                 };
             }
 
+            let outs = [winner, feeBox, seller]
+            if (artistFee > 0) outs = outs.concat([artistFeeBox])
             request = {
                 address: trueAddress,
                 returnTo: trueAddress,
                 startWhen: {},
                 txSpec: {
-                    requests: [winner, feeBox, seller, artistFeeBox],
+                    requests: outs,
                     fee: txFee,
                     inputs: [box.boxId],
                     dataInputs: [dataInput.boxId],
                 }
             };
+            console.log(request)
 
 
             if (artistAddr !== null) {
