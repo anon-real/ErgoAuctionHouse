@@ -107,7 +107,6 @@ export default class ArtworkMedia extends React.Component {
                         light={!this.props.preload}
                         playing={false}
                         url={[{src: box.artworkUrl}]} // video location
-                        previewTabIndex={1}
                         controls  // gives the front end video controls
                         width='100%'
                         height='100%'

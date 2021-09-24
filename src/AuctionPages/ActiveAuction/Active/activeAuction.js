@@ -164,7 +164,7 @@ export default class ActiveAuction extends React.Component {
                             />
                         </ResponsiveContainer>
                         <ReactTooltip effect="solid" place="bottom"/>
-                        <ArtworkMedia box={this.props.box} details={() => this.setState({artDetail: !this.state.artDetail})}/>
+                        <ArtworkMedia preload={this.props.preload} box={this.props.box} details={() => this.setState({artDetail: !this.state.artDetail})}/>
 
                         <div className="widget-chart-wrapper chart-wrapper-relative">
                             <div
