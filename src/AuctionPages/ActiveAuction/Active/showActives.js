@@ -61,6 +61,7 @@ export default class ShowAuctions extends React.Component {
                     box={box}
                     assemblerModal={this.toggleAssemblerModal}
                     updateParams={this.props.updateParams}
+                    preload={this.props.preload}
                 />
             );
         });
