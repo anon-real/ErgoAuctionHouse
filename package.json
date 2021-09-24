@@ -88,6 +88,7 @@
     "react-google-maps": "^9.4.5",
     "react-h5-audio-player": "^3.7.1",
     "react-hamburgers": "^1.0.0",
+    "react-json-pretty": "^2.2.0",
     "react-metismenu": "^1.4.0",
     "react-motion": "^0.5.2",
     "react-perfect-scrollbar": "^1.4.4",
