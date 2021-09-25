@@ -1,6 +1,5 @@
 import React, {Fragment} from 'react';
 import {Button, FormText, Input, Label, Modal, ModalBody, ModalFooter} from "reactstrap";
-import Row from "react-bootstrap/lib/Row";
 import BeatLoader from "react-spinners/BeatLoader";
 import FormGroup from "react-bootstrap/lib/FormGroup";
 import InputGroup from "react-bootstrap/lib/InputGroup";
@@ -11,8 +10,8 @@ import Dropzone from 'react-dropzone'
 import ModalHeader from "react-bootstrap/lib/ModalHeader";
 import {uploadArtwork} from "../../auction/helpers";
 import {artworkTypes} from "../../auction/consts";
-import {issueArtwork} from "../../auction/yoroiUtils";
-import {css} from "@emotion/core";
+import {issueArtwork} from "../../auction/issueArtworkAssm";
+import { Range } from 'react-range';
 
 const ImageAudioVideo = () => {
     const getUploadParams = ({meta}) => {
@@ -48,6 +47,8 @@ export default class NewArtwork extends React.Component {
             checksum: null,
             description: "",
             name: "",
+            quantity: 1,
+            values: [2]
         };
 
         this.issue = this.issue.bind(this);
@@ -57,7 +58,7 @@ export default class NewArtwork extends React.Component {
     }
 
     okToIssue() {
-        return !this.state.loading && this.state.checksum !== null && this.state.name.length
+        return !this.state.loading && this.state.checksum !== null && this.state.name.length && parseInt(this.state.quantity) >= 1
     }
 
     async issue() {
@@ -67,7 +68,8 @@ export default class NewArtwork extends React.Component {
         let cover = null
         if (this.getFileType(this.state.file) === 'audio' && this.state.audioCover)
             cover = await uploadArtwork(this.state.audioCover)
-        await issueArtwork(this.state.name, this.state.description, this.state.checksum, type, cid, cover)
+        await issueArtwork(this.state.name, this.state.description, parseInt(this.state.quantity), this.state.values[0],
+            this.state.checksum, type, cid, cover)
         this.setState({loading: false})
         this.props.close()
     }
@@ -173,6 +175,23 @@ export default class NewArtwork extends React.Component {
 
                                     </FormGroup>}
                                     <FormGroup>
+                                        <Label for="tokenName">Quantity*</Label>
+                                        <InputGroup>
+                                            <Input
+                                                type="number"
+                                                value={this.state.quantity}
+                                                onChange={(e) => {
+                                                    this.setState({quantity: e.target.value})
+                                                }}
+                                                id="quantity"
+                                            />
+                                        </InputGroup>
+                                        <FormText>Issuance quantity
+                                            {parseInt(this.state.quantity) > 1 &&
+                                            <b>{' - '}No longer considered to be NFT! Set to one for NFT.</b>}
+                                        </FormText>
+                                    </FormGroup>
+                                    <FormGroup>
                                         <Label for="tokenName">Name*</Label>
                                         <InputGroup>
                                             <Input
@@ -200,6 +219,44 @@ export default class NewArtwork extends React.Component {
                                         <FormText>description of your artwork; anything to represent it to
                                             others</FormText>
                                     </FormGroup>
+
+                                    <FormGroup>
+                                        <Label className="mb-3" for="tokenName">Royalty Percentage*</Label>
+                                        <InputGroup className="mb-2">
+                                            <Range
+                                                step={1}
+                                                min={0}
+                                                max={10}
+                                                values={this.state.values}
+                                                onChange={(values) => this.setState({ values })}
+                                                renderTrack={({ props, children }) => (
+                                                    <div
+                                                        {...props}
+                                                        style={{
+                                                            ...props.style,
+                                                            height: '4px',
+                                                            width: '100%',
+                                                            backgroundColor: '#ccc'
+                                                        }}
+                                                    >
+                                                        {children}
+                                                    </div>
+                                                )}
+                                                renderThumb={({ props }) => (
+                                                    <div
+                                                        {...props}
+                                                        style={{
+                                                            ...props.style,
+                                                            height: '15px',
+                                                            width: '25px',
+                                                            backgroundColor: '#999'
+                                                        }}
+                                                    />
+                                                )}
+                                            />
+                                        </InputGroup>
+                                        <FormText>You will receive {this.state.values[0]}% share on secondary sales</FormText>
+                                    </FormGroup>
                                 </Form>
                             </fieldset>
 
@@ -215,7 +272,7 @@ export default class NewArtwork extends React.Component {
                         <Button
                             className="ml mr-2 btn-transition"
                             color="secondary"
-                            // onClick={this.closeModal}
+                            onClick={() => this.props.close()}
                         >
                             Cancel
                         </Button>
@@ -223,7 +280,6 @@ export default class NewArtwork extends React.Component {
                             className="mr-2 btn-transition"
                             color="secondary"
                             disabled={!this.okToIssue()}
-                            // disabled={}
                             onClick={this.issue}
                         >
                             Issue
