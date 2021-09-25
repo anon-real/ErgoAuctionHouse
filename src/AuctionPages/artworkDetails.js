@@ -80,6 +80,22 @@ export default class ArtworkDetails extends React.Component {
                                 </Clipboard>{' '}
                             </Col>
                         </Row>}
+                        {this.props.box.royalty >= 0 && <Row>
+                            <Col md="3">
+                                Royalty:
+                            </Col>
+                            <Col md="9">
+                                <b>{`${(this.props.box.royalty / 10)}%`}</b>
+                            </Col>
+                        </Row>}
+                        {this.props.box.totalIssued > 1 && <Row>
+                            <Col md="3">
+                                Total issued:
+                            </Col>
+                            <Col md="9">
+                                <b>{this.props.box.totalIssued} - Not an NFT</b>
+                            </Col>
+                        </Row>}
 
                         <div className="divider text-muted bg-premium-dark opacity-1"/>
                         <div

@@ -4,7 +4,7 @@ import {Address, AddressKind} from "@coinbarn/ergo-ts/dist/models/address";
 import {boxById, getIssuingBox, txById} from "./explorer";
 import {supportedCurrencies} from "./consts";
 import {getEncodedBox} from "./assembler";
-import {getForKey, removeForKey} from "./helpers";
+import {getForKey} from "./helpers";
 
 var momentDurationFormatSetup = require("moment-duration-format");
 
@@ -76,10 +76,11 @@ function resolveIpfs(url, isVideo = false) {
     }
 }
 
-export async function decodeArtwork(box, tokenId, considerArtist=true) {
+export async function decodeArtwork(box, tokenId, considerArtist = true) {
     const res = await getIssuingBox(tokenId)
     if (box === null)
         box = res[0]
+    box.totalIssued = res[0].assets[0].amount
     if (Object.keys(res[0].additionalRegisters).length >= 5) {
         box.isArtwork = true
         box.artHash = res[0].additionalRegisters.R8
@@ -148,9 +149,13 @@ export async function decodeArtwork(box, tokenId, considerArtist=true) {
             box.royalty = 0
             if (tokBox.additionalRegisters.R4)
                 box.royalty = await decodeNum(tokBox.additionalRegisters.R4, true)
+            if (tokBox.additionalRegisters.R5) {
+                box.royalty = await decodeNum(tokBox.additionalRegisters.R4, true)
+                box.artist = Address.fromErgoTree(await decodeString(tokBox.additionalRegisters.R5)).address;
+            }
             if (AddressKind.P2PK === new Address(tokBox.address).getType())
                 box.artist = tokBox.address
-            else {
+            else if (box.artist === undefined) {
                 const tokTx = await txById(tokBox.txId)
                 if (AddressKind.P2PK === new Address(tokTx.inputs[0].address).getType())
                     box.artist = tokTx.inputs[0].address

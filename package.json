@@ -94,6 +94,7 @@
     "react-perfect-scrollbar": "^1.4.4",
     "react-player": "^2.9.0",
     "react-qr-code": "^2.0.1",
+    "react-range": "^1.8.11",
     "react-redux": "^5.1.0",
     "react-redux-form": "^1.16.12",
     "react-responsive-tabs": "^3.0.0",
