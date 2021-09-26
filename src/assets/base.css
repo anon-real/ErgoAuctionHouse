@@ -16947,3 +16947,31 @@ svg {
     display: block;
     margin: auto;
 }
+.btn-silver{
+    background:#dedddd;
+}
+.bg-nav button{
+    font-weight:bold;
+}
+.bg-nav a{
+    text-decoration: none;
+    color:#333;
+    font-weight:bold;
+}
+
+.bg-nav button:hover{
+    background: #dedddd;
+}
+.bg-nav a:hover{
+    background: #dedddd;
+}
+@media (min-width:974px){
+    .app-sidebar{
+        display: none !important;
+    }
+}
+@media (max-width:1250px){
+    .nav-logo{
+        display: none !important;
+    }
+}
