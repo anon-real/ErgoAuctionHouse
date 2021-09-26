@@ -44,6 +44,7 @@ const types = ['all', 'picture', 'audio', 'video', 'other']
 
 const limit = 9
 const updatePeriod = 40
+let searchflagControl = true;
 
 class ActiveAuctions extends React.Component {
     constructor(props) {
@@ -66,9 +67,8 @@ class ActiveAuctions extends React.Component {
         this.updateParams = this.updateParams.bind(this);
         this.getToShow = this.getToShow.bind(this);
         this.getHottest = this.getHottest.bind(this);
-        this.SubmitSearch = this.SubmitSearch.bind(this);
+        this.SubmitSearchAuctions = this.SubmitSearchAuctions.bind(this);
         this.clearSearch = this.clearSearch.bind(this);
-        this.setSelectedAuctions = this.setSelectedAuctions.bind(this);
     }
 
     toggleAssemblerModal(address = '', bid = 0, isAuction = false, currency = 'ERG') {
@@ -229,9 +229,11 @@ class ActiveAuctions extends React.Component {
     }
 
     getToShow() {
-        const auctions = (this.state.selectedAuctions.length === 0)? this.state.allAuctions.slice(0, this.state.end):this.state.selectedAuctions.slice(0, this.state.end)
-        const filtered = this.filterAuctions(auctions)
-        return this.sortAuctions(filtered).slice(0, this.state.end)
+        if(this.state.selectedAuctions){
+            const auctions =  (this.state.selectedAuctions?.length !== 0) ? this.state.selectedAuctions.slice(0, this.state.end) : this.state.allAuctions.slice(0, this.state.end);
+            const filtered = this.filterAuctions(auctions);
+            return this.sortAuctions(filtered).slice(0, this.state.end)
+        }else return []
     }
 
     getHottest() {
@@ -242,46 +244,43 @@ class ActiveAuctions extends React.Component {
         return []
     }
 
-    setSelectedAuctions(selectedAuctions){
-        this.setState({loading:true})
-        setTimeout(()=>this.setState({selectedAuctions: selectedAuctions,loading:false}),1000) // SetTimeout For better UX 
-    }
+    // setSelectedAuctions(auctions){
+    //     this.setState({loading:true})
+    //     setTimeout(()=>this.setState({selectedAuctions: selectedAuctions,loading:false}),1000) // SetTimeout For better UX 
+    // }
 
     clearSearch(){
-        this.setState({selectedAuctions: [],loading:false,searchValue:''})
+        this.setState({loading:false,searchValue:'',selectedAuctions:[]})
+        this.updateParams('searchValue', '')
     }
 
-    SubmitSearch(){
-        let SelectedAuctions = [];
-        var re = new RegExp(this.state.searchValue, 'i');
-        this.state.allAuctions.map((data) => {
-            if(data.description.match(re)  !== null || data.artist.search(this.state.searchValue) !== -1)
-                SelectedAuctions.push(data)
-        })
-        this.setSelectedAuctions(SelectedAuctions)
-    }
-    
-    SubmitSearch(){
-        let SelectedAuctions = [];
-        var re = new RegExp(this.state.searchValue, 'i');
-        this.state.allAuctions.map((data)=>{
-            if(data.description.match(re)  !== null || data.artist.search(this.state.searchValue) !== -1)
-                SelectedAuctions.push(data)
-        })
-        this.setSelectedAuctions(SelectedAuctions)
+    SubmitSearchAuctions(){
+        let queries = this.parseQueries(this.props.location.search).searchValue
+        let finalValue = (queries && queries !== '') ? queries : this.state.searchValue
+        if(finalValue !== ''){
+            let SelectedAuctions = [];
+            var re = new RegExp(finalValue, 'i');
+            this.state.allAuctions.map((data) => {
+                if(data.description.match(re)  !== null || data.artist.search(finalValue) !== -1)
+                    SelectedAuctions.push(data)
+            })
+            if(SelectedAuctions.length === 0)
+                SelectedAuctions = null;
+            this.setState({selectedAuctions:SelectedAuctions,searchValue:''})
+            this.updateParams('searchValue', finalValue)
+        }
     }
 
-    setSelectedAuctions(selectedAuctions){
-        this.setState({loading:true})
-        setTimeout(()=>this.setState({selectedAuctions: selectedAuctions,loading:false}),1000) // SetTimeout For better UX 
-    }
-
-    clearSearch(){
-        this.setState({selectedAuctions: [],loading:false,searchValue:''})
+    HandleSearch(){
+        if(searchflagControl && this.state.allAuctions.length !== 0){
+            this.SubmitSearchAuctions();
+            searchflagControl = false;
+        }
     }
 
     render() {
         let values = this.calcValues(this.filterAuctions(this.state.allAuctions))
+        this.HandleSearch();
         return (
             <Fragment>
                 <NewAuctionAssembler
@@ -405,14 +404,16 @@ class ActiveAuctions extends React.Component {
                         <div className="search-box">
                             <form className="d-flex justify-content-between align-items-center" onSubmit={(e)=>{
                                 e.preventDefault();
-                                this.SubmitSearch();
+                                this.SubmitSearchAuctions();
                             }}>
                                 <input 
                                     disabled={false} 
                                     className="search-input ml-1" 
-                                    placeholder="Search by Description or Artist Address" 
+                                    placeholder="Search in the description, artist address, and bidder's address" 
                                     value={this.state.searchValue} 
-                                    onChange={(e)=>this.setState({searchValue:e.target.value})}
+                                    onChange={(e)=>{
+                                        this.setState({searchValue:e.target.value})
+                                    }}
                                 />
                                 <button className="search-icon-container" type="submit">
                                     <i className="lnr lnr-magnifier search-icon"/>
@@ -421,7 +422,7 @@ class ActiveAuctions extends React.Component {
                         </div>
                         <div
                             className={cx('page-title-subheading d-flex flex-column flex-md-row align-items-center', {
-                                'invisible': this.state.selectedAuctions.length === 0,
+                                'invisible': this.state.selectedAuctions?.length === 0,
                             })}
                         >
                             <button type="button" class="btn-outline-lin m-2 border-0 btn btn-outline-primary" onClick={this.clearSearch}>
@@ -431,7 +432,7 @@ class ActiveAuctions extends React.Component {
                         </div>
                     </div>
                 </div>
-                {!this.state.loading && this.getHottest().length > 0  && <div
+                {/* {!this.state.loading && this.getHottest().length > 0  && <div
                     className="mb-xl-5"
                 >
                     <Coverflow
@@ -442,17 +443,17 @@ class ActiveAuctions extends React.Component {
                         navigation={false}
                         enableHeading={true}
                         enableScroll={false}
-                    >
-                        {this.getHottest().map(hot => {
+                    > */}
+                        {/* {this.getHottest().map(hot => {
                             // return <img style={{position: "relative"}} src={hot.artworkUrl} alt={hot.tokenName}
                             //      data-action={getAuctionUrl(hot.boxId)}/>
                             return <ArtworkMedia box={hot} height='100%' width='100%'
                                                  alt={hot.tokenName}
                                                  data-action={getAuctionUrl(hot.boxId)}/>
-                        })}
+                        })} */}
                         {/*     data-action="http://tw.yahoo.com"/>*/}
-                    </Coverflow>
-                </div>}
+                    {/* </Coverflow> */}
+                {/* </div>} */}
                 {this.state.loading ? (
                     <div
                         style={{
