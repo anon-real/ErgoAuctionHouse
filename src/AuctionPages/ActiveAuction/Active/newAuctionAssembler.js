@@ -111,8 +111,10 @@ class NewAuctionAssembler extends React.Component {
             this.state.selectedToken,
             parseInt(this.state.tokenAmount),
             this.props.assemblerModal
-        ).catch(_ => showMsg('Could not get height from the explorer, try again!', true))
-            .finally(() => {
+        ).catch(e => {
+            console.log(e)
+            showMsg('Could not get height from the explorer, try again!', true)
+        }).finally(() => {
                 this.props.close()
                 this.setState({modalLoading: false})
             })

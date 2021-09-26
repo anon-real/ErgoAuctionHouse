@@ -24,6 +24,8 @@ import ShowAuctions from "./showActives";
 import SendModal from "./sendModal";
 import {withRouter} from 'react-router-dom';
 import ArtworkMedia from "../../artworkMedia";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faCoffee} from "@fortawesome/free-solid-svg-icons";
 
 const override = css`
   display: block;
@@ -448,12 +450,15 @@ class ActiveAuctions extends React.Component {
                             // return <img style={{position: "relative"}} src={hot.artworkUrl} alt={hot.tokenName}
                             //      data-action={getAuctionUrl(hot.boxId)}/>
                             return <ArtworkMedia box={hot} height='100%' width='100%'
+                                                 avoidDetail={true}
+                                                 avoidFav={true}
                                                  alt={hot.tokenName}
                                                  data-action={getAuctionUrl(hot.boxId)}/>
                         })} */}
                         {/*     data-action="http://tw.yahoo.com"/>*/}
                     {/* </Coverflow> */}
                 {/* </div>} */}
+
                 {this.state.loading ? (
                     <div
                         style={{

@@ -1,5 +1,5 @@
 import React from 'react';
-import {Col, DropdownMenu, DropdownToggle, Nav, NavItem, NavLink, UncontrolledButtonDropdown,} from 'reactstrap';
+import {Col, DropdownMenu, DropdownToggle, Nav, NavItem, NavLink, Row, UncontrolledButtonDropdown,} from 'reactstrap';
 import {friendlyAddress, getAddrUrl, isWalletSaved, showMsg,} from '../../../auction/helpers';
 import {ResponsiveContainer} from 'recharts';
 import SyncLoader from 'react-spinners/SyncLoader';
@@ -11,11 +11,7 @@ import {css} from '@emotion/core';
 import PlaceBidModal from './placeBid';
 import MyBidsModal from './myBids';
 import BidHistory from './bidHistory';
-import ArtworkDetails from '../../artworkDetails';
-import {Link} from "react-router-dom";
 import FooterSection from "../../footerSection";
-import ReactPlayer from "react-player";
-import AudioPlayer from 'react-h5-audio-player';
 import 'react-h5-audio-player/lib/styles.css';
 import ArtworkMedia from "../../artworkMedia";
 
@@ -91,30 +87,29 @@ export default class ActiveAuction extends React.Component {
                     box={this.props.box}
                     isOpen={this.state.detailsModal}
                 />
-                <ArtworkDetails
-                    isOpen={this.state.artDetail}
-                    close={() =>
-                        this.setState({
-                            artDetail: !this.state.artDetail,
-                        })
-                    }
-                    tokenId={this.props.box.assets[0].tokenId}
-                    tokenName={this.props.box.tokenName}
-                    tokenDescription={
-                        this.props.box.tokenDescription
-                    }
-                    artHash={this.props.box.artHash}
-                    artworkUrl={this.props.box.artworkUrl}
-                    artist={this.props.box.artist}
-                    box={this.props.box}
-                />
                 <div className="card mb-3 bg-white widget-chart" style={
                     {
                         'opacity': this.props.box.isFinished || this.state.loading ? 0.6 : 1
                     }
                 }>
 
-                    <b className="fsize-1 text-truncate" style={{marginTop: 8}}>{this.props.box.tokenName}</b>
+                    <Row style={{marginTop: 8}}>
+                        <Col className="text-truncate">
+                            <b>{this.props.box.tokenName}</b>
+                        </Col>
+
+                        {(this.props.box.royalty > 0 || this.props.box.totalIssued > 1) &&
+                        <Col className="text-truncate">
+                            {this.props.box.royalty > 0 &&
+                            <i data-tip='includes royalty on secondary sales' style={{fontSize: '12px'}}
+                               className="font-weight-light">{`${this.props.box.royalty / 10}% royalty`}</i>}
+                            {this.props.box.totalIssued > 1 &&
+                            <i data-tip={`Not an NFT; There are ${this.props.box.totalIssued} of this token`}
+                               style={{fontSize: '12px'}}
+                               className="font-weight-light">{` - ${this.props.box.assets[0].amount} out of ${this.props.box.totalIssued}`}</i>}</Col>
+                        }
+
+                    </Row>
 
                     <div className="widget-chart-actions">
                         <UncontrolledButtonDropdown direction="left">
@@ -164,7 +159,7 @@ export default class ActiveAuction extends React.Component {
                             />
                         </ResponsiveContainer>
                         <ReactTooltip effect="solid" place="bottom"/>
-                        <ArtworkMedia box={this.props.box} details={() => this.setState({artDetail: !this.state.artDetail})}/>
+                        <ArtworkMedia preload={this.props.preload} box={this.props.box}/>
 
                         <div className="widget-chart-wrapper chart-wrapper-relative">
                             <div
@@ -179,12 +174,12 @@ export default class ActiveAuction extends React.Component {
                             >
                                 <p className="text-primary mr-2 ml-2">
                                     <div className="text-truncate">{this.props.box.description}</div>
-                                        <b
-                                            style={{cursor: "pointer"}}
-                                            onClick={() => this.props.updateParams('artist', this.props.box.artist)}
-                                        >
-                                            {' '}- By {friendlyAddress(this.props.box.artist, 4)}
-                                        </b>
+                                    <b
+                                        style={{cursor: "pointer"}}
+                                        onClick={() => this.props.updateParams('artist', this.props.box.artist)}
+                                    >
+                                        {' '}- By {friendlyAddress(this.props.box.artist, 4)}
+                                    </b>
                                 </p>
                             </div>
                         </div>
@@ -201,7 +196,7 @@ export default class ActiveAuction extends React.Component {
                         >
                             <span data-tip={this.props.box.seller}>
                                 Seller{' '}
-                                {friendlyAddress(this.props.box.seller, 9)}
+                                {friendlyAddress(this.props.box.seller, 5)}
                             </span>
                             <i
                                 onClick={() =>
@@ -225,7 +220,7 @@ export default class ActiveAuction extends React.Component {
                         >
                             <span data-tip={this.props.box.bidder}>
                                 Bidder{' '}
-                                {friendlyAddress(this.props.box.bidder, 9)}
+                                {friendlyAddress(this.props.box.bidder, 5)}
                             </span>
                             <i
                                 onClick={() =>

@@ -91,6 +91,7 @@ export async function registerBid(bidAmount, box) {
             R9: box.additionalRegisters.R9.serializedValue,
         },
     };
+    console.log(additionalData)
     let request = {
         // address: "4MQyML64GnzMxZgm",
         address: p2s,
@@ -148,7 +149,6 @@ export async function bidHelper(bid, box, modal) {
             need = {ERG: 2000000}
             need[box.assets[1].tokenId] = bid
         }
-        const res = await yoroiSendFunds(need, r.address, r.block)
-        return res
+        return await yoroiSendFunds(need, r.address, r.block)
     }
 }
