@@ -4,6 +4,7 @@ import {Address, AddressKind} from "@coinbarn/ergo-ts/dist/models/address";
 import {boxById, getIssuingBox, txById} from "./explorer";
 import {supportedCurrencies} from "./consts";
 import {getEncodedBox} from "./assembler";
+import {getForKey} from "./helpers";
 
 var momentDurationFormatSetup = require("moment-duration-format");
 
@@ -75,10 +76,11 @@ function resolveIpfs(url, isVideo = false) {
     }
 }
 
-export async function decodeArtwork(box, tokenId) {
+export async function decodeArtwork(box, tokenId, considerArtist = true) {
     const res = await getIssuingBox(tokenId)
     if (box === null)
         box = res[0]
+    box.totalIssued = res[0].assets[0].amount
     if (Object.keys(res[0].additionalRegisters).length >= 5) {
         box.isArtwork = true
         box.artHash = res[0].additionalRegisters.R8
@@ -131,13 +133,6 @@ export async function decodeArtwork(box, tokenId) {
             box.isArtwork = false
         }
 
-        await getIssuingBox(box.assets[0].tokenId)
-            .then((res) => {
-            })
-            .catch(err => {
-                console.log(err)
-            });
-
     } else {
         if (box.tokenName) {
             box.tokenName = await decodeStr(box.tokenName)
@@ -147,18 +142,27 @@ export async function decodeArtwork(box, tokenId) {
         }
     }
 
-    try {
-        box.artist = 'Unknown'
-        const tokBox = await boxById(box.assets[0].tokenId)
-        if (AddressKind.P2PK === new Address(tokBox.address).getType())
-            box.artist = tokBox.address
-        else {
-            const tokTx = await txById(tokBox.txId)
-            if (AddressKind.P2PK === new Address(tokTx.inputs[0].address).getType())
-                box.artist = tokTx.inputs[0].address
+    if (considerArtist) {
+        try {
+            box.artist = 'Unknown'
+            const tokBox = await boxById(box.assets[0].tokenId)
+            box.royalty = 0
+            if (tokBox.additionalRegisters.R4)
+                box.royalty = await decodeNum(tokBox.additionalRegisters.R4, true)
+            if (tokBox.additionalRegisters.R5) {
+                box.royalty = await decodeNum(tokBox.additionalRegisters.R4, true)
+                box.artist = Address.fromErgoTree(await decodeString(tokBox.additionalRegisters.R5)).address;
+            }
+            if (AddressKind.P2PK === new Address(tokBox.address).getType())
+                box.artist = tokBox.address
+            else if (box.artist === undefined) {
+                const tokTx = await txById(tokBox.txId)
+                if (AddressKind.P2PK === new Address(tokTx.inputs[0].address).getType())
+                    box.artist = tokTx.inputs[0].address
+            }
+        } catch (e) {
+            console.error(e)
         }
-    } catch (e) {
-        console.error(e)
     }
     return box
 }
@@ -210,6 +214,10 @@ export async function decodeBoxes(boxes, block) {
     let cur = await Promise.all(boxes.map((box) => decodeAuction(box, block)))
     cur = cur.filter(res => res !== undefined)
     cur.sort((a, b) => a.remTime - b.remTime)
+    const favs = getForKey('fav-artworks').map(fav => fav.id)
+    cur.forEach(bx => {
+        if (favs.includes(bx.assets[0].tokenId)) bx.isFav = true
+    })
     return cur
 }
 
