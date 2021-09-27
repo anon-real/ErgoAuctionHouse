@@ -10,6 +10,7 @@ import PropagateLoader from "react-spinners/PropagateLoader";
 import {getBalance} from "../../auction/explorer";
 import NewAuctionAssembler from "../ActiveAuction/Active/newAuctionAssembler";
 import NewArtwork from "./newArtwork";
+import ReactTooltip from "react-tooltip";
 
 const override = css`
   display: block;
@@ -36,11 +37,21 @@ export default class OwnedArtworks extends React.Component {
     async loadArtworks() {
         this.setState({loading: true})
         let ids = []
-        if (isYoroi()) ids = Object.keys(await getYoroiTokens())
-        else ids = (await getBalance(getWalletAddress())).tokens.map(tok => tok.tokenId)
+        let amounts = {}
+        if (isYoroi()) {
+            const tokens = await getYoroiTokens()
+            ids = Object.keys(tokens)
+            ids.forEach(key => amounts[key] = tokens[key].amount)
+        } else {
+            ids = (await getBalance(getWalletAddress())).tokens.map(tok => {
+                amounts[tok.tokenId] = tok.amount
+                return tok.tokenId
+            })
+        }
         let decoded = []
         for (let i = 0; i < ids.length; i++) {
             const dec = await decodeArtwork(null, ids[i], false)
+            dec.amount = amounts[ids[i]]
             decoded = decoded.concat([dec])
         }
         this.setState({artworks: decoded.filter(bx => bx.isArtwork), loading: false})
@@ -50,6 +61,7 @@ export default class OwnedArtworks extends React.Component {
         const listItems = this.state.artworks.map((box) => {
             return (
                 <Col key={box.id} xs="12" md="6" lg="6" xl="3">
+                    <ReactTooltip effect="solid" place="bottom"/>
                     <div
                         style={{
                             borderWidth: '1px',
@@ -60,7 +72,23 @@ export default class OwnedArtworks extends React.Component {
                             textAlign: "center"
                         }}
                         className="mb-3">
-                        <p className='text-center'><b>{box.tokenName}</b></p>
+                        {/*<p className='text-center'><b>{box.tokenName}</b></p>*/}
+                        {/*<p className='text-center'><b>{box.totalIssued}</b></p>*/}
+
+                        <Row style={{margin: 5}}>
+                            <Col className="text-truncate">
+                                <b>{box.tokenName}</b>
+                            </Col>
+
+                            {(box.totalIssued > 1) &&
+                            <Col className="text-truncate">
+                                {box.totalIssued > 1 &&
+                                <i data-tip={`Not an NFT; There are ${box.amount} of this token`}
+                                   style={{fontSize: '12px'}}
+                                   className="font-weight-light">{` - ${box.amount} out of ${box.totalIssued}`}</i>}</Col>
+                            }
+
+                        </Row>
                         <ArtworkMedia avoidFav={true} box={box}/>
                         {isYoroi() && <button type="button"
                                               onClick={() => this.setState({
