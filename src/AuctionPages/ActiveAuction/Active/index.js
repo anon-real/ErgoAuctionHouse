@@ -412,8 +412,10 @@ class ActiveAuctions extends React.Component {
                                 this.SubmitSearchAuctions();
                             }}>
                                 <input 
-                                    disabled={false} 
-                                    className="search-input ml-1" 
+                                    disabled={this.state.selectedAuctions?.length !== 0} 
+                                    className={cx('search-input ml-1', {
+                                        'disabled-input': this.state.selectedAuctions?.length !== 0,
+                                    })}
                                     placeholder="Search in the name, description, artist address, and bidder's address" 
                                     value={this.state.searchValue} 
                                     onChange={(e)=>{
@@ -423,20 +425,17 @@ class ActiveAuctions extends React.Component {
                                         }
                                     }}
                                 />
-                                <button className="search-icon-container" type="submit">
-                                    <i className="lnr lnr-magnifier search-icon"/>
-                                </button>
+                                {(this.state.selectedAuctions?.length === 0)?
+                                    <button className="search-icon-container" type="submit">
+                                        <i className="lnr lnr-magnifier search-icon"/>
+                                    </button>
+                                    :
+                                    <button className="search-icon-container" onClick={this.clearSearch}>
+                                        <i class="lnr lnr-cross mr-2"/>
+                                        <span>Reset</span>
+                                    </button>
+                                }
                             </form>
-                        </div>
-                        <div
-                            className={cx('page-title-subheading d-flex flex-column flex-md-row align-items-center', {
-                                'invisible': this.state.selectedAuctions?.length === 0,
-                            })}
-                        >
-                            <button type="button" class="btn-outline-lin m-2 border-0 btn btn-outline-primary" onClick={this.clearSearch}>
-                                <i class="lnr lnr-cross mr-2"/>
-                                <span>Clear Search</span>
-                            </button>
                         </div>
                     </div>
                 </div>

@@ -17075,6 +17075,7 @@ svg {
     border:none;
     background-color: transparent;
     outline: none;
+    cursor: pointer;
 }
 
 .search-icon{
@@ -17093,3 +17094,7 @@ svg {
         flex-direction: column;
     }
 } 
+
+.disabled-input{
+    opacity:0.5;
+}
