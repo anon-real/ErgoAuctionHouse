@@ -1,6 +1,6 @@
 import React, {Fragment} from 'react';
 import {Button, Col, Row,} from 'reactstrap';
-import {getWalletAddress, isWalletSaved, isYoroi,} from '../../auction/helpers';
+import {getWalletAddress, isAssembler, isWalletSaved, isYoroi,} from '../../auction/helpers';
 import {css} from '@emotion/core';
 import 'react-h5-audio-player/lib/styles.css';
 import ArtworkMedia from "../artworkMedia";
@@ -122,6 +122,15 @@ export default class OwnedArtworks extends React.Component {
                 <Row>
                     <Col md='8'/>
                     <Col md='4' className='text-right'>
+                        {isAssembler() && <Button
+                            onClick={() => this.setState({modalAssembler: true})}
+                            outline
+                            className="btn-outline-lin m-2 border-0"
+                            color="primary"
+                        >
+                            <i className="nav-link-icon lnr-plus-circle"> </i>
+                            <span>New Auction</span>
+                        </Button>}
                         <Button
                             onClick={() => this.setState({newArtworkModal: true})}
                             outline
