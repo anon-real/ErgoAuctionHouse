@@ -265,6 +265,7 @@ class ActiveAuctions extends React.Component {
             this.state.allAuctions.map((data) => {
                 console.log('Single',data)
                 if(data.description.match(re)  !== null || 
+                data.tokenName.match(re)  !== null ||
                 data.artist.search(finalValue) !== -1 || 
                 data.bidder.search(finalValue) !== -1)
                     SelectedAuctions.push(data)
@@ -413,7 +414,7 @@ class ActiveAuctions extends React.Component {
                                 <input 
                                     disabled={false} 
                                     className="search-input ml-1" 
-                                    placeholder="Search in the description, artist address, and bidder's address" 
+                                    placeholder="Search in the name, description, artist address, and bidder's address" 
                                     value={this.state.searchValue} 
                                     onChange={(e)=>{
                                         this.updateParams('searchValue', e.target.value)
