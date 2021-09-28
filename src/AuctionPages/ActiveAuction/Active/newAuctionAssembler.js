@@ -59,20 +59,22 @@ class NewAuctionAssembler extends React.Component {
         if (this.props.isOpen && !nextProps.isOpen) {
             this.setState({modalLoading: false, assets: {}});
         } else if (!this.props.isOpen && nextProps.isOpen) {
-            this.setState({tokenLoading: true})
-            getYoroiTokens().then(res => {
-                const rendered = Object.keys(res).map(key => {
-                    return {
-                        label: res[key].name + ` (${friendlyAddress(key, 5)})`,
-                        value: key,
-                        amount: res[key].amount,
-                    }
+            if (isYoroi()) {
+                this.setState({tokenLoading: true})
+                getYoroiTokens().then(res => {
+                    const rendered = Object.keys(res).map(key => {
+                        return {
+                            label: res[key].name + ` (${friendlyAddress(key, 5)})`,
+                            value: key,
+                            amount: res[key].amount,
+                        }
+                    })
+                    let st = {tokens: rendered, tokenLoading: false}
+                    if (this.props.selected)
+                        st.selectedToken = rendered.filter(tok => tok.value === this.props.selected)[0]
+                    this.setState(st)
                 })
-                let st = {tokens: rendered, tokenLoading: false}
-                if (this.props.selected)
-                    st.selectedToken = rendered.filter(tok => tok.value === this.props.selected)[0]
-                this.setState(st)
-            })
+            }
         }
     }
 
