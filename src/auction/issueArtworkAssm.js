@@ -1,6 +1,6 @@
 import {txFee} from "./consts";
-import {addNotification, getTxUrl, getWalletAddress, showMsg} from "./helpers";
-import {colTuple, encodeByteArray, encodeHex, encodeNum} from "./serializer";
+import {addForKey, addNotification, getTxUrl, getWalletAddress, isYoroi, showMsg} from "./helpers";
+import {colTuple, encodeByteArray, encodeHex, encodeNum, longToCurrency} from "./serializer";
 import {Serializer} from "@coinbarn/ergo-ts/dist/serializer";
 import {follow, p2s} from "./assembler";
 import {Address} from "@coinbarn/ergo-ts/dist/models/address";
@@ -26,7 +26,7 @@ const template = `{
     sigmaProp(OUTPUTS.size == 2 && (outputOk || returnFunds) && HEIGHT < $timestampL)
 }`;
 
-export async function issueArtwork(name, description, quantity, royalty, hash, assetType, url, cover) {
+export async function issueArtwork(name, description, quantity, royalty, hash, assetType, url, cover, modal) {
     let outBox = {
         ergValue: txFee,
         amount: quantity,
@@ -66,9 +66,40 @@ export async function issueArtwork(name, description, quantity, royalty, hash, a
             R4: await encodeNum(royalty * 10, true),
             R5: await encodeHex(new Address(getWalletAddress()).ergoTree),
         }
-        const txId = await yoroiSendFunds({ERG: txFee * 2}, address, await currentBlock(), registers, false)
-        if (txId !== undefined && txId.length > 0)
-            addNotification(`Your artwork "${name}" is being issued`, getTxUrl(txId))
+        if (isYoroi()) {
+            const txId = await yoroiSendFunds({ERG: txFee * 2}, address, await currentBlock(), registers, false)
+            if (txId !== undefined && txId.length > 0)
+                addNotification(`Your artwork "${name}" is being issued`, getTxUrl(txId))
+        } else {
+            let request = {
+                address: (await getIntermediateArtworkP2s(royalty * 10, getWalletAddress(), address)).address,
+                returnTo: getWalletAddress(),
+                startWhen: {
+                    erg: txFee * 3,
+                },
+                txSpec: {
+                    requests: [{
+                        value: -1,
+                        address: address,
+                        registers: registers
+                    }],
+                    fee: txFee,
+                    inputs: ['$userIns'],
+                    dataInputs: [],
+                },
+            };
+            const res2 = await follow(request)
+            if (res2.id !== undefined) {
+                addForKey({
+                    id: res.id,
+                    name: name,
+                    address: address,
+                    time: moment.valueOf()
+                }, 'my-artworks')
+                modal(request.address, (txFee * 3) / 1e9, false)
+            }
+            else showMsg('Error while issuing the artwork', true)
+        }
     }
 }
 
@@ -90,5 +121,19 @@ async function getArtworkP2s(ergAmount, quantity, artworkHash, assetType) {
         .replace('$issueAmount', quantity)
         .replace('$timestamp', moment().valueOf())
         .replaceAll('\n', '\\n');
+    return p2s(script);
+}
+
+async function getIntermediateArtworkP2s(royalty, artistAddr, address) {
+    let artistTreeHex = new Address(artistAddr).ergoTree
+    let artistTree = Buffer.from(artistTreeHex, 'hex').toString('base64');
+    let p2sAddr = Buffer.from(new Address(address).ergoTree, 'hex').toString('base64');
+
+    let script = `{
+      OUTPUTS(0).R4[Int].get == ${royalty} &&
+      OUTPUTS(0).R5[Coll[Byte]].get == fromBase64("${artistTree}") &&
+      OUTPUTS(0).propositionBytes == fromBase64("${p2sAddr}") &&
+      OUTPUTS.size == 2
+    }`
     return p2s(script);
 }
