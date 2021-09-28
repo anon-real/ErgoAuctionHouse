@@ -43,7 +43,7 @@ export default class NewArtwork extends React.Component {
         if (this.getFileType(this.state.file) === 'audio' && this.state.audioCover)
             cover = await uploadArtwork(this.state.audioCover)
         await issueArtwork(this.state.name, this.state.description, parseInt(this.state.quantity), this.state.values[0],
-            this.state.checksum, type, cid, cover)
+            this.state.checksum, type, cid, cover, this.props.sendModal)
         this.setState({loading: false})
         this.props.close()
     }
