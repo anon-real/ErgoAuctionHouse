@@ -179,7 +179,6 @@ export async function pendings() {
 
 export async function myArtworks() {
     const artworks = getForKey('my-artworks')
-    console.log(artworks)
     for (let i = 0; i < artworks.length; i++) {
         try {
             const unc = (await stat(artworks[i].id))
