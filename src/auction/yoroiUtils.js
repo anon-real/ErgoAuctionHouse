@@ -151,7 +151,8 @@ export async function getYoroiTokens() {
             if (!Object.keys(tokens).includes(ass.tokenId))
                 tokens[ass.tokenId] = {
                     amount: 0,
-                    name: ass.name
+                    name: ass.name,
+                    tokenId: ass.tokenId
                 }
             tokens[ass.tokenId].amount += parseInt(ass.amount)
         })

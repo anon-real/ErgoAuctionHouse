@@ -445,7 +445,7 @@ class ActiveAuctions extends React.Component {
                     <Coverflow
                         className='coverflow'
                         width={960}
-                        height={330}
+                        height={550}
                         displayQuantityOfSide={2}
                         navigation={false}
                         enableHeading={true}
@@ -463,7 +463,6 @@ class ActiveAuctions extends React.Component {
                         {/*     data-action="http://tw.yahoo.com"/>*/}
                     {/* </Coverflow> */}
                 {/* </div>} */}
-
                 {this.state.loading ? (
                     <div
                         style={{
