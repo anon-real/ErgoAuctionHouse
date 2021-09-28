@@ -42,8 +42,7 @@ export const supportedCurrencies = {
         initial: 1,
     }
 }
-// export const assmUrl = 'https://assembler.ergoauctions.org/';
-export const assmUrl = 'http://localhost:9000/';
+export const assmUrl = 'https://assembler.ergoauctions.org/';
 export const startFee = 100000000
 
 export const artworkTypes = {

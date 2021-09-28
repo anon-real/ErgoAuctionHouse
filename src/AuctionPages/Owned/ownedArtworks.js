@@ -11,6 +11,7 @@ import {getBalance} from "../../auction/explorer";
 import NewAuctionAssembler from "../ActiveAuction/Active/newAuctionAssembler";
 import NewArtwork from "./newArtwork";
 import ReactTooltip from "react-tooltip";
+import SendModal from "../ActiveAuction/Active/sendModal";
 
 const override = css`
   display: block;
@@ -27,11 +28,22 @@ export default class OwnedArtworks extends React.Component {
             box: null
         };
         this.loadArtworks = this.loadArtworks.bind(this);
+        this.toggleSendModal = this.toggleSendModal.bind(this);
     }
 
     componentWillMount() {
         if (isWalletSaved()) this.loadArtworks().then(r => {
         })
+    }
+
+    toggleSendModal(address = '', bid = 0, isAuction = false, currency = 'ERG') {
+        this.setState({
+            sendModal: !this.state.sendModal,
+            bidAddress: address,
+            bidAmount: bid,
+            isAuction: isAuction,
+            currency: currency
+        });
     }
 
     async loadArtworks() {
@@ -103,9 +115,11 @@ export default class OwnedArtworks extends React.Component {
         });
         return (
             <Fragment>
-                <NewArtwork isOpen={this.state.newArtworkModal}
+                <NewArtwork
+                    sendModal={this.toggleSendModal}
+                    isOpen={this.state.newArtworkModal}
                             close={() => this.setState({newArtworkModal: !this.state.newArtworkModal})}/>
-                {isYoroi() && <Row>
+                <Row>
                     <Col md='8'/>
                     <Col md='4' className='text-right'>
                         <Button
@@ -118,12 +132,20 @@ export default class OwnedArtworks extends React.Component {
                             <span>Create Artwork</span>
                         </Button>
                     </Col>
-                </Row>}
+                </Row>
                 <NewAuctionAssembler
                     isOpen={this.state.modalAssembler}
                     close={() => this.setState({modalAssembler: !this.state.modalAssembler})}
                     selected={this.state.selected}
                     assemblerModal={this.toggleAssemblerModal}
+                />
+                <SendModal
+                    isOpen={this.state.sendModal}
+                    close={() => this.setState({sendModal: false})}
+                    bidAmount={this.state.bidAmount}
+                    isAuction={this.state.isAuction}
+                    bidAddress={this.state.bidAddress}
+                    currency={this.state.currency}
                 />
                 {!isWalletSaved() && (
                     <strong

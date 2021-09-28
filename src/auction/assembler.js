@@ -177,6 +177,24 @@ export async function pendings() {
     }
 }
 
+export async function myArtworks() {
+    const artworks = getForKey('my-artworks')
+    console.log(artworks)
+    for (let i = 0; i < artworks.length; i++) {
+        try {
+            const unc = (await stat(artworks[i].id))
+            console.log('yes', unc)
+            if (unc.tx) {
+                removeForKey('my-artworks', artworks[i].id)
+                addNotification(`Your artwork "${artworks[i].name}" is being issued`, getTxUrl(unc.tx.id))
+            }
+            const past = moment.duration(moment().diff(moment(artworks[i].time))).asMinutes();
+            if (past > 120)
+                removeForKey('my-artworks', artworks[i].id)
+        } catch (e) {}
+    }
+}
+
 export async function handleAll() {
     try {
         await updateDataInput()
@@ -201,6 +219,11 @@ export async function handleAll() {
     }
     try {
         await favArtworks()
+    } catch (e) {
+        console.error(e)
+    }
+    try {
+        await myArtworks()
     } catch (e) {
         console.error(e)
     }
