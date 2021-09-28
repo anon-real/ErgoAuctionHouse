@@ -263,13 +263,15 @@ class ActiveAuctions extends React.Component {
             let SelectedAuctions = [];
             var re = new RegExp(finalValue, 'i');
             this.state.allAuctions.map((data) => {
-                if(data.description.match(re)  !== null || data.artist.search(finalValue) !== -1)
+                console.log('Single',data)
+                if(data.description.match(re)  !== null || 
+                data.artist.search(finalValue) !== -1 || 
+                data.bidder.search(finalValue) !== -1)
                     SelectedAuctions.push(data)
             })
             if(SelectedAuctions.length === 0)
                 SelectedAuctions = null;
-            this.setState({selectedAuctions:SelectedAuctions,searchValue:''})
-            this.updateParams('searchValue', finalValue)
+            this.setState({selectedAuctions:SelectedAuctions})
         }
     }
 
@@ -414,7 +416,10 @@ class ActiveAuctions extends React.Component {
                                     placeholder="Search in the description, artist address, and bidder's address" 
                                     value={this.state.searchValue} 
                                     onChange={(e)=>{
-                                        this.setState({searchValue:e.target.value})
+                                        this.updateParams('searchValue', e.target.value)
+                                        if(e.target.value === ''){
+                                            this.setState({searchValue:e.target.value})
+                                        }
                                     }}
                                 />
                                 <button className="search-icon-container" type="submit">
