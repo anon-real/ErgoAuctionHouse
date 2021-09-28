@@ -13,32 +13,6 @@ import {artworkTypes} from "../../auction/consts";
 import {issueArtwork} from "../../auction/issueArtworkAssm";
 import { Range } from 'react-range';
 
-const ImageAudioVideo = () => {
-    const getUploadParams = ({meta}) => {
-        const url = 'https://httpbin.org/post'
-        return {url, meta: {fileUrl: `${url}/${encodeURIComponent(meta.name)}`}}
-    }
-
-    const handleChangeStatus = ({meta}, status) => {
-        console.log(status, meta)
-    }
-
-    const handleSubmit = (files, allFiles) => {
-        console.log(files.map(f => f.meta))
-        allFiles.forEach(f => f.remove())
-    }
-
-    return (
-        <Dropzone
-            getUploadParams={getUploadParams}
-            onChangeStatus={handleChangeStatus}
-            onSubmit={handleSubmit}
-        >
-
-        </Dropzone>
-    )
-}
-
 export default class NewArtwork extends React.Component {
     constructor(props) {
         super(props);
@@ -69,7 +43,7 @@ export default class NewArtwork extends React.Component {
         if (this.getFileType(this.state.file) === 'audio' && this.state.audioCover)
             cover = await uploadArtwork(this.state.audioCover)
         await issueArtwork(this.state.name, this.state.description, parseInt(this.state.quantity), this.state.values[0],
-            this.state.checksum, type, cid, cover)
+            this.state.checksum, type, cid, cover, this.props.sendModal)
         this.setState({loading: false})
         this.props.close()
     }
