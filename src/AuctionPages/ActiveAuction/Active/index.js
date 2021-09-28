@@ -367,14 +367,14 @@ class ActiveAuctions extends React.Component {
                     <Coverflow
                         className='coverflow'
                         width={960}
-                        height={330}
+                        height={550}
                         displayQuantityOfSide={2}
                         navigation={false}
                         enableHeading={true}
                         enableScroll={false}
                     >
                         {this.getHottest().map(hot => {
-                            return <ArtworkMedia box={hot} height='100%' width='100%'
+                            return <ArtworkMedia box={hot} height='250px' width='100%'
                                                  avoidDetail={true}
                                                  avoidFav={true}
                                                  alt={hot.tokenName}
