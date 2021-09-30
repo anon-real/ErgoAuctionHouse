@@ -35,11 +35,13 @@ const override = css`
 const sortKeyToVal = {
     '0': 'Lowest remaining time',
     '1': 'Highest remaining time',
-    '2': 'Highest price',
-    '3': 'Lowest price',
+    '2': 'Highest bid',
+    '3': 'Lowest bid',
     '4': 'Latest bids',
-    '5': 'Me As Seller First',
-    '6': 'Me As Bidder First',
+    '5': 'My artworks first',
+    '6': 'My bids first',
+    '7': 'ERG auctions first',
+    '8': 'Non ERG auctions first',
 }
 
 const types = ['all', 'picture', 'audio', 'video', 'other']
@@ -195,15 +197,27 @@ class ActiveAuctions extends React.Component {
         else if (key === '1')
             auctions.sort((a, b) => b.remTimeTimestamp - a.remTimeTimestamp)
         else if (key === '2')
-            auctions.sort((a, b) => b.value - a.value)
+            auctions.sort((a, b) => {
+                if (a.curBid < a.minBid) return 1
+                if (b.curBid < b.minBid) return -1
+                else return b.curBid - a.curBid
+            })
         else if (key === '3')
-            auctions.sort((a, b) => a.value - b.value)
+            auctions.sort((a, b) => {
+                if (a.curBid < a.minBid) return 1
+                if (b.curBid < b.minBid) return -1
+                else return a.curBid - b.curBid
+            })
         else if (key === '4')
             auctions.sort((a, b) => b.creationHeight - a.creationHeight)
         else if (key === '5' && isWalletSaved())
             auctions.sort((a, b) => (b.seller === getWalletAddress()) - (a.seller === getWalletAddress()))
         else if (key === '6' && isWalletSaved())
             auctions.sort((a, b) => (b.bidder === getWalletAddress()) - (a.bidder === getWalletAddress()))
+        else if (key === '7')
+            auctions.sort((a, b) => (b.currency === 'ERG') - (a.currency === 'ERG'))
+        else if (key === '8')
+            auctions.sort((a, b) => (b.currency !== 'ERG') - (a.currency !== 'ERG'))
         return auctions
     }
 
@@ -233,7 +247,7 @@ class ActiveAuctions extends React.Component {
     getHottest() {
         // const pictureAuctions = this.filterAuctions(this.state.allAuctions, 'picture')
         const pictureAuctions = this.state.allAuctions
-        if (pictureAuctions.length > 2)
+        if (pictureAuctions.length >= 5)
             return this.sortAuctions(this.state.allAuctions, '4').slice(0, 5)
         return []
     }

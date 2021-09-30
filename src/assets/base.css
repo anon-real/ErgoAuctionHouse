@@ -11313,7 +11313,7 @@ button,
 
 .fixed-sidebar .app-main .app-main__outer {
     z-index: 9;
-    padding-left: 280px;
+    /*padding-left: 280px;*/
 }
 
 .fixed-sidebar.fixed-header .app-sidebar .app-header__logo {
@@ -11325,7 +11325,7 @@ button,
 }
 
 .fixed-sidebar:not(.fixed-header) .app-header {
-    margin-left: 280px;
+    /*margin-left: 280px;*/
 }
 
 .fixed-sidebar:not(.fixed-header) .app-header .app-header__logo {
@@ -11333,7 +11333,7 @@ button,
 }
 
 .fixed-sidebar.closed-sidebar:not(.fixed-header) .app-header {
-    margin-left: 80px;
+    /*margin-left: 80px;*/
 }
 
 .fixed-sidebar.closed-sidebar:not(.fixed-header) .app-sidebar .app-header__logo {
@@ -16971,7 +16971,7 @@ svg {
     color: var(--primary);
     display:'flex';
     align-items:'center';
-    font-size:25px;
+    font-size:30px;
 }
 
 .notificationBadge {
