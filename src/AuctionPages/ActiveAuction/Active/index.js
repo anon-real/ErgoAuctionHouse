@@ -46,6 +46,7 @@ const types = ['all', 'picture', 'audio', 'video', 'other']
 
 const limit = 9
 const updatePeriod = 40
+let searchflagControl = true;
 
 class ActiveAuctions extends React.Component {
     constructor(props) {
@@ -56,6 +57,9 @@ class ActiveAuctions extends React.Component {
             sortKey: '0',
             end: limit,
             values: [],
+            lastLoaded: [],
+            searchValue:'',
+            selectedAuctions:[]
         };
         this.openAuction = this.openAuction.bind(this);
         this.sortAuctions = this.sortAuctions.bind(this);
@@ -65,6 +69,8 @@ class ActiveAuctions extends React.Component {
         this.updateParams = this.updateParams.bind(this);
         this.getToShow = this.getToShow.bind(this);
         this.getHottest = this.getHottest.bind(this);
+        this.SubmitSearchAuctions = this.SubmitSearchAuctions.bind(this);
+        this.clearSearch = this.clearSearch.bind(this);
     }
 
     toggleAssemblerModal(address = '', bid = 0, isAuction = false, currency = 'ERG') {
@@ -225,9 +231,11 @@ class ActiveAuctions extends React.Component {
     }
 
     getToShow() {
-        const auctions = this.state.allAuctions
-        const filtered = this.filterAuctions(auctions)
-        return this.sortAuctions(filtered).slice(0, this.state.end)
+        if(this.state.selectedAuctions){
+            const auctions =  (this.state.selectedAuctions?.length !== 0) ? this.state.selectedAuctions.slice(0, this.state.end) : this.state.allAuctions.slice(0, this.state.end);
+            const filtered = this.filterAuctions(auctions);
+            return this.sortAuctions(filtered).slice(0, this.state.end)
+        }else return []
     }
 
     getHottest() {
@@ -238,8 +246,46 @@ class ActiveAuctions extends React.Component {
         return []
     }
 
+    // setSelectedAuctions(auctions){
+    //     this.setState({loading:true})
+    //     setTimeout(()=>this.setState({selectedAuctions: selectedAuctions,loading:false}),1000) // SetTimeout For better UX 
+    // }
+
+    clearSearch(){
+        this.setState({loading:false,searchValue:'',selectedAuctions:[]})
+        this.updateParams('searchValue', '')
+    }
+
+    SubmitSearchAuctions(){
+        let queries = this.parseQueries(this.props.location.search).searchValue
+        let finalValue = (queries && queries !== '') ? queries : this.state.searchValue
+        if(finalValue !== ''){
+            let SelectedAuctions = [];
+            var re = new RegExp(finalValue, 'i');
+            this.state.allAuctions.map((data) => {
+                console.log('Single',data)
+                if(data.description.match(re)  !== null || 
+                data.tokenName.match(re)  !== null ||
+                data.artist.search(finalValue) !== -1 || 
+                data.bidder.search(finalValue) !== -1)
+                    SelectedAuctions.push(data)
+            })
+            if(SelectedAuctions.length === 0)
+                SelectedAuctions = null;
+            this.setState({selectedAuctions:SelectedAuctions})
+        }
+    }
+
+    HandleSearch(){
+        if(searchflagControl && this.state.allAuctions.length !== 0){
+            this.SubmitSearchAuctions();
+            searchflagControl = false;
+        }
+    }
+
     render() {
         let values = this.calcValues(this.filterAuctions(this.state.allAuctions))
+        this.HandleSearch();
         return (
             <Fragment>
                 <NewAuctionAssembler
@@ -358,10 +404,42 @@ class ActiveAuctions extends React.Component {
                                 </Col>
                             </Row>
                         </Container>
-
+                    </div>
+                    <div className="search-container">
+                        <div className="search-box">
+                            <form className="d-flex justify-content-between align-items-center" onSubmit={(e)=>{
+                                e.preventDefault();
+                                this.SubmitSearchAuctions();
+                            }}>
+                                <input 
+                                    disabled={this.state.selectedAuctions?.length !== 0} 
+                                    className={cx('search-input ml-1', {
+                                        'disabled-input': this.state.selectedAuctions?.length !== 0,
+                                    })}
+                                    placeholder="Search in the name, description, artist address, and bidder's address" 
+                                    value={this.state.searchValue} 
+                                    onChange={(e)=>{
+                                        this.updateParams('searchValue', e.target.value)
+                                        if(e.target.value === ''){
+                                            this.setState({searchValue:e.target.value})
+                                        }
+                                    }}
+                                />
+                                {(this.state.selectedAuctions?.length === 0)?
+                                    <button className="search-icon-container" type="submit">
+                                        <i className="lnr lnr-magnifier search-icon"/>
+                                    </button>
+                                    :
+                                    <button className="search-icon-container" onClick={this.clearSearch}>
+                                        <i class="lnr lnr-cross mr-2"/>
+                                        <span>Reset</span>
+                                    </button>
+                                }
+                            </form>
+                        </div>
                     </div>
                 </div>
-                {!this.state.loading && this.getHottest().length > 0  && <div
+                {/* {!this.state.loading && this.getHottest().length > 0  && <div
                     className="mb-xl-5"
                 >
                     <Coverflow
@@ -372,16 +450,19 @@ class ActiveAuctions extends React.Component {
                         navigation={false}
                         enableHeading={true}
                         enableScroll={false}
-                    >
-                        {this.getHottest().map(hot => {
-                            return <ArtworkMedia box={hot} height='250px' width='100%'
+                    > */}
+                        {/* {this.getHottest().map(hot => {
+                            // return <img style={{position: "relative"}} src={hot.artworkUrl} alt={hot.tokenName}
+                            //      data-action={getAuctionUrl(hot.boxId)}/>
+                            return <ArtworkMedia box={hot} height='100%' width='100%'
                                                  avoidDetail={true}
                                                  avoidFav={true}
                                                  alt={hot.tokenName}
                                                  data-action={getAuctionUrl(hot.boxId)}/>
-                        })}
-                    </Coverflow>
-                </div>}
+                        })} */}
+                        {/*     data-action="http://tw.yahoo.com"/>*/}
+                    {/* </Coverflow> */}
+                {/* </div>} */}
                 {this.state.loading ? (
                     <div
                         style={{
