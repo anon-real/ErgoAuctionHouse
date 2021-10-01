@@ -17046,3 +17046,55 @@ svg {
     background-color: #fafafa;
     color: #bdbdbd;
 }
+
+
+.search-container{
+    margin-top: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.search-box{
+    background-color: hsla(0,0%,100%,.55);
+    width:600px;
+    border:1px solid lightgray;
+    border-radius: 0.25rem;
+    padding:0.375rem 0.75rem;
+}
+
+.search-box input{
+    border:none;
+    background-color: transparent;
+    width: 100%;
+    outline: none;
+    height:30px
+}
+
+.search-icon-container{
+    border:none;
+    background-color: transparent;
+    outline: none;
+    cursor: pointer;
+}
+
+.search-icon{
+    color:darkgray;
+    cursor:pointer;
+}
+
+@media (max-width: 576px) {
+    .search-box{
+        width:100%
+    }
+}
+
+@media (max-width: 1200px) {
+    .search-container{
+        flex-direction: column;
+    }
+} 
+
+.disabled-input{
+    opacity:0.5;
+}
