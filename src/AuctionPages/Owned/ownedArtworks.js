@@ -146,7 +146,7 @@ export default class OwnedArtworks extends React.Component {
                     isOpen={this.state.modalAssembler}
                     close={() => this.setState({modalAssembler: !this.state.modalAssembler})}
                     selected={this.state.selected}
-                    assemblerModal={this.toggleAssemblerModal}
+                    assemblerModal={this.toggleSendModal}
                 />
                 <SendModal
                     isOpen={this.state.sendModal}

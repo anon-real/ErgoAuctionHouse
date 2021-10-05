@@ -5,6 +5,7 @@ import {boxById, getIssuingBox, txById} from "./explorer";
 import {supportedCurrencies} from "./consts";
 import {getEncodedBox} from "./assembler";
 import {getForKey} from "./helpers";
+import {addNFTInfo, getNFTInfo} from "./dbUtils";
 
 var momentDurationFormatSetup = require("moment-duration-format");
 
@@ -77,94 +78,107 @@ function resolveIpfs(url, isVideo = false) {
 }
 
 export async function decodeArtwork(box, tokenId, considerArtist = true) {
+    let inf = await getNFTInfo(tokenId)
+    if (inf !== undefined) {
+        if (box === null) box = {}
+        box = {...box, ...inf}
+        return box
+    }
+    inf = {}
+
     const res = await getIssuingBox(tokenId)
     if (box === null)
         box = res[0]
-    box.totalIssued = res[0].assets[0].amount
+    inf.totalIssued = res[0].assets[0].amount
     if (Object.keys(res[0].additionalRegisters).length >= 5) {
-        box.isArtwork = true
-        box.artHash = res[0].additionalRegisters.R8
-        box.artCode = res[0].additionalRegisters.R7
-        box.tokenName = res[0].additionalRegisters.R4
-        box.tokenDescription = res[0].additionalRegisters.R5
+        inf.isArtwork = true
+        inf.artHash = res[0].additionalRegisters.R8
+        inf.artCode = res[0].additionalRegisters.R7
+        inf.tokenName = res[0].additionalRegisters.R4
+        inf.tokenDescription = res[0].additionalRegisters.R5
         if (Object.keys(res[0].additionalRegisters).length === 6)
-            box.artworkUrl = res[0].additionalRegisters.R9
+            inf.artworkUrl = res[0].additionalRegisters.R9
     } else if (Object.keys(res[0].additionalRegisters).length >= 1) {
-        box.tokenName = res[0].additionalRegisters.R4
+        inf.tokenName = res[0].additionalRegisters.R4
     }
     if (Object.keys(res[0].additionalRegisters).length >= 2) {
-        box.tokenDescription = res[0].additionalRegisters.R5
+        inf.tokenDescription = res[0].additionalRegisters.R5
     }
 
-    if (box.isArtwork) {
+    if (inf.isArtwork) {
         try {
-            if (box.artCode === "0e020101" || box.artCode === "0e0430313031") {
-                box.isPicture = true
-                box.type = 'picture'
-            } else if (box.artCode === '0e020102') {
-                box.isAudio = true
-                box.type = 'audio'
-            } else if (box.artCode === '0e020103') {
-                box.isVideo = true
-                box.type = 'video'
+            if (inf.artCode === "0e020101" || inf.artCode === "0e0430313031") {
+                inf.isPicture = true
+                inf.type = 'picture'
+            } else if (inf.artCode === '0e020102') {
+                inf.isAudio = true
+                inf.type = 'audio'
+            } else if (inf.artCode === '0e020103') {
+                inf.isVideo = true
+                inf.type = 'video'
             } else {
-                box.isArtwork = false
-                box.type = 'other'
+                inf.isArtwork = false
+                inf.type = 'other'
             }
-            if (box.isArtwork) {
-                box.artHash = await decodeString(box.artHash)
-                box.tokenName = await decodeStr(box.tokenName)
-                if (box.tokenName.length === 0) box.tokenName = '-'
-                box.tokenDescription = await decodeStr(box.tokenDescription)
-                if (box.isAudio) {
+            if (inf.isArtwork) {
+                inf.artHash = await decodeString(inf.artHash)
+                inf.tokenName = await decodeStr(inf.tokenName)
+                if (inf.tokenName.length === 0) inf.tokenName = '-'
+                inf.tokenDescription = await decodeStr(inf.tokenDescription)
+                if (inf.isAudio) {
                     try {
-                        const two = await decodeColTuple(box.artworkUrl)
-                        box.audioUrl = resolveIpfs(two[0])
-                        box.artworkUrl = resolveIpfs(two[1])
+                        const two = await decodeColTuple(inf.artworkUrl)
+                        inf.audioUrl = resolveIpfs(two[0])
+                        inf.artworkUrl = resolveIpfs(two[1])
                     } catch (e) {
-                        box.audioUrl = resolveIpfs(await decodeStr(box.artworkUrl))
-                        box.artworkUrl = null
+                        inf.audioUrl = resolveIpfs(await decodeStr(inf.artworkUrl))
+                        inf.artworkUrl = null
                     }
 
-                } else if (box.artworkUrl)
-                    box.artworkUrl = resolveIpfs(await decodeStr(box.artworkUrl), box.isVideo)
+                } else if (inf.artworkUrl)
+                    inf.artworkUrl = resolveIpfs(await decodeStr(inf.artworkUrl), inf.isVideo)
             }
         } catch (e) {
-            box.isArtwork = false
+            inf.isArtwork = false
         }
 
     } else {
-        if (box.tokenName) {
-            box.tokenName = await decodeStr(box.tokenName)
+        if (inf.tokenName) {
+            inf.tokenName = await decodeStr(inf.tokenName)
         }
-        if (box.tokenDescription) {
-            box.tokenDescription = await decodeStr(box.tokenDescription)
+        if (inf.tokenDescription) {
+            inf.tokenDescription = await decodeStr(inf.tokenDescription)
         }
     }
 
     if (considerArtist) {
         try {
-            box.artist = 'Unknown'
-            const tokBox = await boxById(box.assets[0].tokenId)
-            box.royalty = 0
+            inf.artist = 'Unknown'
+            const tokBox = await boxById(tokenId)
+            inf.royalty = 0
             if (tokBox.additionalRegisters.R4)
-                box.royalty = await decodeNum(tokBox.additionalRegisters.R4, true)
+                inf.royalty = await decodeNum(tokBox.additionalRegisters.R4, true)
             if (tokBox.additionalRegisters.R5) {
-                box.royalty = await decodeNum(tokBox.additionalRegisters.R4, true)
-                box.artist = Address.fromErgoTree(await decodeString(tokBox.additionalRegisters.R5)).address;
+                inf.royalty = await decodeNum(tokBox.additionalRegisters.R4, true)
+                inf.artist = Address.fromErgoTree(await decodeString(tokBox.additionalRegisters.R5)).address;
             }
             if (AddressKind.P2PK === new Address(tokBox.address).getType())
-                box.artist = tokBox.address
-            else if (box.artist === 'Unknown') {
+                inf.artist = tokBox.address
+            else if (inf.artist === 'Unknown') {
                 const tokTx = await txById(tokBox.txId)
                 if (AddressKind.P2PK === new Address(tokTx.inputs[0].address).getType())
-                    box.artist = tokTx.inputs[0].address
+                    inf.artist = tokTx.inputs[0].address
             }
         } catch (e) {
             console.error(e)
         }
     }
-    return box
+    if (considerArtist) {
+        inf.NFTID = tokenId
+        addNFTInfo(inf).then((d) => console.log(d))
+            .catch((e) => console.error(e))
+    }
+    return {...box, ...inf}
 }
 
 export async function decodeAuction(box, block) {
@@ -206,7 +220,7 @@ export async function decodeAuction(box, block) {
     if (box.instantAmount !== -1 && box.curBid >= box.instantAmount)
         box.isFinished = true
 
-    await decodeArtwork(box, box.assets[0].tokenId)
+    box = await decodeArtwork(box, box.assets[0].tokenId)
     return box
 }
 
