@@ -341,7 +341,6 @@ class ActiveAuctions extends React.Component {
                                         'd-none': false,
                                     })}
                                 >
-                                    Here you can see current active auctions.
                                     Last updated {this.state.lastUpdated}{' '}
                                     seconds ago.
                                 </div>
@@ -368,10 +367,9 @@ class ActiveAuctions extends React.Component {
                         <div className="page-title-actions">
                             <TitleComponent2/>
                         </div>
-                        <Container>
+                        <div>
                             <Row>
-                                <Col md='8'/>
-                                <Col md='4' className='text-right'>
+                                <Col className='text-right'>
                                     <Button
                                         onClick={this.openAuction}
                                         outline
@@ -414,41 +412,45 @@ class ActiveAuctions extends React.Component {
                                                 }}>{type}</DropdownItem>)}
                                         </DropdownMenu>
                                     </UncontrolledButtonDropdown>
+
+
+                                    <div className="search-container">
+                                        <div className="search-box">
+                                            <form className="d-flex justify-content-between align-items-center"
+                                                  onSubmit={(e) => {
+                                                      e.preventDefault();
+                                                      this.SubmitSearchAuctions();
+                                                  }}>
+                                                <input
+                                                    disabled={this.state.selectedAuctions?.length !== 0}
+                                                    className={cx('search-input ml-1', {
+                                                        'disabled-input': this.state.selectedAuctions?.length !== 0,
+                                                    })}
+                                                    placeholder="Search in name, description and addresses"
+                                                    value={this.state.searchValue}
+                                                    onChange={(e) => {
+                                                        this.updateParams('searchValue', e.target.value)
+                                                        if (e.target.value === '') {
+                                                            this.setState({searchValue: e.target.value})
+                                                        }
+                                                    }}
+                                                />
+                                                {(this.state.selectedAuctions?.length === 0) ?
+                                                    <button className="search-icon-container" type="submit">
+                                                        <i className="lnr lnr-magnifier search-icon"/>
+                                                    </button>
+                                                    :
+                                                    <button className="search-icon-container"
+                                                            onClick={this.clearSearch}>
+                                                        <i className="lnr lnr-cross mr-2"/>
+                                                        <span>Reset</span>
+                                                    </button>
+                                                }
+                                            </form>
+                                        </div>
+                                    </div>
                                 </Col>
                             </Row>
-                        </Container>
-                    </div>
-                    <div className="search-container">
-                        <div className="search-box">
-                            <form className="d-flex justify-content-between align-items-center" onSubmit={(e)=>{
-                                e.preventDefault();
-                                this.SubmitSearchAuctions();
-                            }}>
-                                <input 
-                                    disabled={this.state.selectedAuctions?.length !== 0} 
-                                    className={cx('search-input ml-1', {
-                                        'disabled-input': this.state.selectedAuctions?.length !== 0,
-                                    })}
-                                    placeholder="Search in name, description and address"
-                                    value={this.state.searchValue} 
-                                    onChange={(e)=>{
-                                        this.updateParams('searchValue', e.target.value)
-                                        if(e.target.value === ''){
-                                            this.setState({searchValue:e.target.value})
-                                        }
-                                    }}
-                                />
-                                {(this.state.selectedAuctions?.length === 0)?
-                                    <button className="search-icon-container" type="submit">
-                                        <i className="lnr lnr-magnifier search-icon"/>
-                                    </button>
-                                    :
-                                    <button className="search-icon-container" onClick={this.clearSearch}>
-                                        <i class="lnr lnr-cross mr-2"/>
-                                        <span>Reset</span>
-                                    </button>
-                                }
-                            </form>
                         </div>
                     </div>
                 </div>
