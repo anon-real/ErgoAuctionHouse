@@ -277,8 +277,7 @@ class ActiveAuctions extends React.Component {
             let SelectedAuctions = [];
             var re = new RegExp(finalValue, 'i');
             this.state.allAuctions.map((data) => {
-                console.log('Single',data)
-                if(data.description.match(re)  !== null || 
+                if(data.description.match(re)  !== null ||
                 data.tokenName.match(re)  !== null ||
                 data.artist.search(finalValue) !== -1 || 
                 data.bidder.search(finalValue) !== -1)
@@ -430,7 +429,7 @@ class ActiveAuctions extends React.Component {
                                     className={cx('search-input ml-1', {
                                         'disabled-input': this.state.selectedAuctions?.length !== 0,
                                     })}
-                                    placeholder="Search in the name, description, artist address, and bidder's address" 
+                                    placeholder="Search in name, description and address"
                                     value={this.state.searchValue} 
                                     onChange={(e)=>{
                                         this.updateParams('searchValue', e.target.value)
