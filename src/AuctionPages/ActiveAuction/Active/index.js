@@ -341,7 +341,7 @@ class ActiveAuctions extends React.Component {
                                         'd-none': false,
                                     })}
                                 >
-                                    Last updated {this.state.lastUpdated}{' '}
+                                    Updated {this.state.lastUpdated}{' '}
                                     seconds ago.
                                 </div>
                                 {this.state.artist && <div

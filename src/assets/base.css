@@ -10710,20 +10710,6 @@ button,
     transition: all .4s linear;
 }
 
-.app-header {
-    height: 60px;
-    display: flex;
-    align-items: center;
-    align-content: center;
-    position: relative;
-    z-index: 10;
-    transition: all .2s;
-}
-
-.app-header.header-shadow {
-    box-shadow: 0 0.46875rem 2.1875rem rgba(0, 0, 0, 0.03), 0 0.9375rem 1.40625rem rgba(0, 0, 0, 0.03), 0 0.25rem 0.53125rem rgba(0, 0, 0, 0.05), 0 0.125rem 0.1875rem rgba(0, 0, 0, 0.03);
-}
-
 .app-header .app-header__content {
     display: flex;
     align-items: center;
@@ -17098,3 +17084,31 @@ svg {
 .disabled-input{
     opacity:0.5;
 }
+
+.content {
+    padding: 16px;
+}
+
+.sticky {
+    position: fixed;
+    top: 0;
+    width: 100%
+}
+
+.sticky + .content {
+    padding-top: 102px;
+}
+.app-header {
+    height: 60px;
+    display: block;
+    align-items: center;
+    align-content: center;
+    position: relative;
+    z-index: 10;
+    transition: all .2s;
+}
+
+.app-header.header-shadow {
+    box-shadow: 0 0.46875rem 2.1875rem rgba(0, 0, 0, 0.03), 0 0.9375rem 1.40625rem rgba(0, 0, 0, 0.03), 0 0.25rem 0.53125rem rgba(0, 0, 0, 0.05), 0 0.125rem 0.1875rem rgba(0, 0, 0, 0.03);
+}
+

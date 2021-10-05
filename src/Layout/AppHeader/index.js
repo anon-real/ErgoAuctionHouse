@@ -5,10 +5,29 @@ import {connect} from 'react-redux';
 
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import WalletModal from "./Components/WalletModal";
-import {Collapse, Nav, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink} from "reactstrap";
+import {Col, Collapse, Nav, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink} from "reactstrap";
 import nodeWallet from "../../assets/images/Ergo_auction_house_logo.png";
 
 class Header extends React.Component {
+    componentDidMount() {
+        window.addEventListener('scroll', this.handleScroll);
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener('scroll', this.handleScroll);
+    }
+
+    handleScroll(event) {
+        let header = document.getElementById("myHeader");
+        let sticky = header.offsetTop;
+
+        if (window.pageYOffset > sticky) {
+            header.classList.add("sticky");
+        } else {
+            header.classList.remove("sticky");
+        }
+    }
+
     render() {
         let {
             headerBackgroundColor,
@@ -17,41 +36,29 @@ class Header extends React.Component {
         } = this.props;
         return (
             <Fragment>
+
                 <ReactCSSTransitionGroup
                     component="div"
-                    className={cx("app-header", false, {'header-shadow': true}, "p-2")}
+                    className={cx("app-header", false, {'header-shadow': true})}
                     transitionName="HeaderAnimation"
                     transitionAppear={true}
                     transitionAppearTimeout={1500}
                     transitionEnter={false}
                     transitionLeave={false}>
+                    <div id='myHeader'>
+                        <Navbar color="white" light expand="md">
+                            <NavbarBrand href="/">
+                                <img
+                                    style={{height: '30px'}}
+                                    src={nodeWallet}
+                                />
 
-                    <div className={cx(
-                        "app-header__content",
-                        {'header-mobile-open': enableMobileMenuSmall},
-                    )}>
-                        <div className="app-header-left">
-                            {/*<MetisMenu content={ActiveNav} activeLinkFromLocation className="vertical-nav-menu" iconNamePrefix=""*/}
-                            {/*           classNameStateIcon="pe-7s-angle-down"/>*/}
-                            {/*<MetisMenu content={HistoryNav} activeLinkFromLocation className="vertical-nav-menu" iconNamePrefix=""*/}
-                            {/*           classNameStateIcon="pe-7s-angle-down"/>*/}
-                            {/*<MetisMenu content={MyArtworks} activeLinkFromLocation className="vertical-nav-menu" iconNamePrefix=""*/}
-                            {/*           classNameStateIcon="pe-7s-angle-down"/>*/}
-                            {/*<div className="divider text-muted opacity-2"/>*/}
-                            {/*<MetisMenu content={About} activeLinkFromLocation className="vertical-nav-menu" iconNamePrefix=""*/}
-                            {/*           classNameStateIcon="pe-7s-angle-down"/>*/}
-                            <Navbar color="white" light expand="md">
-                                <NavbarBrand href="/">
-                                    <img
-                                        style={{height: '30px'}}
-                                        src={nodeWallet}
-                                    />
-
-                                </NavbarBrand>
-                                {/*<a href='/' style={{textDecoration: 'none'}} className='logo-src'>*/}
-                                {/*</a>*/}
-                                <NavbarToggler/>
-                                <Collapse navbar>
+                            </NavbarBrand>
+                            {/*<a href='/' style={{textDecoration: 'none'}} className='logo-src'>*/}
+                            {/*</a>*/}
+                            <NavbarToggler/>
+                            <Collapse navbar>
+                                <Col md='10'>
                                     <Nav className="mr-auto" navbar>
                                         <NavItem>
                                             <NavLink href="#/auction/active?type=all"
@@ -76,13 +83,17 @@ class Header extends React.Component {
                                             </NavLink>
                                         </NavItem>
                                     </Nav>
-                                </Collapse>
-                            </Navbar>
-                        </div>
+                                </Col>
+                                <Col md='2'>
+                                    <div className='float-right'>
+                                        <WalletModal/>
+                                    </div>
+                                </Col>
+                            </Collapse>
+                        </Navbar>
                     </div>
-
-                    <WalletModal/>
                 </ReactCSSTransitionGroup>
+
             </Fragment>
         );
     }
