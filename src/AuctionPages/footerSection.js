@@ -7,6 +7,7 @@ import {css} from '@emotion/core';
 import {Row} from 'react-bootstrap';
 import {longToCurrency} from "../auction/serializer";
 import {bidHelper} from "../auction/newBidAssm";
+import {isWalletSaved, showMsg} from "../auction/helpers";
 
 const override = css`
   display: block;
@@ -80,6 +81,13 @@ export default class FooterSection extends React.Component {
                         <button type="button" className="btn btn-outline-primary btn-sm"
                                 style={{fontSize: 13}}
                                 onClick={(e) => {
+                                    if (!isWalletSaved()) {
+                                        showMsg(
+                                            'In order to place bids, you have to configure the wallet first.',
+                                            true
+                                        );
+                                        return
+                                    }
                                     e.preventDefault();
                                     this.props.loading(true)
                                     bidHelper(this.props.box.nextBid, this.props.box, this.props.assemblerModal)
@@ -100,6 +108,13 @@ export default class FooterSection extends React.Component {
                         <button type="button" className="btn btn-outline-dark btn-sm"
                                 style={{fontSize: 13}}
                                 onClick={(e) => {
+                                    if (!isWalletSaved()) {
+                                        showMsg(
+                                            'In order to place bids, you have to configure the wallet first.',
+                                            true
+                                        );
+                                        return
+                                    }
                                     e.preventDefault();
                                     this.props.loading(true)
                                     bidHelper(this.props.box.instantAmount, this.props.box, this.props.assemblerModal)
