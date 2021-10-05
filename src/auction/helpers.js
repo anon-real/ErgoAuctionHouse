@@ -163,7 +163,12 @@ export function addNotification(msg, lnk, stat = 'info') {
     })
 }
 
+export function isNotifSupported() {
+    return 'Notification' in window
+}
+
 async function notifyMe(msg, lnk) {
+    if (!isNotifSupported()) return
     if (Notification.permission !== 'granted')
         await Notification.requestPermission();
     else {
