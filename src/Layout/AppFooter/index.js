@@ -4,8 +4,6 @@ import github from "../../assets/images/GitHub-Mark.png";
 
 class AppFooter extends React.Component {
     render() {
-
-
         return (
             <Fragment>
                 <div className="app-footer">

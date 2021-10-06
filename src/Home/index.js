@@ -11,7 +11,7 @@ const Homepage = ({match}) => (
     <Fragment>
         <AppHeader/>
         <div className="app-main">
-            <AppSidebar/>
+            {/*<AppSidebar/>*/}
             <div className="app-main__outer">
                 <div className="app-main__inner">
                     <Route path={`${match.url}`} component={Home}/>

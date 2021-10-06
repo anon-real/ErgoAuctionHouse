@@ -10710,20 +10710,6 @@ button,
     transition: all .4s linear;
 }
 
-.app-header {
-    height: 60px;
-    display: flex;
-    align-items: center;
-    align-content: center;
-    position: relative;
-    z-index: 10;
-    transition: all .2s;
-}
-
-.app-header.header-shadow {
-    box-shadow: 0 0.46875rem 2.1875rem rgba(0, 0, 0, 0.03), 0 0.9375rem 1.40625rem rgba(0, 0, 0, 0.03), 0 0.25rem 0.53125rem rgba(0, 0, 0, 0.05), 0 0.125rem 0.1875rem rgba(0, 0, 0, 0.03);
-}
-
 .app-header .app-header__content {
     display: flex;
     align-items: center;
@@ -11313,7 +11299,7 @@ button,
 
 .fixed-sidebar .app-main .app-main__outer {
     z-index: 9;
-    padding-left: 280px;
+    /*padding-left: 280px;*/
 }
 
 .fixed-sidebar.fixed-header .app-sidebar .app-header__logo {
@@ -11325,7 +11311,7 @@ button,
 }
 
 .fixed-sidebar:not(.fixed-header) .app-header {
-    margin-left: 280px;
+    /*margin-left: 280px;*/
 }
 
 .fixed-sidebar:not(.fixed-header) .app-header .app-header__logo {
@@ -11333,7 +11319,7 @@ button,
 }
 
 .fixed-sidebar.closed-sidebar:not(.fixed-header) .app-header {
-    margin-left: 80px;
+    /*margin-left: 80px;*/
 }
 
 .fixed-sidebar.closed-sidebar:not(.fixed-header) .app-sidebar .app-header__logo {
@@ -16972,7 +16958,7 @@ svg {
     color: var(--primary);
     display:'flex';
     align-items:'center';
-    font-size:25px;
+    font-size:30px;
 }
 
 .notificationBadge {
@@ -17009,7 +16995,26 @@ svg {
     width: 28px;
     height: 28px;
     border-radius: 4px;
-    background-color: gray;
+    background-color: darkgrey;
+    -webkit-box-align: center;
+    align-items: center;
+    -webkit-box-pack: center;
+    justify-content: center;
+
+}
+
+.imgfav {
+    box-sizing: border-box;
+    margin: 0px;
+    min-width: 0px;
+    display: flex;
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    background-color: darkgrey;
     -webkit-box-align: center;
     align-items: center;
     -webkit-box-pack: center;
@@ -17033,3 +17038,82 @@ svg {
     height: 300px;
     overflow: auto;
 }
+
+.search-container{
+    margin-top: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.search-box{
+    background-color: hsla(0,0%,100%,.55);
+    width:400px;
+    border:1px solid lightgray;
+    border-radius: 0.25rem;
+    padding:0.375rem 0.75rem;
+}
+
+.search-box input{
+    border:none;
+    background-color: transparent;
+    width: 100%;
+    outline: none;
+    height:30px
+}
+
+.search-icon-container{
+    border:none;
+    background-color: transparent;
+    outline: none;
+    cursor: pointer;
+}
+
+.search-icon{
+    color:darkgray;
+    cursor:pointer;
+}
+
+@media (max-width: 576px) {
+    .search-box{
+        width:100%
+    }
+}
+
+@media (max-width: 1200px) {
+    .search-container{
+        flex-direction: column;
+    }
+} 
+
+.disabled-input{
+    opacity:0.5;
+}
+
+.content {
+    padding: 16px;
+}
+
+.sticky {
+    position: fixed;
+    top: 0;
+    width: 100%
+}
+
+.sticky + .content {
+    padding-top: 102px;
+}
+.app-header {
+    height: 60px;
+    display: block;
+    align-items: center;
+    align-content: center;
+    position: relative;
+    z-index: 10;
+    transition: all .2s;
+}
+
+.app-header.header-shadow {
+    box-shadow: 0 0.46875rem 2.1875rem rgba(0, 0, 0, 0.03), 0 0.9375rem 1.40625rem rgba(0, 0, 0, 0.03), 0 0.25rem 0.53125rem rgba(0, 0, 0, 0.05), 0 0.125rem 0.1875rem rgba(0, 0, 0, 0.03);
+}
+
