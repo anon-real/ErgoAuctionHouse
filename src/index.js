@@ -9,7 +9,7 @@ import Main from './AuctionPages/Main';
 import configureStore from './config/configureStore';
 import {Provider} from 'react-redux';
 import {currentHeight, getBoxesForAsset,} from './auction/explorer';
-import {showMsg} from './auction/helpers';
+import {isNotifSupported, showMsg} from './auction/helpers';
 import {handleAll, pendings} from "./auction/assembler";
 import {additionalData, auctionNFT} from "./auction/consts";
 
@@ -32,6 +32,7 @@ const renderApp = (Component) => {
     );
 
     document.addEventListener('DOMContentLoaded', function() {
+        if (!isNotifSupported()) return
         if (!Notification) {
             return;
         }

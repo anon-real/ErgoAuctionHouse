@@ -4,6 +4,7 @@ import {Address} from "@coinbarn/ergo-ts";
 import {additionalData, auctionNFT} from "./consts";
 import {getBoxesForAsset} from "./explorer";
 import moment from "moment";
+import ahIcon from "../assets/images/Ergo_auction_house_logo.png";
 
 const explorerUrl = 'https://explorer.ergoplatform.com/en/';
 
@@ -162,12 +163,17 @@ export function addNotification(msg, lnk, stat = 'info') {
     })
 }
 
+export function isNotifSupported() {
+    return 'Notification' in window
+}
+
 async function notifyMe(msg, lnk) {
+    if (!isNotifSupported()) return
     if (Notification.permission !== 'granted')
         await Notification.requestPermission();
     else {
         const notification = new Notification('Notification title', {
-            icon: 'https://developers.google.com/web/updates/images/generic/notifications.png',
+            icon: ahIcon,
             body: msg,
         });
         notification.onclick = function () {
@@ -203,4 +209,13 @@ export async function uploadArtwork(file) {
         .then(res => {
             return `ipfs://${res.value.cid}`
         })
+}
+
+export function isJson(str) {
+    try {
+        JSON.parse(str);
+    } catch (e) {
+        return false;
+    }
+    return true;
 }

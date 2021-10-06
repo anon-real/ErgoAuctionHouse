@@ -1,6 +1,6 @@
 import React, {Fragment} from 'react';
 import {Button, Col, Row,} from 'reactstrap';
-import {getWalletAddress, isWalletSaved, isYoroi,} from '../../auction/helpers';
+import {getWalletAddress, isAssembler, isWalletSaved, isYoroi,} from '../../auction/helpers';
 import {css} from '@emotion/core';
 import 'react-h5-audio-player/lib/styles.css';
 import ArtworkMedia from "../artworkMedia";
@@ -10,6 +10,8 @@ import PropagateLoader from "react-spinners/PropagateLoader";
 import {getBalance} from "../../auction/explorer";
 import NewAuctionAssembler from "../ActiveAuction/Active/newAuctionAssembler";
 import NewArtwork from "./newArtwork";
+import ReactTooltip from "react-tooltip";
+import SendModal from "../ActiveAuction/Active/sendModal";
 
 const override = css`
   display: block;
@@ -26,6 +28,7 @@ export default class OwnedArtworks extends React.Component {
             box: null
         };
         this.loadArtworks = this.loadArtworks.bind(this);
+        this.toggleSendModal = this.toggleSendModal.bind(this);
     }
 
     componentWillMount() {
@@ -33,14 +36,34 @@ export default class OwnedArtworks extends React.Component {
         })
     }
 
+    toggleSendModal(address = '', bid = 0, isAuction = false, currency = 'ERG') {
+        this.setState({
+            sendModal: !this.state.sendModal,
+            bidAddress: address,
+            bidAmount: bid,
+            isAuction: isAuction,
+            currency: currency
+        });
+    }
+
     async loadArtworks() {
         this.setState({loading: true})
         let ids = []
-        if (isYoroi()) ids = Object.keys(await getYoroiTokens())
-        else ids = (await getBalance(getWalletAddress())).tokens.map(tok => tok.tokenId)
+        let amounts = {}
+        if (isYoroi()) {
+            const tokens = await getYoroiTokens()
+            ids = Object.keys(tokens)
+            ids.forEach(key => amounts[key] = tokens[key].amount)
+        } else {
+            ids = (await getBalance(getWalletAddress())).tokens.map(tok => {
+                amounts[tok.tokenId] = tok.amount
+                return tok.tokenId
+            })
+        }
         let decoded = []
         for (let i = 0; i < ids.length; i++) {
-            const dec = await decodeArtwork(null, ids[i])
+            const dec = await decodeArtwork(null, ids[i], false)
+            dec.amount = amounts[ids[i]]
             decoded = decoded.concat([dec])
         }
         this.setState({artworks: decoded.filter(bx => bx.isArtwork), loading: false})
@@ -50,6 +73,7 @@ export default class OwnedArtworks extends React.Component {
         const listItems = this.state.artworks.map((box) => {
             return (
                 <Col key={box.id} xs="12" md="6" lg="6" xl="3">
+                    <ReactTooltip effect="solid" place="bottom"/>
                     <div
                         style={{
                             borderWidth: '1px',
@@ -60,8 +84,24 @@ export default class OwnedArtworks extends React.Component {
                             textAlign: "center"
                         }}
                         className="mb-3">
-                        <p className='text-center'><b>{box.tokenName}</b></p>
-                        <ArtworkMedia box={box}/>
+                        {/*<p className='text-center'><b>{box.tokenName}</b></p>*/}
+                        {/*<p className='text-center'><b>{box.totalIssued}</b></p>*/}
+
+                        <Row style={{margin: 5}}>
+                            <Col className="text-truncate">
+                                <b>{box.tokenName}</b>
+                            </Col>
+
+                            {(box.totalIssued > 1) &&
+                            <Col className="text-truncate">
+                                {box.totalIssued > 1 &&
+                                <i data-tip={`Not an NFT; There are ${box.amount} of this token`}
+                                   style={{fontSize: '12px'}}
+                                   className="font-weight-light">{` - ${box.amount} out of ${box.totalIssued}`}</i>}</Col>
+                            }
+
+                        </Row>
+                        <ArtworkMedia avoidFav={true} box={box}/>
                         {isYoroi() && <button type="button"
                                               onClick={() => this.setState({
                                                   modalAssembler: true,
@@ -75,11 +115,22 @@ export default class OwnedArtworks extends React.Component {
         });
         return (
             <Fragment>
-                <NewArtwork isOpen={this.state.newArtworkModal}
+                <NewArtwork
+                    sendModal={this.toggleSendModal}
+                    isOpen={this.state.newArtworkModal}
                             close={() => this.setState({newArtworkModal: !this.state.newArtworkModal})}/>
-                {isYoroi() && <Row>
+                <Row>
                     <Col md='8'/>
                     <Col md='4' className='text-right'>
+                        {isAssembler() && <Button
+                            onClick={() => this.setState({modalAssembler: true})}
+                            outline
+                            className="btn-outline-lin m-2 border-0"
+                            color="primary"
+                        >
+                            <i className="nav-link-icon lnr-plus-circle"> </i>
+                            <span>New Auction</span>
+                        </Button>}
                         <Button
                             onClick={() => this.setState({newArtworkModal: true})}
                             outline
@@ -90,12 +141,20 @@ export default class OwnedArtworks extends React.Component {
                             <span>Create Artwork</span>
                         </Button>
                     </Col>
-                </Row>}
+                </Row>
                 <NewAuctionAssembler
                     isOpen={this.state.modalAssembler}
                     close={() => this.setState({modalAssembler: !this.state.modalAssembler})}
                     selected={this.state.selected}
-                    assemblerModal={this.toggleAssemblerModal}
+                    assemblerModal={this.toggleSendModal}
+                />
+                <SendModal
+                    isOpen={this.state.sendModal}
+                    close={() => this.setState({sendModal: false})}
+                    bidAmount={this.state.bidAmount}
+                    isAuction={this.state.isAuction}
+                    bidAddress={this.state.bidAddress}
+                    currency={this.state.currency}
                 />
                 {!isWalletSaved() && (
                     <strong

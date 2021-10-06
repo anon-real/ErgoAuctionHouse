@@ -89,8 +89,8 @@ export async function registerAuction(
 
     const dataInput = additionalData.dataInput;
     let auctionStartFee = 0
-    if (dataInput.additionalRegisters.R9 !== undefined) {
-        auctionStartFee = parseInt(dataInput.additionalRegisters.R9.renderedValue)
+    if (dataInput.additionalRegisters.R8 !== undefined) {
+        auctionStartFee = parseInt(dataInput.additionalRegisters.R8.renderedValue)
         const feeTo = Address.fromErgoTree(dataInput.additionalRegisters.R5.renderedValue).address;
         start.erg += auctionStartFee
         outs = outs.concat([{
@@ -135,7 +135,7 @@ export async function getAuctionP2s(initial, end, step, buyItNow, currency) {
     let currencyID = Buffer.from(currency.id, 'hex').toString('base64');
 
     const dataInput = additionalData.dataInput;
-    const auctionStartFee = parseInt(dataInput.additionalRegisters.R9.renderedValue)
+    const auctionStartFee = parseInt(dataInput.additionalRegisters.R8.renderedValue)
     const feeTo = Address.fromErgoTree(dataInput.additionalRegisters.R5.renderedValue).address;
     let implementorTree = Buffer.from(new Address(feeTo).ergoTree, 'hex').toString('base64');
 

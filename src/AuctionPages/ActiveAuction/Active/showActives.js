@@ -6,7 +6,6 @@ import PropagateLoader from 'react-spinners/PropagateLoader';
 import {Row,} from 'reactstrap';
 import ActiveAuction from './activeAuction';
 import SendModal from "./sendModal";
-import ActiveAudio from "./activeAudio";
 import ActiveOther from "./activeOther";
 
 const override = css`
@@ -61,6 +60,7 @@ export default class ShowAuctions extends React.Component {
                     box={box}
                     assemblerModal={this.toggleAssemblerModal}
                     updateParams={this.props.updateParams}
+                    preload={this.props.preload}
                 />
             );
         });

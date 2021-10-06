@@ -121,6 +121,7 @@ export default class SpecificAuctions extends React.Component {
                 />
             else return <ShowAuctions
                 auctions={auctions}
+                preload={true}
             />
         }
 

@@ -4,6 +4,7 @@ import {txFee} from "./consts";
 import {currentBlock, getBalance} from "./explorer";
 import {colTuple, encodeByteArray, encodeHex, encodeNum} from "./serializer";
 import {Serializer} from "@coinbarn/ergo-ts/dist/serializer";
+import {follow} from "./assembler";
 
 let ergolib = import('ergo-lib-wasm-browser')
 
@@ -40,10 +41,10 @@ export async function getYoroiAddress() {
     return null
 }
 
-export async function yoroiSendFunds(need, addr, block) {
+export async function yoroiSendFunds(need, addr, block, registers={}, notif=true) {
     const wasm = await ergolib
 
-    await setupYoroi()
+    // await setupYoroi()
     let have = JSON.parse(JSON.stringify(need))
     have['ERG'] += txFee
     let ins = []
@@ -83,7 +84,7 @@ export async function yoroiSendFunds(need, addr, block) {
                 amount: need[key].toString()
             }
         }),
-        additionalRegisters: {},
+        additionalRegisters: registers,
         creationHeight: block.height
     }
 
@@ -132,10 +133,13 @@ export async function yoroiSendFunds(need, addr, block) {
     const txId = await ergo.submit_tx(tx)
 
     console.log('Yoroi tx id', txId)
-    if (txId !== undefined && txId.length > 0)
-        showMsg('Necessary funds were sent using Yoroi!')
-    else
-        showMsg('Error while sending funds using Yoroi!', true)
+    if (notif) {
+        if (txId !== undefined && txId.length > 0)
+            showMsg('Necessary funds were sent using Yoroi!')
+        else
+            showMsg('Error while sending funds using Yoroi!', true)
+    }
+    return txId
 }
 
 export async function getYoroiTokens() {
@@ -147,110 +151,12 @@ export async function getYoroiTokens() {
             if (!Object.keys(tokens).includes(ass.tokenId))
                 tokens[ass.tokenId] = {
                     amount: 0,
-                    name: ass.name
+                    name: ass.name,
+                    tokenId: ass.tokenId
                 }
             tokens[ass.tokenId].amount += parseInt(ass.amount)
         })
     }
     return tokens
-}
-
-export async function issueArtwork(name, description, hash, assetType, url, cover) {
-    const wasm = await ergolib
-    const block = await currentBlock()
-
-    await setupYoroi()
-    const need = {ERG: 10000000}
-    let have = JSON.parse(JSON.stringify(need))
-    let ins = []
-    const keys = Object.keys(have)
-
-    for (let i = 0; i < keys.length; i++) {
-        if (have[keys[i]] <= 0) continue
-        const curIns = await ergo.get_utxos(have[keys[i]].toString(), keys[i]);
-        if (curIns !== undefined) {
-            curIns.forEach(bx => {
-                have['ERG'] -= parseInt(bx.value)
-                bx.assets.forEach(ass => {
-                    if (!Object.keys(have).includes(ass.tokenId)) have[ass.tokenId] = 0
-                    have[ass.tokenId] -= parseInt(ass.amount)
-                })
-            })
-            ins = ins.concat(curIns)
-        }
-    }
-    if (keys.filter(key => have[key] > 0).length > 0) {
-        showMsg('Not enough balance in the Yoroi wallet!', true)
-        return
-    }
-
-    const issueBox = {
-        value: (need.ERG - txFee).toString(),
-        ergoTree: wasm.Address.from_mainnet_str(getWalletAddress()).to_ergo_tree().to_base16_bytes(),
-        assets: [{
-            tokenId: ins[0].boxId,
-            amount: "1"
-        }],
-        additionalRegisters: {
-            R4: await encodeByteArray(new TextEncoder().encode(name)),
-            R5: await encodeByteArray(new TextEncoder().encode(description)),
-            R6: await encodeByteArray(new TextEncoder().encode("0")),
-            R7: await encodeByteArray(assetType),
-            R8: await encodeHex(hash),
-        },
-        creationHeight: block.height
-    }
-    issueBox.additionalRegisters.R9 = await encodeHex(Serializer.stringToHex(url))
-    if (cover) issueBox.additionalRegisters.R9 = await colTuple(Serializer.stringToHex(url), Serializer.stringToHex(cover))
-
-    const feeBox = {
-        value: txFee.toString(),
-        creationHeight: block.height,
-        ergoTree: "1005040004000e36100204a00b08cd0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798ea02d192a39a8cc7a701730073011001020402d19683030193a38cc7b2a57300000193c2b2a57301007473027303830108cdeeac93b1a57304",
-        assets: [],
-        additionalRegisters: {},
-    }
-
-    const changeBox = {
-        value: (-have['ERG']).toString(),
-        ergoTree: wasm.Address.from_mainnet_str(getWalletAddress()).to_ergo_tree().to_base16_bytes(),
-        assets: Object.keys(have).filter(key => key !== 'ERG')
-            .filter(key => have[key] < 0)
-            .map(key => {
-                return {
-                    tokenId: key,
-                    amount: (-have[key]).toString()
-                }
-            }),
-        additionalRegisters: {},
-        creationHeight: block.height
-    }
-
-    const unsigned = {
-        inputs: ins.map(curIn => {
-            return {
-                ...curIn,
-                extension: {}
-            }
-        }),
-        outputs: [issueBox, changeBox, feeBox],
-        dataInputs: [],
-        fee: txFee
-    }
-
-    let tx = null
-    try {
-        tx = await ergo.sign_tx(unsigned)
-    } catch (e) {
-        showMsg('Error while sending funds from Yoroi!', true)
-        return
-    }
-    const txId = await ergo.submit_tx(tx)
-
-    console.log('Yoroi tx id', txId)
-    if (txId !== undefined && txId.length > 0)
-        addNotification(`Your artwork "${name}" is being issued`, getTxUrl(txId))
-    else
-        showMsg('Error while sending funds using Yoroi!', true)
 }
 

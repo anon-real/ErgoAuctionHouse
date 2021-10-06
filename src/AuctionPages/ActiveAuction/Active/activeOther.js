@@ -109,13 +109,6 @@ export default class ActiveOther extends React.Component {
                             infoModal: !this.state.infoModal,
                         })
                     }
-                    tokenId={this.props.box.assets[0].tokenId}
-                    tokenName={this.props.box.tokenName}
-                    tokenDescription={
-                        this.props.box.tokenDescription
-                    }
-                    artist={this.props.box.artist}
-                    artHash={this.props.box.artHash}
                 />
                 <div className="card mb-3 bg-white widget-chart" style={
                     {

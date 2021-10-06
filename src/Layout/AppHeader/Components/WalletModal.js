@@ -134,16 +134,9 @@ class WalletModal extends React.Component {
             <span className="mb-2 mr-2" style={{display:'flex',alignItems:'center'}}>
                 {/*{this.walletOk() ? <p>ok</p> : <p>fuck no</p>}*/}
                 <NotificationCenter/>
-                <Button
-                    onClick={this.toggle}
-                    className="mr-2 btn-transition"
-                    color="primary"
-                    outline
-                    size="lg"
-                >
-                    <i className="nav-link-icon pe-7s-cash mr-2"/>
-                    <span>{this.state.walletState} Wallet</span>
-                </Button>
+                <div className="notificationContainer " onClick={this.toggle}>
+                <span className="notificationIcon pe-7s-wallet font-weight-bold"/>
+                </div>
                 <Modal
                     isOpen={this.state.modal}
                     toggle={this.toggle}
@@ -199,7 +192,7 @@ class WalletModal extends React.Component {
                             </TabPane>
                             <TabPane tabId="assembler">
                                 <p>
-                                    You can use <b>any wallet</b> including <b>Yoroi</b> to place bid and start new auctions.
+                                    You can use <b>any wallet</b> including <b>Yoroi</b> and <b>Ergo Wallet Android</b> to place bid and start new auctions.
                                 </p>
                                 <p>
                                     This uses the assembler service which is an intermediate
@@ -241,9 +234,10 @@ class WalletModal extends React.Component {
                                         Your funds and winning tokens will be sent to this address. {' '}
                                         <b>Make sure your wallet supports custom tokens!</b> {' '}
                                         Currently, <a href="https://github.com/ergoplatform/ergo">Ergo Node</a>, {' '}
-                                        <a href="https://github.com/coinbarn/coinbarn-extension">Coinbarn</a>, {' '}
-                                        <a href="https://ergowallet.io/">Ergo Wallet</a> and {' '}
-                                        <a href="https://yoroi-wallet.com/">Yoroi</a> support tokens.
+                                        <a href="https://yoroi-wallet.com/">Yoroi</a>, {' '}
+                                        <a href="https://github.com/ergoplatform/ergo-wallet-android">Ergo Wallet Android</a>, {' '}
+                                        <a href="https://github.com/coinbarn/coinbarn-extension">Coinbarn</a> and {' '}
+                                        <a href="https://ergowallet.io/">Ergo Wallet</a>  support tokens.
                                     </FormText>
                                 </FormGroup>
                             </TabPane>

@@ -11,9 +11,9 @@ import {
     updateForKey,
 } from './helpers';
 import {Address} from '@coinbarn/ergo-ts';
-import {additionalData, assmUrl, auctionAddress, trueAddress, txFee} from "./consts";
-import {boxById, followAuction, txByAddress, txById} from "./explorer";
-import {getEncodedBoxSer, isP2pkAddr} from "./serializer";
+import {additionalData, assmUrl, auctionAddress, remFavNotif, trueAddress, txFee} from "./consts";
+import {boxById, currentBlock, followAuction, txByAddress, txById} from "./explorer";
+import {decodeAuction, getEncodedBoxSer, isP2pkAddr} from "./serializer";
 import moment from "moment";
 
 // const assmUrl = 'https://assm.sigmausd.io/';
@@ -55,6 +55,34 @@ export async function p2s(request) {
 function retry(id) {
 }
 
+export async function favArtworks() {
+    const favs = getForKey('fav-artworks')
+    const block = await currentBlock()
+    for (let i = 0; i < favs.length; i++) {
+        const newBid = await followAuction(favs[i].boxId)
+        let cur = JSON.parse(JSON.stringify(favs[i]))
+        if (newBid.id !== favs[i].boxId) {
+            if (newBid.address === auctionAddress) {
+                cur.boxId = newBid.boxId
+                updateForKey('fav-artworks', cur)
+                addNotification(`New bid for your favorite auction "${newBid.assets[0].name}"`, getAuctionUrl(newBid.id))
+            } else {
+                addNotification(`Your favorite auction ${newBid.assets[0].name} has ended`, getAuctionUrl(newBid.id))
+                removeForKey('fav-artworks', favs[i].id)
+            }
+        }
+        if (newBid.address === auctionAddress && !favs[i].remNotifDone) {
+            const decoded = await decodeAuction(newBid, block)
+            const rem = moment.duration(decoded.remTimeTimestamp).asHours();
+            if (rem <= remFavNotif) {
+                addNotification(`Your favorite auction "${newBid.assets[0].name}" is near the end`, getAuctionUrl(newBid.id))
+                cur.remNotifDone = true
+                updateForKey('fav-artworks', cur)
+            }
+        }
+    }
+}
+
 export async function outBid() {
     const bids = getForKey('my-bids')
     for (let i = 0; i < bids.length; i++) {
@@ -80,9 +108,9 @@ export async function myAuctionBids() {
                 let cur = JSON.parse(JSON.stringify(auctions[i]))
                 cur.id = newBid.id
                 addForKey(cur, 'my-auctions')
-                addNotification(`New bid for your auction ${auctions[i].name} is placed`, getAuctionUrl(newBid.id))
+                addNotification(`New bid for your auction "${auctions[i].name}" is placed`, getAuctionUrl(newBid.id))
             } else
-                addNotification(`Your auction ${auctions[i].name} is finished`, getAuctionUrl(newBid.id))
+                addNotification(`Your auction "${auctions[i].name}" is finished`, getAuctionUrl(newBid.id))
         }
     }
 }
@@ -102,7 +130,7 @@ export async function pendings() {
                 const tx = txs[0]
                 let msg = 'your auctions is started!'
                 if (bid.key === 'bid') {
-                    msg = `Your bid for ${bid.box.tokenName} is placed`
+                    msg = `Your bid for "${bid.box.tokenName}" is placed`
                     addForKey({
                         name: bid.box.tokenName,
                         id: tx.outputs[0].id
@@ -135,7 +163,7 @@ export async function pendings() {
                             bid.unc = true
                             let msg = 'Your auction is starting'
                             if (bid.key === 'bid')
-                                msg = `Your bid for ${bid.box.tokenName} is being placed`
+                                msg = `Your bid for "${bid.box.tokenName}" is being placed`
                             addNotification(msg, getTxUrl(tx.id))
                             updateForKey('pending', bid)
                         }
@@ -149,7 +177,29 @@ export async function pendings() {
     }
 }
 
+export async function myArtworks() {
+    const artworks = getForKey('my-artworks')
+    for (let i = 0; i < artworks.length; i++) {
+        try {
+            const unc = (await stat(artworks[i].id))
+            if (unc.tx) {
+                removeForKey('my-artworks', artworks[i].id)
+                addNotification(`Your artwork "${artworks[i].name}" is being issued`, getTxUrl(unc.tx.id))
+            }
+            const past = moment.duration(moment().diff(moment(artworks[i].time))).asMinutes();
+            if (past > 120)
+                removeForKey('my-artworks', artworks[i].id)
+        } catch (e) {}
+    }
+}
+
 export async function handleAll() {
+    try {
+        await updateDataInput()
+    } catch (e) {
+        console.error(e)
+    }
+
     try {
         await pendings()
     } catch (e) {
@@ -166,7 +216,12 @@ export async function handleAll() {
         console.error(e)
     }
     try {
-        await updateDataInput()
+        await favArtworks()
+    } catch (e) {
+        console.error(e)
+    }
+    try {
+        await myArtworks()
     } catch (e) {
         console.error(e)
     }
@@ -198,9 +253,9 @@ export async function assembleFinishedAuctions(boxes) {
             };
         } else {
             const dataInput = additionalData.dataInput;
-            const auctionFee = Math.floor(box.curBid / parseInt(dataInput.additionalRegisters.R4.renderedValue))
+            const auctionFee = Math.floor((box.curBid * parseInt(dataInput.additionalRegisters.R4.renderedValue)) / 1000)
             const feeTo = Address.fromErgoTree(dataInput.additionalRegisters.R5.renderedValue).address;
-            const artistFee = Math.floor(box.curBid / parseInt(dataInput.additionalRegisters.R6.renderedValue))
+            const artistFee = Math.floor((box.curBid * box.royalty) / 1000)
             const minimalErg = 500000
 
             let artBox = await boxById(box.assets[0].tokenId)
@@ -278,17 +333,20 @@ export async function assembleFinishedAuctions(boxes) {
                 };
             }
 
+            let outs = [winner, feeBox, seller]
+            if (artistFee > 0) outs = outs.concat([artistFeeBox])
             request = {
                 address: trueAddress,
                 returnTo: trueAddress,
                 startWhen: {},
                 txSpec: {
-                    requests: [winner, feeBox, seller, artistFeeBox],
+                    requests: outs,
                     fee: txFee,
                     inputs: [box.boxId],
                     dataInputs: [dataInput.boxId],
                 }
             };
+            console.log(request)
 
 
             if (artistAddr !== null) {
