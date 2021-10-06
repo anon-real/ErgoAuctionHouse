@@ -37,25 +37,23 @@ class Header extends React.Component {
         return (
             <Fragment>
 
-                <ReactCSSTransitionGroup
-                    component="div"
-                    className={cx("app-header", false, {'header-shadow': true})}
-                    transitionName="HeaderAnimation"
-                    transitionAppear={true}
-                    transitionAppearTimeout={1500}
-                    transitionEnter={false}
-                    transitionLeave={false}>
-                    <div id='myHeader'>
+                <div id='myHeader' style={{zIndex: '10'}}>
+                    <ReactCSSTransitionGroup
+                        component="div"
+                        className={cx("app-header", false, {'header-shadow': true})}
+                        transitionName="HeaderAnimation"
+                        transitionAppear={true}
+                        transitionAppearTimeout={150}
+                        transitionEnter={false}
+                        transitionLeave={false}>
                         <Navbar color="white" light expand="md">
                             <NavbarBrand href="/">
                                 <img
-                                    style={{height: '30px'}}
+                                    style={{height: '40px'}}
                                     src={nodeWallet}
                                 />
 
                             </NavbarBrand>
-                            {/*<a href='/' style={{textDecoration: 'none'}} className='logo-src'>*/}
-                            {/*</a>*/}
                             <NavbarToggler/>
                             <Collapse navbar>
                                 <Col md='10'>
@@ -91,8 +89,8 @@ class Header extends React.Component {
                                 </Col>
                             </Collapse>
                         </Navbar>
-                    </div>
-                </ReactCSSTransitionGroup>
+                    </ReactCSSTransitionGroup>
+                </div>
 
             </Fragment>
         );
