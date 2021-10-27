@@ -22,6 +22,17 @@ function NotificationCenter(){
         setModal(!modal)
     }
 
+    function IconList(stat) {
+        switch(stat){
+            case 'success':
+                return 'text-success lnr lnr-checkmark-circle'
+            case 'error':
+                return 'text-danger lnr lnr-cross-circle'
+            default:
+                return 'text-info lnr lnr-question-circle'
+        }
+    }
+
     return(
         <>
             <div className="notificationContainer" onClick={()=>setModal(true)}>
@@ -43,37 +54,36 @@ function NotificationCenter(){
                 <ModalHeader  toggle={toggle}>
                     Notification Center
                 </ModalHeader>
-                <ModalBody>
-                    {(NotificationList !== null)?
-                        <>
-                            {NotificationList.data.map((data,index)=>(
-                                <div className="notificationItem" key={index}>
-                                    <div className="notificationItemContainer">  
-                                        <span class="lnr lnr-checkmark-circle mr-2"></span>
-                                        <span>
-                                            {data.message}
-                                        </span>
+                <ModalBody className="px-0 pt-0">
+                    <div className="notificationModalBody">
+                        {(NotificationList !== null)?
+                            <>
+                                {NotificationList.data.map((data,index)=>(
+                                    <div className="notificationItem" key={index}>
+                                        <div className="notificationItemContainer">  
+                                        <span className={IconList(data.status)}></span>
+                                            <span className="ml-2 pr-1">
+                                                {data.message}
+                                            </span>
+                                        </div>
+                                        <a target="_blank" href={`${data.link}`} className={cx("notificationItemButton", {
+                                                'd-none': !data.link
+                                            })}>
+                                            <span class="lnr lnr-chevron-right ml-2"></span>
+                                        </a>
                                     </div>
-                                    <a target="_blank" href={`${data.link}`} className={cx("notificationItemButton", {
-                                            'd-none': !data.link
-                                        })}>
-                                        <span className="pb-1">
-                                            more
-                                        </span>
-                                        <span class="lnr lnr-exit ml-2"></span>
-                                    </a>
+                                ))
+                                }
+                                <div className={cx({
+                                    'd-none': NotificationList.data.length !== 0
+                                })}>
+                                    No Notification Available
                                 </div>
-                            ))
-                            }
-                            <div className={cx({
-                                'd-none': NotificationList.data.length !== 0
-                            })}>
-                                No Notification Available
-                            </div>
-                        </>
-                        :
-                        null
-                    }
+                            </>
+                            :
+                            null
+                        }
+                    </div>
                 </ModalBody>
             </Modal>
         </>

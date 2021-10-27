@@ -16944,13 +16944,14 @@ svg {
 
 .notificationItemContainer{
     display: flex;
-    align-items: center;
+    align-items: baseline;
 }
 
 .notificationItem {
     padding: 10px;
     display: flex;
     justify-content: space-between;
+    border-bottom: 1px solid #e9ecef;
 }
 
 .notificationIcon {
@@ -17033,6 +17034,10 @@ svg {
     color: #bdbdbd;
 }
 
+.notificationModalBody {
+    height: 300px;
+    overflow: auto;
+}
 
 .search-container{
     margin-top: 30px;
