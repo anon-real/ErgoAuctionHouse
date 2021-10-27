@@ -1,5 +1,5 @@
 import React from 'react';
-import {ButtonGroup, CardFooter, Col, InputGroup, InputGroupAddon, InputGroupText, Progress,} from 'reactstrap';
+import {ButtonGroup, CardFooter, Col, Progress,} from 'reactstrap';
 
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faAngleUp} from '@fortawesome/free-solid-svg-icons';
@@ -8,6 +8,7 @@ import {Row} from 'react-bootstrap';
 import {longToCurrency} from "../auction/serializer";
 import {bidHelper} from "../auction/newBidAssm";
 import {isWalletSaved, showMsg} from "../auction/helpers";
+import FakeModal from "./fakeModal";
 
 const override = css`
   display: block;
@@ -18,11 +19,25 @@ export default class FooterSection extends React.Component {
     constructor(props) {
         super(props);
         this.state = {};
+        this.openFake = this.openFake.bind(this)
+    }
+
+    openFake(bid, box, modal, original) {
+        this.setState({
+            bid: bid,
+            box: box,
+            modal: modal,
+            original: original,
+            fakeOpen: true
+        })
     }
 
     render() {
         return (
             <span style={{"display": "contents"}}>
+                <FakeModal bid={this.state.bid} modal={this.state.modal} box={this.state.box}
+                           original={this.state.original} isOpen={this.state.fakeOpen}
+                           close={() => this.setState({fakeOpen: !this.state.fakeOpen})}/>
                     <CardFooter>
                         <Col md={6} className="widget-description">
                             <Row>
@@ -90,8 +105,7 @@ export default class FooterSection extends React.Component {
                                     }
                                     e.preventDefault();
                                     this.props.loading(true)
-                                    bidHelper(this.props.box.nextBid, this.props.box, this.props.assemblerModal)
-                                        .finally(() => this.props.loading(false))
+                                    bidHelper(this.props.box.nextBid, this.props.box, this.props.assemblerModal, this.openFake).finally(() => this.props.loading(false))
                                 }}>
                             <text>
                                 Bid
@@ -117,8 +131,7 @@ export default class FooterSection extends React.Component {
                                     }
                                     e.preventDefault();
                                     this.props.loading(true)
-                                    bidHelper(this.props.box.instantAmount, this.props.box, this.props.assemblerModal)
-                                        .finally(() => this.props.loading(false))
+                                    bidHelper(this.props.box.instantAmount, this.props.box, this.props.assemblerModal, this.openFake).finally(() => this.props.loading(false))
                                 }}>
                             <text>
                                 Buy

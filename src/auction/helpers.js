@@ -1,10 +1,11 @@
 import React from 'react';
 import {Flip, Slide, toast} from 'react-toastify';
 import {Address} from "@coinbarn/ergo-ts";
-import {additionalData, auctionNFT} from "./consts";
+import {additionalData, auctionNFT, fakeThreshold, fakeURL} from "./consts";
 import {getBoxesForAsset} from "./explorer";
 import moment from "moment";
 import ahIcon from "../assets/images/Ergo_auction_house_logo.png";
+import {get} from "./rest";
 
 const explorerUrl = 'https://explorer.ergoplatform.com/en/';
 
@@ -39,8 +40,16 @@ export function getAuctionUrl(boxId) {
     return '#/auction/specific/' + boxId;
 }
 
+export function getArtworkUrl(tokenId) {
+    return '#/artwork/' + tokenId;
+}
+
 export function getAddrUrl(addr) {
     return explorerUrl + 'addresses/' + addr;
+}
+
+export function getArtistUrl(addr) {
+    return '#/auction/active?type=all&artist' + addr;
 }
 
 export function showMsg(message, isError = false, isWarning = false) {
@@ -218,4 +227,16 @@ export function isJson(str) {
         return false;
     }
     return true;
+}
+
+export async function firstOrig(id) {
+    try {
+        let res = await fetch(fakeURL + `?copiedTokenId=${id}&theshold=${fakeThreshold}&format=json`)
+        res = await res.json()
+        res = res.results
+        if (res.length > 0) return res[0].originalNFT.token_id
+        else return null
+    } catch (e) {
+        return null
+    }
 }

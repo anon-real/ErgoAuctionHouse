@@ -7,6 +7,7 @@ import AppHeader from "../../Layout/AppHeader/";
 import AppSidebar from "../../Layout/AppSidebar/";
 import AppFooter from "../../Layout/AppFooter/";
 import SpecificAuctions from "./Active/specificAuction";
+import ArtworkVisual from "../artworkVisual";
 
 const ActiveAuction = ({match}) => (
     <Fragment>
@@ -17,6 +18,7 @@ const ActiveAuction = ({match}) => (
                 <div className="app-main__inner">
                     <Route path='/auction/active' component={ActiveAuctions}/>
                     <Route path='/auction/specific/' component={SpecificAuctions}/>
+                    <Route path='/artwork/' component={ArtworkVisual}/>
                 </div>
                 <AppFooter/>
             </div>
