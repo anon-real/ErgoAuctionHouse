@@ -1,4 +1,4 @@
-import {addForKey, getWalletAddress, isAssembler, isYoroi,} from './helpers';
+import {addForKey, firstOrig, getWalletAddress, isAssembler, isYoroi,} from './helpers';
 import moment from 'moment';
 import {Address} from '@coinbarn/ergo-ts';
 import {encodeHex, encodeNum, longToCurrency} from './serializer';
@@ -138,7 +138,14 @@ export async function getBidP2s(bid, box, addr) {
     return p2s(script);
 }
 
-export async function bidHelper(bid, box, modal) {
+export async function bidHelper(bid, box, modal, fakeModal, considerFake=true) {
+    if (considerFake) {
+        const original = await firstOrig(box.assets[0].tokenId)
+        if (original !== null) {
+            fakeModal(bid, box, modal, original)
+            return
+        }
+    }
     const r = await registerBid(bid, box)
     if (r.id === undefined) throw Error("Could not contact the assembler service")
     if (isAssembler()) {

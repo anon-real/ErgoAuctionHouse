@@ -21,6 +21,7 @@ import {css} from '@emotion/core';
 import {currencyToLong, isFloat, longToCurrency} from '../../../auction/serializer';
 import {bidHelper} from "../../../auction/newBidAssm";
 import {supportedCurrencies} from "../../../auction/consts";
+import FakeModal from "../../fakeModal";
 
 const override = css`
   display: block;
@@ -37,6 +38,7 @@ export default class PlaceBidModal extends React.Component {
             bidAmount: longToCurrency(props.box.nextBid, -1, props.box.currency).toString(),
         };
         this.placeBid = this.placeBid.bind(this);
+        this.openFake = this.openFake.bind(this);
     }
 
     componentWillReceiveProps(nextProps, nextContext) {
@@ -53,16 +55,29 @@ export default class PlaceBidModal extends React.Component {
         }
         this.setState({modalLoading: true});
         const bidA = currencyToLong(this.state.bidAmount, supportedCurrencies[this.props.box.currency].decimal)
-        bidHelper(bidA, this.props.box, this.props.assemblerModal)
+        bidHelper(bidA, this.props.box, this.props.assemblerModal, this.openFake)
             .finally((_) => {
                 this.props.close()
                 this.setState({modalLoading: false})
             });
     }
 
+    openFake(bid, box, modal, original) {
+        this.setState({
+            bid: bid,
+            box: box,
+            modal: modal,
+            original: original,
+            fakeOpen: true
+        })
+    }
+
     render() {
         return (
             <span>
+                <FakeModal bid={this.state.bid} modal={this.state.modal} box={this.state.box}
+                           original={this.state.original} isOpen={this.state.fakeOpen}
+                           close={() => this.setState({fakeOpen: !this.state.fakeOpen})}/>
                 <Modal
                     isOpen={this.props.isOpen}
                     toggle={this.props.close}

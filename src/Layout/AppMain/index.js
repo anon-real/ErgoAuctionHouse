@@ -26,6 +26,22 @@ const AppMain = () => {
                 <Route path="/auction/specific" component={ActiveAuction}/>
             </Suspense>
 
+            {/* Artowork Visual */}
+            <Suspense
+                fallback={
+                    <div className="loader-container">
+                        <div className="loader-container-inner">
+                            <h6 className="mt-5">
+                                Please wait while we load all the Components
+                                examples
+                            </h6>
+                        </div>
+                    </div>
+                }
+            >
+                <Route path="/artwork/" component={ActiveAuction}/>
+            </Suspense>
+
             {/* ActiveAuction */}
             <Suspense
                 fallback={

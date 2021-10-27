@@ -20,11 +20,11 @@ export default class ArtworkDetails extends React.Component {
                 toggle={this.props.close}
             >
                 <ModalHeader toggle={this.props.close}>
-                    {this.props.box.isArtwork && <span className="fsize-1 text-muted">
+                    {this.props.box.isArtwork && this.props.box.assets && <span className="fsize-1 text-muted">
                         Artwork details for NFT {' '}
                         {friendlyAddress(this.props.box.assets[0].tokenId, 5)}.
                     </span>}
-                    {this.props.box.isArtwork && <span className="fsize-1 text-muted">
+                    {!this.props.box.isArtwork && this.props.box.assets && <span className="fsize-1 text-muted">
                         Details for {' '} {friendlyAddress(this.props.box.assets[0].tokenId, 5)}.
                     </span>}
                 </ModalHeader>
