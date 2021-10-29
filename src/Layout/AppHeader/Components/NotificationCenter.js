@@ -53,7 +53,7 @@ function NotificationCenter() {
                     </div>
                 ) : null}
             </div>
-            <Modal isOpen={modal}>
+            <Modal isOpen={modal} toggle={toggle}>
                 <ModalHeader toggle={toggle}>Notification Center</ModalHeader>
                 <ModalBody className="px-0 pt-0">
                     <div className="notificationModalBody">
