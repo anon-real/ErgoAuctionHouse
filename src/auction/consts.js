@@ -34,6 +34,20 @@ export const supportedCurrencies = {
         minSupported: 100,
         initial: 1,
     },
+    SigRSV: {
+        name: 'SigRSV',
+        id: '003bd19d0187117f130b62e1bcab0939929ff5c7709f843c5c4dd158949285d0',
+        decimal: 0,
+        minSupported: 100,
+        initial: 1,
+    },
+    kushti: {
+        name: 'kushti',
+        id: 'fbbaac7337d051c10fc3da0ccb864f4d32d40027551e1c3ea3ce361f39b91e40',
+        decimal: 0,
+        minSupported: 100,
+        initial: 1,
+    },
     TestUSD: {
         name: 'TestUSD',
         id: '67280a3b27b57abd667ea5822c419636a07952bec908800fdb0949781789340d',
