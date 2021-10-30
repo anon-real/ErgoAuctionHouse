@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import cx from 'classnames';
 import { Modal, ModalBody, ModalFooter, ModalHeader } from 'reactstrap';
 
 function NotificationCenter() {
     const [modal, setModal] = useState(false);
+    const [unreadBadge, setUnreadBadge] = useState(null);
     let NotificationList = JSON.parse(localStorage.getItem('notification'));
 
     useEffect(() => {
@@ -17,12 +18,13 @@ function NotificationCenter() {
     function toggle() {
         if (NotificationList) NotificationList.unread = 0;
         localStorage.setItem('notification', JSON.stringify(NotificationList));
+        setUnreadBadge(null);
         setModal(!modal);
     }
 
     function ConvertDate(time) {
-        let Dateobj = new Date(time);
-        return Dateobj.toISOString().slice(0, 10);
+        let dateObj = new Date(time);
+        return dateObj.toISOString().slice(0, 10);
     }
 
     function IconList(stat) {
@@ -36,6 +38,24 @@ function NotificationCenter() {
         }
     }
 
+    const badge = useMemo(
+        () =>
+            unreadBadge ? (
+                <div
+                    className={cx('notificationBadge', {
+                        'd-none': unreadBadge === 0,
+                    })}
+                >
+                    {unreadBadge}
+                </div>
+            ) : null,
+        [unreadBadge]
+    );
+
+    setInterval(() => {
+        setUnreadBadge(JSON.parse(localStorage.getItem('notification')).unread);
+    }, 5000);
+
     return (
         <>
             <div
@@ -43,15 +63,7 @@ function NotificationCenter() {
                 onClick={() => setModal(true)}
             >
                 <span className="notificationIcon lnr lnr-alarm"></span>
-                {NotificationList ? (
-                    <div
-                        className={cx('notificationBadge', {
-                            'd-none': NotificationList.unread === 0,
-                        })}
-                    >
-                        {NotificationList ? NotificationList.unread : null}
-                    </div>
-                ) : null}
+                {badge}
             </div>
             <Modal isOpen={modal} toggle={toggle}>
                 <ModalHeader toggle={toggle}>Notification Center</ModalHeader>
@@ -71,9 +83,10 @@ function NotificationCenter() {
                                         >
                                             <div className="notificationItemContainer">
                                                 <span
-                                                    className={IconList(
-                                                        data.status
-                                                    ) + ' pt-1'}
+                                                    className={
+                                                        IconList(data.status) +
+                                                        ' pt-1'
+                                                    }
                                                 ></span>
                                                 <div className="d-flex flex-column ml-2 pr-1">
                                                     <span className="notificationItemMessage">
@@ -97,7 +110,7 @@ function NotificationCenter() {
                                         </div>
                                     ))}
                                 <div
-                                    className={cx('my-auto',{
+                                    className={cx('my-auto', {
                                         'd-none':
                                             NotificationList.data.length !== 0,
                                     })}
