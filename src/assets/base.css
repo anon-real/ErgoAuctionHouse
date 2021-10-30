@@ -17117,3 +17117,19 @@ svg {
     box-shadow: 0 0.46875rem 2.1875rem rgba(0, 0, 0, 0.03), 0 0.9375rem 1.40625rem rgba(0, 0, 0, 0.03), 0 0.25rem 0.53125rem rgba(0, 0, 0, 0.05), 0 0.125rem 0.1875rem rgba(0, 0, 0, 0.03);
 }
 
+.notificationItemMessage{
+    font-weight: bold;
+}
+
+.notificationItemDate{
+    font-size: 13px;
+    color: darkgray;
+}
+
+.notificationItem{
+    cursor: pointer;
+}
+
+.notificationItem:hover{
+    background: #c0c0c030;
+}
