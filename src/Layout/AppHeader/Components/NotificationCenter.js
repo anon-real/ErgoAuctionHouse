@@ -73,7 +73,7 @@ function NotificationCenter() {
                                                 <span
                                                     className={IconList(
                                                         data.status
-                                                    )}
+                                                    ) + ' pt-1'}
                                                 ></span>
                                                 <div className="d-flex flex-column ml-2 pr-1">
                                                     <span className="notificationItemMessage">
@@ -97,7 +97,7 @@ function NotificationCenter() {
                                         </div>
                                     ))}
                                 <div
-                                    className={cx({
+                                    className={cx('my-auto',{
                                         'd-none':
                                             NotificationList.data.length !== 0,
                                     })}
