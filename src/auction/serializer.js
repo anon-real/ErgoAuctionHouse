@@ -191,9 +191,16 @@ export async function decodeAuction(box, block) {
     box.endTime = parseInt(await decodeNum(box.additionalRegisters.R7.serializedValue))
     box.instantAmount = parseInt(await decodeNum(box.additionalRegisters.R8.serializedValue))
 
-    let info = Serializer.stringFromHex(await decodeString(box.additionalRegisters.R9.serializedValue)).split(',')
-    box.startTime = parseInt(info[1])
-    box.description = info[2]
+    let info = Serializer.stringFromHex(await decodeString(box.additionalRegisters.R9.serializedValue))
+    try {
+        const infoJs = JSON.parse(info)
+        box.startTime = infoJs.startTime
+        box.description = infoJs.description
+
+    } catch (e) {
+        box.startTime = parseInt(info.split(',')[1])
+        box.description = info.split(',')[2]
+    }
     if (box.description.length === 0) box.description = '-'
 
     box.remTime = Math.max(box.endTime - block.timestamp, 0);

@@ -49,7 +49,11 @@ export async function registerAuction(
     const p2s = (await getAuctionP2s(initial, end, step, buyItNow, currency)).address
     const bidder = getWalletAddress()
     let tree = new Address(bidder).ergoTree;
-    let info = `${initial},${block.timestamp},${description}`;
+    let info = JSON.stringify({
+        initialBid: initial,
+        startTime: block.timestamp,
+        description: description
+    })
 
     let auctionErg = -1
     let auctionAssets = [

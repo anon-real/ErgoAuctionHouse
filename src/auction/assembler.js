@@ -229,6 +229,7 @@ export async function handleAll() {
 
 export async function assembleFinishedAuctions(boxes) {
     const toWithdraw = boxes.filter((box) => box.remTimeTimestamp <= 0 || (box.curBid >= box.instantAmount && box.instantAmount !== -1))
+    console.log('yo', toWithdraw)
     for (let i = 0; i < toWithdraw.length; i++) {
         const box = toWithdraw[i]
         let request = {}
