@@ -16948,10 +16948,12 @@ svg {
 }
 
 .notificationItem {
+    cursor: pointer;
     padding: 10px;
     display: flex;
     justify-content: space-between;
     border-bottom: 1px solid #e9ecef;
+    width:100%;
 }
 
 .notificationIcon {
@@ -17035,6 +17037,9 @@ svg {
 }
 
 .notificationModalBody {
+    display:flex;
+    align-items:center;
+    flex-direction: column;
     height: 300px;
     overflow: auto;
 }
@@ -17125,11 +17130,6 @@ svg {
     font-size: 13px;
     color: darkgray;
 }
-
-.notificationItem{
-    cursor: pointer;
-}
-
 .notificationItem:hover{
     background: #c0c0c030;
 }
