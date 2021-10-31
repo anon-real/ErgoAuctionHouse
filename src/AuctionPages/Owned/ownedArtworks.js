@@ -95,7 +95,7 @@ export default class OwnedArtworks extends React.Component {
                             {(box.totalIssued > 1) &&
                             <Col className="text-truncate">
                                 {box.totalIssued > 1 &&
-                                <i data-tip={`Not an NFT; There are ${box.amount} of this token`}
+                                <i data-tip={`This is a Fungible Token with total issuance of ${box.amount}`}
                                    style={{fontSize: '12px'}}
                                    className="font-weight-light">{` - ${box.amount} out of ${box.totalIssued}`}</i>}</Col>
                             }

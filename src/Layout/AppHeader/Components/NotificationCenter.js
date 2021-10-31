@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import cx from 'classnames';
 import { Modal, ModalBody, ModalFooter, ModalHeader } from 'reactstrap';
+import moment from "moment";
 
 function NotificationCenter() {
     const [modal, setModal] = useState(false);
@@ -16,6 +17,7 @@ function NotificationCenter() {
     }, []);
 
     function toggle() {
+        let NotificationList = JSON.parse(localStorage.getItem('notification'));
         if (NotificationList) NotificationList.unread = 0;
         localStorage.setItem('notification', JSON.stringify(NotificationList));
         setUnreadBadge(null);
@@ -23,8 +25,7 @@ function NotificationCenter() {
     }
 
     function ConvertDate(time) {
-        let dateObj = new Date(time);
-        return dateObj.toISOString().slice(0, 10);
+        return moment(time).format('lll');
     }
 
     function IconList(stat) {

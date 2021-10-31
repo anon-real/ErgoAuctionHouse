@@ -147,12 +147,12 @@ export default class FooterSection extends React.Component {
                 </ButtonGroup>}
                 {this.props.box.isFinished &&
                 <p className="text-danger mr-2 ml-2">
-                    {this.props.box.remTime === 0 && <b>
+                    {this.props.box.remTime === 0 && <text>
                         This auction is already finished!
-                    </b>}
-                    {this.props.box.remTime !== 0 && <b>
-                        This auction has been bought using "Instant Buy" option.
-                    </b>}
+                    </text>}
+                    {this.props.box.remTime !== 0 && <text>
+                        This auction has been bought with "Instant Buy" option.
+                    </text>}
                 </p>}
                     </span>
         );

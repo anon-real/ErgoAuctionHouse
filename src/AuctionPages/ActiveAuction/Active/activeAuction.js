@@ -104,7 +104,7 @@ export default class ActiveAuction extends React.Component {
                             <i data-tip={`Includes ${this.props.box.royalty / 10}% royalty on secondary sales`} style={{fontSize: '12px'}}
                                className="font-weight-light">{`${this.props.box.royalty / 10}% royalty`}</i>}
                             {this.props.box.totalIssued > 1 &&
-                            <i data-tip={`Not an NFT; There are ${this.props.box.totalIssued} of this token`}
+                            <i data-tip={`This is a Fungible Token with total issuance of ${this.props.box.totalIssued}`}
                                style={{fontSize: '12px'}}
                                className="font-weight-light">{` - ${this.props.box.assets[0].amount} out of ${this.props.box.totalIssued}`}</i>}</Col>
                         }
@@ -178,7 +178,7 @@ export default class ActiveAuction extends React.Component {
                                         style={{cursor: "pointer"}}
                                         onClick={() => this.props.updateParams('artist', this.props.box.artist)}
                                     >
-                                        {' '}- By {friendlyAddress(this.props.box.artist, 4)}
+                                        {' '}- By {friendlyAddress(this.props.box.artist, 5)}
                                     </b>
                                 </p>
                             </div>

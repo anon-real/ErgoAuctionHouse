@@ -41,7 +41,7 @@ export default class SpecificArt extends React.Component {
                            style={{fontSize: '12px'}}
                            className="font-weight-light">{`${box.royalty / 10}% royalty`}</i>}
                         {box.totalIssued > 1 &&
-                        <i data-tip={`Not an NFT; There are ${box.totalIssued} of this token`}
+                        <i data-tip={`This is a Fungible Token with total issuance of ${box.totalIssued}`}
                            style={{fontSize: '12px'}}
                            className="font-weight-light">{` - #${box.totalIssued}`}</i>}</Col>
                     }
