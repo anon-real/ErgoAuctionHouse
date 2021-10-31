@@ -93,7 +93,7 @@ export default class ArtworkDetails extends React.Component {
                                 Total issued:
                             </Col>
                             <Col md="9">
-                                <b>{this.props.box.totalIssued} - Not an NFT</b>
+                                <b>{this.props.box.totalIssued} - Fungible token</b>
                             </Col>
                         </Row>}
 

@@ -150,6 +150,7 @@ export async function pendings() {
                         txId: tx.id
                     })
                 } else {
+                    msg = `Your auction has started - ${tx.outputs[0].assets[0].name}`
                     addForKey({
                         name: tx.outputs[0].assets[0].name,
                         id: tx.outputs[0].id

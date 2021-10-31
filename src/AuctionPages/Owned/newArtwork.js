@@ -119,12 +119,12 @@ export default class NewArtwork extends React.Component {
                                                 {({getRootProps, getInputProps}) => (
                                                     <div {...getRootProps({className: "dropzone"})}>
                                                         <input {...getInputProps()} />
-                                                        <p>drag & drop file or browse the artwrok on your device</p>
+                                                        <p>drag & drop file or browse the artwork on your device</p>
                                                     </div>
                                                 )}
                                             </Dropzone>
                                         </InputGroup>
-                                        <FormText>{this.state.file ? this.state.file.name : 'select your artwork file'}
+                                        <FormText>{this.state.file ? this.state.file.name : 'select your artwork file (picture, video or audio)'}
                                             <b>{this.state.file ? ' - ' + this.getFileType(this.state.file) + ' artwork' : ''}</b>
                                         </FormText>
 
