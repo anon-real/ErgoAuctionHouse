@@ -229,7 +229,6 @@ export async function handleAll() {
 
 export async function assembleFinishedAuctions(boxes) {
     const toWithdraw = boxes.filter((box) => box.remTimeTimestamp <= 0 || (box.curBid >= box.instantAmount && box.instantAmount !== -1))
-    console.log('yo', toWithdraw)
     for (let i = 0; i < toWithdraw.length; i++) {
         const box = toWithdraw[i]
         let request = {}
@@ -276,9 +275,9 @@ export async function assembleFinishedAuctions(boxes) {
             let feeBox = {}
             let realArtistShareBox = {}
             let artistFeeBox = {}
+            let sellerErg = box.value - txFee - minimalErg
             if (box.assets.length === 1) {
                 seller = {
-                    value: box.value - txFee * 2 - auctionFee - artistFee - minimalErg,
                     address: box.seller,
                 };
                 feeBox = {
@@ -288,6 +287,8 @@ export async function assembleFinishedAuctions(boxes) {
                         R4: boxEncoded
                     },
                 };
+                sellerErg -= auctionFee
+
                 artistFeeBox = {
                     value: artistFee + txFee,
                     address: artBox.address,
@@ -296,9 +297,26 @@ export async function assembleFinishedAuctions(boxes) {
                     value: artistFee,
                     address: artistAddr
                 };
+                if (artistFee > 0) sellerErg -= artistFee + txFee
             } else {
+                artistFeeBox = {
+                    value: minimalErg + txFee,
+                    address: artBox.address,
+                    assets: [{
+                        tokenId: box.assets[1].tokenId,
+                        amount: artistFee
+                    }],
+                };
+                realArtistShareBox = {
+                    value: minimalErg,
+                    address: artistAddr,
+                    assets: [{
+                        tokenId: box.assets[1].tokenId,
+                        amount: artistFee
+                    }]
+                };
+                if (artistFee > 0) sellerErg -= minimalErg + txFee
                 seller = {
-                    value: box.value - txFee * 2 - minimalErg * 3,
                     address: box.seller,
                     assets: [{
                         tokenId: box.assets[1].tokenId,
@@ -316,24 +334,10 @@ export async function assembleFinishedAuctions(boxes) {
                         R4: boxEncoded
                     },
                 };
-                artistFeeBox = {
-                    value: minimalErg + txFee,
-                    address: artBox.address,
-                    assets: [{
-                        tokenId: box.assets[1].tokenId,
-                        amount: artistFee
-                    }],
-                };
-                realArtistShareBox = {
-                    value: minimalErg,
-                    address: artistAddr,
-                    assets: [{
-                        tokenId: box.assets[1].tokenId,
-                        amount: artistFee
-                    }]
-                };
+                sellerErg -= minimalErg
             }
 
+            seller.value = sellerErg
             let outs = [winner, feeBox, seller]
             if (artistFee > 0) outs = outs.concat([artistFeeBox])
             request = {

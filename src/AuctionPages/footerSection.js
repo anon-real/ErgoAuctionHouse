@@ -7,7 +7,7 @@ import {css} from '@emotion/core';
 import {Row} from 'react-bootstrap';
 import {longToCurrency} from "../auction/serializer";
 import {bidHelper} from "../auction/newBidAssm";
-import {isWalletSaved, showMsg} from "../auction/helpers";
+import {friendlyAddress, isWalletSaved, showMsg} from "../auction/helpers";
 import FakeModal from "./fakeModal";
 
 const override = css`
@@ -83,68 +83,77 @@ export default class FooterSection extends React.Component {
 
                     </CardFooter>
 
-                    <ButtonGroup style={{'pointerEvents': this.props.box.isFinished ? "none" : null}}>
-                        <div className="d-block text-center">
-                            <button className="btn-icon btn-icon-only btn btn-outline-primary"
-                                    onClick={(e) => {
-                                        e.preventDefault();
-                                        this.props.openBid();
-                                    }}>
-                                <i className="pe-7s-edit btn-icon-wrapper"> </i>
-                            </button>
-                        </div>
-                        <button type="button" className="btn btn-outline-primary btn-sm"
-                                style={{fontSize: 13}}
+                {!this.props.box.isFinished && <ButtonGroup>
+                    <div className="d-block text-center">
+                        <button className="btn-icon btn-icon-only btn btn-outline-primary"
                                 onClick={(e) => {
-                                    if (!isWalletSaved()) {
-                                        showMsg(
-                                            'In order to place bids, you have to configure the wallet first.',
-                                            true
-                                        );
-                                        return
-                                    }
                                     e.preventDefault();
-                                    this.props.loading(true)
-                                    bidHelper(this.props.box.nextBid, this.props.box, this.props.assemblerModal, this.openFake).finally(() => this.props.loading(false))
+                                    this.props.openBid();
                                 }}>
-                            <text>
-                                Bid
-                            </text>
-                            {' '}
-                            <text>
-                                for{' '}
-                                <b>
-                                    {longToCurrency(this.props.box.nextBid, -1, this.props.box.currency)}{' '} {this.props.box.currency}
-                                </b>
-                            </text>
+                            <i className="pe-7s-edit btn-icon-wrapper"> </i>
                         </button>
-                        {this.props.box.instantAmount !== -1 &&
-                        <button type="button" className="btn btn-outline-dark btn-sm"
-                                style={{fontSize: 13}}
-                                onClick={(e) => {
-                                    if (!isWalletSaved()) {
-                                        showMsg(
-                                            'In order to place bids, you have to configure the wallet first.',
-                                            true
-                                        );
-                                        return
-                                    }
-                                    e.preventDefault();
-                                    this.props.loading(true)
-                                    bidHelper(this.props.box.instantAmount, this.props.box, this.props.assemblerModal, this.openFake).finally(() => this.props.loading(false))
-                                }}>
-                            <text>
-                                Buy
-                            </text>
-                            {' '}
-                            <text>
-                                for{' '}
-                                <b>
-                                    {longToCurrency(this.props.box.instantAmount, -1, this.props.box.currency)}{' '} {this.props.box.currency}
-                                </b>
-                            </text>
-                        </button>}
-                    </ButtonGroup>
+                    </div>
+                    <button type="button" className="btn btn-outline-primary btn-sm"
+                            style={{fontSize: 13}}
+                            onClick={(e) => {
+                                if (!isWalletSaved()) {
+                                    showMsg(
+                                        'In order to place bids, you have to configure the wallet first.',
+                                        true
+                                    );
+                                    return
+                                }
+                                e.preventDefault();
+                                this.props.loading(true)
+                                bidHelper(this.props.box.nextBid, this.props.box, this.props.assemblerModal, this.openFake).finally(() => this.props.loading(false))
+                            }}>
+                        <text>
+                            Bid
+                        </text>
+                        {' '}
+                        <text>
+                            for{' '}
+                            <b>
+                                {longToCurrency(this.props.box.nextBid, -1, this.props.box.currency)}{' '} {this.props.box.currency}
+                            </b>
+                        </text>
+                    </button>
+                    {this.props.box.instantAmount !== -1 &&
+                    <button type="button" className="btn btn-outline-dark btn-sm"
+                            style={{fontSize: 13}}
+                            onClick={(e) => {
+                                if (!isWalletSaved()) {
+                                    showMsg(
+                                        'In order to place bids, you have to configure the wallet first.',
+                                        true
+                                    );
+                                    return
+                                }
+                                e.preventDefault();
+                                this.props.loading(true)
+                                bidHelper(this.props.box.instantAmount, this.props.box, this.props.assemblerModal, this.openFake).finally(() => this.props.loading(false))
+                            }}>
+                        <text>
+                            Buy
+                        </text>
+                        {' '}
+                        <text>
+                            for{' '}
+                            <b>
+                                {longToCurrency(this.props.box.instantAmount, -1, this.props.box.currency)}{' '} {this.props.box.currency}
+                            </b>
+                        </text>
+                    </button>}
+                </ButtonGroup>}
+                {this.props.box.isFinished &&
+                <p className="text-danger mr-2 ml-2">
+                    {this.props.box.remTime === 0 && <b>
+                        This auction is already finished!
+                    </b>}
+                    {this.props.box.remTime !== 0 && <b>
+                        This auction has been bought using "Instant Buy" option.
+                    </b>}
+                </p>}
                     </span>
         );
     }
