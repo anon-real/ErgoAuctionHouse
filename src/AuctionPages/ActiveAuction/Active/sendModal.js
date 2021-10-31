@@ -1,6 +1,6 @@
 import React from 'react';
 import {Button, Container, Modal, ModalBody, ModalFooter, ModalHeader} from 'reactstrap';
-import {friendlyAddress, showMsg} from '../../../auction/helpers';
+import {friendlyAddress, isAssembler, showMsg} from '../../../auction/helpers';
 import Clipboard from "react-clipboard.js";
 import QRCode from "react-qr-code";
 import {additionalData, supportedCurrencies, txFee} from "../../../auction/consts";
@@ -16,6 +16,7 @@ export default class SendModal extends React.Component {
                 isOpen={this.props.isOpen}
                 backdrop="static"
                 toggle={this.close}
+                size='md'
             >
                 <ModalHeader>
                         <span className="fsize-1 text-muted">
@@ -85,14 +86,20 @@ export default class SendModal extends React.Component {
                             <li>
                                 You have a limited time to send the funds.
                             </li>
+                            {this.props.isAuction && isAssembler() && <li>
+                                <b>Follow: 1- Scan the QR code 2- Add the token that you want to auction 3- Send the transaction </b>
+                            </li>}
                         </p>
                         {this.props.currency === 'ERG' && <QRCode
+                            size={400}
                             value={"https://explorer.ergoplatform.com/payment-request?address=" + this.props.bidAddress +
                             "&amount=" + this.props.bidAmount}/>}
                         {this.props.currency !== 'ERG' && this.props.isAuction && <QRCode
+                            size={400}
                             value={"https://explorer.ergoplatform.com/payment-request?address=" + this.props.bidAddress +
                             "&amount=" + ((supportedCurrencies.ERG.minSupported + parseInt(additionalData.dataInput.additionalRegisters.R8.renderedValue)) / 1e9) +`&${supportedCurrencies[this.props.currency].id}=${this.props.bidAmount}`}/>}
                         {this.props.currency !== 'ERG' && !this.props.isAuction && this.props.currency && <QRCode
+                            size={400}
                             value={"https://explorer.ergoplatform.com/payment-request?address=" + this.props.bidAddress +
                             "&amount=" + 4 * (txFee / 1e9) + `&${supportedCurrencies[this.props.currency].id}=${this.props.bidAmount}`}/>}
                     </Container>
