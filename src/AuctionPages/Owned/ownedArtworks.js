@@ -134,7 +134,7 @@ export default class OwnedArtworks extends React.Component {
                         <Button
                             onClick={() => this.setState({newArtworkModal: true})}
                             outline
-                            className="btn-outline-lin m-2 border-0"
+                            className="btn-outline-lin font-size-lg m-2 border-0"
                             color="primary"
                         >
                             <i className="nav-link-icon lnr-picture"> </i>

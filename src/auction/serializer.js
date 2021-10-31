@@ -237,8 +237,9 @@ export async function decodeBoxes(boxes, block) {
     cur.sort((a, b) => a.remTime - b.remTime)
     const favs = getForKey('fav-artworks').map(fav => fav.id)
     cur.forEach(bx => {
-        if (favs.includes(bx.assets[0].tokenId)) bx.isFav = true
+        bx.isFav = !!favs.includes(bx.assets[0].tokenId);
     })
+    console.log(cur, 'ok')
     return cur
 }
 

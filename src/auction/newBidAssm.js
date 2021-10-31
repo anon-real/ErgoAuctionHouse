@@ -112,7 +112,8 @@ export async function registerBid(bidAmount, box) {
                     address: p2s,
                     time: moment().valueOf(),
                     key: 'bid',
-                    box: box
+                    box: box,
+                    amount: bidAmount
                 };
                 addForKey(pending, 'pending')
             }
