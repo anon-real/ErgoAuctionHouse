@@ -234,7 +234,7 @@ class NewAuctionAssembler extends React.Component {
                                             </FormFeedback>
                                         </InputGroup>
                                         <FormText>
-                                            The first bid will be at least this amount. Note that you need a little bit
+                                            <b>Specify the currency</b> and the minimum bid amount; the first bid will be at least this amount. Note that you need a little bit
                                             of this currency in your wallet to start the auction!
                                         </FormText>
                                     </FormGroup>
