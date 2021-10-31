@@ -40,8 +40,9 @@ const sortKeyToVal = {
     '4': 'Latest bids',
     '5': 'My artworks first',
     '6': 'My bids first',
-    '7': 'ERG auctions first',
-    '8': 'Non ERG auctions first',
+    '7': 'My favorites first',
+    '8': 'ERG auctions first',
+    '9': 'Non ERG auctions first',
 }
 
 const types = ['all', 'picture', 'audio', 'video', 'other']
@@ -63,39 +64,14 @@ class ActiveAuctions extends React.Component {
             searchValue:'',
             selectedAuctions:[]
         };
-        this.openAuction = this.openAuction.bind(this);
         this.sortAuctions = this.sortAuctions.bind(this);
         this.filterAuctions = this.filterAuctions.bind(this);
-        this.toggleAssemblerModal = this.toggleAssemblerModal.bind(this);
         this.trackScrolling = this.trackScrolling.bind(this);
         this.updateParams = this.updateParams.bind(this);
         this.getToShow = this.getToShow.bind(this);
         this.getHottest = this.getHottest.bind(this);
         this.SubmitSearchAuctions = this.SubmitSearchAuctions.bind(this);
         this.clearSearch = this.clearSearch.bind(this);
-    }
-
-    toggleAssemblerModal(address = '', bid = 0, isAuction = false, currency = 'ERG') {
-        this.setState({
-            assemblerModal: !this.state.assemblerModal,
-            bidAddress: address,
-            bidAmount: bid,
-            isAuction: isAuction,
-            currency: currency
-        });
-    }
-
-    openAuction() {
-        if (!isWalletSaved()) {
-            showMsg(
-                'In order to create a new auction, configure a wallet first.',
-                true
-            );
-        } else {
-            this.setState({
-                modalAssembler: !this.state.modalAssembler,
-            })
-        }
     }
 
     isBottom(el) {
@@ -221,9 +197,12 @@ class ActiveAuctions extends React.Component {
         else if (key === '6' && isWalletSaved())
             auctions.sort((a, b) => (b.bidder === getWalletAddress()) - (a.bidder === getWalletAddress()))
         else if (key === '7')
-            auctions.sort((a, b) => (b.currency === 'ERG') - (a.currency === 'ERG'))
+            auctions.sort((a, b) => (b.isFav - a.isFav))
         else if (key === '8')
+            auctions.sort((a, b) => (b.currency === 'ERG') - (a.currency === 'ERG'))
+        else if (key === '9')
             auctions.sort((a, b) => (b.currency !== 'ERG') - (a.currency !== 'ERG'))
+        // console.log('yay', auctions)
         return auctions
     }
 
@@ -301,21 +280,6 @@ class ActiveAuctions extends React.Component {
         this.HandleSearch();
         return (
             <Fragment>
-                <NewAuctionAssembler
-                    isOpen={this.state.modalAssembler}
-                    close={() => this.setState({modalAssembler: !this.state.modalAssembler})}
-                    assemblerModal={this.toggleAssemblerModal}
-                />
-
-                <SendModal
-                    isOpen={this.state.assemblerModal}
-                    close={this.toggleAssemblerModal}
-                    bidAmount={this.state.bidAmount}
-                    isAuction={this.state.isAuction}
-                    bidAddress={this.state.bidAddress}
-                    currency={this.state.currency}
-                />
-
                 <div className="app-page-title">
                     <div className="page-title-wrapper">
                         <div className="page-title-heading">
@@ -370,21 +334,8 @@ class ActiveAuctions extends React.Component {
                         <div>
                             <Row>
                                 <Col className='text-right'>
-                                    <Button
-                                        onClick={this.openAuction}
-                                        outline
-                                        className="btn-outline-lin m-2 border-0"
-                                        color="primary"
-                                    >
-                                        <i className="nav-link-icon lnr-plus-circle"> </i>
-                                        <span>New Auction</span>
-                                    </Button>
-                                </Col>
-                            </Row>
-                            <Row>
-                                <Col className='text-right'>
                                     <UncontrolledButtonDropdown>
-                                        <DropdownToggle caret outline className="mb-2 mr-2 border-0" color="primary">
+                                        <DropdownToggle caret outline className="mb-2 mr-2 border-0 font-size-lg" color="primary">
                                             <i className="nav-link-icon lnr-sort-amount-asc"> </i>
                                             {sortKeyToVal[this.state.sortKey]}
                                         </DropdownToggle>
@@ -400,7 +351,7 @@ class ActiveAuctions extends React.Component {
 
 
                                     <UncontrolledButtonDropdown>
-                                        <DropdownToggle caret outline className="mb-2 mr-2 border-0" color="primary">
+                                        <DropdownToggle caret outline className="mb-2 mr-2 border-0 font-size-lg" color="primary">
                                             <i className="nav-link-icon pe-7s-filter"> </i>
                                             {this.state.type}
                                         </DropdownToggle>

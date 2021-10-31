@@ -18,18 +18,18 @@ export default class ArtworkMedia extends React.Component {
     }
 
     favNFT() {
-        if (this.state.isFav) {
-            this.setState({isFav: false})
+        if (this.props.box.isFav) {
+            this.props.box.isFav = false
             removeForKey('fav-artworks', this.props.box.assets[0].tokenId)
         } else {
-            this.setState({isFav: true})
+            this.props.box.isFav = true
             addForKey({
                 asset: this.props.box.assets[0],
                 id: this.props.box.assets[0].tokenId,
                 boxId: this.props.box.boxId
             }, 'fav-artworks')
         }
-
+        this.forceUpdate()
     }
 
     render() {
@@ -65,7 +65,7 @@ export default class ArtworkMedia extends React.Component {
                     style={{zIndex: 1, cursor: "pointer"}}
                     onClick={() => this.favNFT()}
                     className="font-icon-wrapper font-weight-bold text-dark imgfav">
-                    <FontAwesomeIcon icon={this.state.isFav? faStarSolid : faStar}/>
+                    <FontAwesomeIcon icon={this.props.box.isFav? faStarSolid : faStar}/>
                 </div>}
                 {box.isPicture && <div>
                     <img

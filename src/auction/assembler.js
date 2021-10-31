@@ -13,7 +13,7 @@ import {
 import {Address} from '@coinbarn/ergo-ts';
 import {additionalData, assmUrl, auctionAddress, remFavNotif, trueAddress, txFee} from "./consts";
 import {boxById, currentBlock, followAuction, txByAddress, txById} from "./explorer";
-import {decodeAuction, getEncodedBoxSer, isP2pkAddr} from "./serializer";
+import {decodeAuction, getEncodedBoxSer, isP2pkAddr, longToCurrency} from "./serializer";
 import moment from "moment";
 
 // const assmUrl = 'https://assm.sigmausd.io/';
@@ -108,9 +108,17 @@ export async function myAuctionBids() {
                 let cur = JSON.parse(JSON.stringify(auctions[i]))
                 cur.id = newBid.id
                 addForKey(cur, 'my-auctions')
-                addNotification(`New bid for your auction "${auctions[i].name}" is placed`, getAuctionUrl(newBid.id))
-            } else
+                let bidAmount = newBid.value
+                let currency = 'ERG'
+                if (newBid.assets.length > 1) {
+                    bidAmount = newBid.assets[1].amount
+                    currency = newBid.assets[1].name
+                }
+                addNotification(`New bid with amount of ${longToCurrency(bidAmount, null, currency)} ${currency} for your auction "${auctions[i].name}" is placed`, getAuctionUrl(newBid.id))
+            } else {
                 addNotification(`Your auction "${auctions[i].name}" is finished`, getAuctionUrl(newBid.id))
+                removeForKey('my-auctions', auctions[i].id)
+            }
         }
     }
 }
@@ -163,7 +171,7 @@ export async function pendings() {
                             bid.unc = true
                             let msg = 'Your auction is starting'
                             if (bid.key === 'bid')
-                                msg = `Your bid for "${bid.box.tokenName}" is being placed`
+                                msg = `Your bid for ${longToCurrency(bid.amount, null, bid.box.currency)} ${bid.box.currency} on "${bid.box.tokenName}" is being placed`
                             addNotification(msg, getTxUrl(tx.id))
                             updateForKey('pending', bid)
                         }

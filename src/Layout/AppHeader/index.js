@@ -5,10 +5,35 @@ import {connect} from 'react-redux';
 
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import WalletModal from "./Components/WalletModal";
-import {Col, Collapse, Nav, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink} from "reactstrap";
+import {
+    Col,
+    Collapse,
+    DropdownItem,
+    DropdownMenu,
+    DropdownToggle,
+    Nav,
+    Navbar,
+    NavbarBrand,
+    NavbarToggler,
+    NavItem,
+    NavLink,
+    UncontrolledButtonDropdown
+} from "reactstrap";
 import nodeWallet from "../../assets/images/Ergo_auction_house_logo.png";
+import {Row} from "react-bootstrap";
+import {isWalletSaved, showMsg} from "../../auction/helpers";
+import NewAuctionAssembler from "../../AuctionPages/ActiveAuction/Active/newAuctionAssembler";
+import SendModal from "../../AuctionPages/ActiveAuction/Active/sendModal";
+import NewArtwork from "../../AuctionPages/Owned/newArtwork";
 
 class Header extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {}
+        this.openAuction = this.openAuction.bind(this);
+        this.toggleAssemblerModal = this.toggleAssemblerModal.bind(this);
+    }
+
     componentDidMount() {
         window.addEventListener('scroll', this.handleScroll);
     }
@@ -28,6 +53,42 @@ class Header extends React.Component {
         }
     }
 
+    openAuction() {
+        if (!isWalletSaved()) {
+            showMsg(
+                'In order to create a new auction, configure your wallet first.',
+                true
+            );
+        } else {
+            this.setState({
+                auctionModal: !this.state.auctionModal,
+            })
+        }
+    }
+
+    openArtwork() {
+        if (!isWalletSaved()) {
+            showMsg(
+                'In order to create a new artwork, configure your wallet first.',
+                true
+            );
+        } else {
+            this.setState({
+                newArtworkModal: !this.state.newArtworkModal,
+            })
+        }
+    }
+
+    toggleAssemblerModal(address = '', bid = 0, isAuction = false, currency = 'ERG') {
+        this.setState({
+            assemblerModal: !this.state.assemblerModal,
+            bidAddress: address,
+            bidAmount: bid,
+            isAuction: isAuction,
+            currency: currency
+        });
+    }
+
     render() {
         let {
             headerBackgroundColor,
@@ -36,6 +97,26 @@ class Header extends React.Component {
         } = this.props;
         return (
             <Fragment>
+                <NewAuctionAssembler
+                    isOpen={this.state.auctionModal}
+                    close={() => this.setState({auctionModal: !this.state.auctionModal})}
+                    assemblerModal={this.toggleAssemblerModal}
+                />
+
+                <SendModal
+                    isOpen={this.state.assemblerModal}
+                    close={this.toggleAssemblerModal}
+                    bidAmount={this.state.bidAmount}
+                    isAuction={this.state.isAuction}
+                    bidAddress={this.state.bidAddress}
+                    currency={this.state.currency}
+                />
+
+                <NewArtwork
+                    sendModal={this.toggleAssemblerModal}
+                    isOpen={this.state.newArtworkModal}
+                    close={() => this.setState({newArtworkModal: !this.state.newArtworkModal})}/>
+
 
                 <div id='myHeader' style={{zIndex: '10'}}>
                     <ReactCSSTransitionGroup
@@ -56,7 +137,7 @@ class Header extends React.Component {
                             </NavbarBrand>
                             <NavbarToggler/>
                             <Collapse navbar>
-                                <Col md='10'>
+                                <Col md='8'>
                                     <Nav className="mr-auto" navbar>
                                         <NavItem>
                                             <NavLink href="#/auction/active?type=all"
@@ -82,9 +163,26 @@ class Header extends React.Component {
                                         </NavItem>
                                     </Nav>
                                 </Col>
-                                <Col md='2'>
+                                <Col md='4'>
                                     <div className='float-right'>
-                                        <WalletModal/>
+                                        <Row>
+                                            <UncontrolledButtonDropdown>
+                                                <DropdownToggle outline className="border-0 mr-2 font-size-lg"
+                                                                color="none">
+                                                    <span className="notificationIcon pe-7s-plus font-weight-bold"/>
+                                                </DropdownToggle>
+                                                <DropdownMenu>
+                                                    <DropdownItem
+                                                        onClick={() => {
+                                                            this.openAuction()
+                                                        }}>New Auction</DropdownItem>
+                                                    <DropdownItem
+                                                        onClick={() => this.openArtwork()}>Create Artwork</DropdownItem>
+                                                </DropdownMenu>
+
+                                            </UncontrolledButtonDropdown>
+                                            <WalletModal/>
+                                        </Row>
                                     </div>
                                 </Col>
                             </Collapse>
