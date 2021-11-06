@@ -95,7 +95,7 @@ export default class ActiveAuction extends React.Component {
 
                     <Row style={{marginTop: 8}}>
                         <Col className="text-truncate">
-                            <b>{this.props.box.tokenName}</b>
+                            <b data-tip={this.props.box.tokenName}>{this.props.box.tokenName}</b>
                         </Col>
 
                         {(this.props.box.royalty > 0 || this.props.box.totalIssued > 1) &&
