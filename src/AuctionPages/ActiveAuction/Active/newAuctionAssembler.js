@@ -367,7 +367,7 @@ class NewAuctionAssembler extends React.Component {
                                             </FormFeedback>
                                         </InputGroup>
                                         <FormText>
-                                            If you set this, anyone can instantly win your auction by bidding by at
+                                            If you enable this, anyone can instantly win your auction by bidding by at
                                             least this
                                             amount.
                                         </FormText>
@@ -400,6 +400,9 @@ class NewAuctionAssembler extends React.Component {
                                     auctioning here.
                                 </FormText>
                             </FormGroup>
+                            <FormText>
+                                <b data-tip='ok'>* Auto Extend feature is by default enabled for all auctions.</b>
+                            </FormText>
                         </Form>
                     </Container>
                 </ModalBody>
