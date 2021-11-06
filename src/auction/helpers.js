@@ -1,7 +1,7 @@
 import React from 'react';
 import {Flip, Slide, toast} from 'react-toastify';
 import {Address} from "@coinbarn/ergo-ts";
-import {additionalData, auctionNFT, fakeThreshold, fakeURL} from "./consts";
+import {additionalData, auctionNFT, fakeThreshold, fakeURL, notifCoolOff} from "./consts";
 import {getBoxesForAsset} from "./explorer";
 import moment from "moment";
 import ahIcon from "../assets/images/Ergo_auction_house_logo.png";
@@ -177,6 +177,11 @@ export function isNotifSupported() {
 }
 
 async function notifyMe(msg, lnk) {
+    if (additionalData.lastNotif) {
+        const lastNotif = moment.duration(moment().diff(moment(additionalData.lastNotif))).asSeconds();
+        if (lastNotif < notifCoolOff) return
+    }
+    additionalData.lastNotif = moment().valueOf()
     if (!isNotifSupported()) return
     if (Notification.permission !== 'granted')
         await Notification.requestPermission();

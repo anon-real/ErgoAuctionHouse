@@ -135,7 +135,7 @@ export async function yoroiSendFunds(need, addr, block, registers={}, notif=true
     console.log('Yoroi tx id', txId)
     if (notif) {
         if (txId !== undefined && txId.length > 0)
-            showMsg('Necessary funds were sent using Yoroi!')
+            showMsg('The operation is being done with Yoroi, please wait...')
         else
             showMsg('Error while sending funds using Yoroi!', true)
     }

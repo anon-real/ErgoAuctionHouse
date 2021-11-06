@@ -145,14 +145,14 @@ class Header extends React.Component {
                                                 Auctions</NavLink>
                                         </NavItem>
                                         <NavItem>
+                                            <NavLink href="#/auction/history"
+                                                     active={window.location.href.includes("#/auction/history")}
+                                            >Past Auctions</NavLink>
+                                        </NavItem>
+                                        <NavItem>
                                             <NavLink href="#/owned"
                                                      active={window.location.href.includes("#/owned")}
                                             >Owned Artworks</NavLink>
-                                        </NavItem>
-                                        <NavItem>
-                                            <NavLink href="#/auction/history"
-                                                     active={window.location.href.includes("#/auction/history")}
-                                            >History</NavLink>
                                         </NavItem>
                                         <NavItem>
                                             <NavLink href="#/faq"

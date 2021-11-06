@@ -24,6 +24,7 @@ import {
 } from 'reactstrap';
 import {Link} from "react-router-dom";
 import {longToCurrency} from "../../../auction/serializer";
+import ArtworkMedia from "../../artworkMedia";
 
 const override = css`
   display: block;
@@ -140,6 +141,7 @@ export default class HistoryBox extends React.Component {
                                 />
                             </span>}
                         </div>
+                        <ArtworkMedia preload={false} avoidFav={true} box={this.props.box}/>
                         <div className="widget-chart-wrapper chart-wrapper-relative justify justify-content-lg-start">
                             <div
                                 style={{

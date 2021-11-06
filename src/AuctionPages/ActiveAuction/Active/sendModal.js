@@ -91,15 +91,15 @@ export default class SendModal extends React.Component {
                             </li>}
                         </p>
                         {this.props.currency === 'ERG' && <QRCode
-                            size={400}
+                            size={320}
                             value={"https://explorer.ergoplatform.com/payment-request?address=" + this.props.bidAddress +
                             "&amount=" + this.props.bidAmount}/>}
                         {this.props.currency !== 'ERG' && this.props.isAuction && <QRCode
-                            size={400}
+                            size={320}
                             value={"https://explorer.ergoplatform.com/payment-request?address=" + this.props.bidAddress +
                             "&amount=" + ((supportedCurrencies.ERG.minSupported + parseInt(additionalData.dataInput.additionalRegisters.R8.renderedValue)) / 1e9) +`&${supportedCurrencies[this.props.currency].id}=${this.props.bidAmount}`}/>}
                         {this.props.currency !== 'ERG' && !this.props.isAuction && this.props.currency && <QRCode
-                            size={400}
+                            size={320}
                             value={"https://explorer.ergoplatform.com/payment-request?address=" + this.props.bidAddress +
                             "&amount=" + 4 * (txFee / 1e9) + `&${supportedCurrencies[this.props.currency].id}=${this.props.bidAmount}`}/>}
                     </Container>

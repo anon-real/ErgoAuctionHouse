@@ -61,6 +61,7 @@ class ActiveAuctions extends React.Component {
             end: limit,
             values: [],
             lastLoaded: [],
+            lastUpdated: 0,
             searchValue:'',
             selectedAuctions:[]
         };
