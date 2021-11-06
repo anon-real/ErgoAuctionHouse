@@ -4,8 +4,7 @@ import {
     getWalletAddress, getWalletType,
     isAddressValid,
     isAssembler,
-    isWalletNode,
-    isWalletSaved, isWalletYoroi,
+    isWalletSaved, isYoroi,
     showMsg
 } from '../../../auction/helpers';
 
@@ -274,7 +273,7 @@ class WalletModal extends React.Component {
                             }
                             onClick={() => this.saveWallet()}
                         >
-                            {this.state.activeTab !== 'yoroi' ? 'Save' : 'Connect'} {this.state.processing}
+                            {this.state.activeTab !== 'yoroi' ? 'Save' : (isYoroi()? 'reconnect' : 'Connect')} {this.state.processing}
                         </Button>
                     </ModalFooter>
                 </Modal>

@@ -71,7 +71,7 @@ export default class ArtworkMedia extends React.Component {
                     <img
                         style={{cursor: 'pointer'}}
                         onClick={() => {
-                            if (!this.props.avoidDetail) this.setState({artDetails: true})
+                            if (!this.props.avoidDetail) this.setState({artDetail: true})
                         }}
                         className="auctionImg"
                         src={
@@ -85,6 +85,9 @@ export default class ArtworkMedia extends React.Component {
                     <img
                         style={{cursor: 'pointer'}}
                         className="auctionImg"
+                        onClick={() => {
+                            if (!this.props.avoidDetail) this.setState({artDetail: true})
+                        }}
                         src={
                             box.artworkUrl
                                 ? box.artworkUrl

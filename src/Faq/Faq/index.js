@@ -12,7 +12,7 @@ const data = {
             of the final bid will go to the Ergo Auction House as compensation for its services and further development.`,
         },
         {
-            title: 'Start fee',
+            title: 'What is the start fee?',
             content: `To prevent spams and reduce scams, there is a starting fee of 0.1 ERG for auctions.`
         },
         {
@@ -20,7 +20,7 @@ const data = {
             content: 'Setup your wallet first, then go to Owned Artworks section and click on Create Artwork.',
         },
         {
-            title: 'What is minting artwork fee',
+            title: 'What is the fee for minting an artwork?',
             content: 'There is no fee for minting new artworks.',
         },
         {
@@ -28,7 +28,7 @@ const data = {
             content: 'You can auction any token that you think is valuable somehow. Whether it is Artwork NFT, PoW-backed NFTs or it is representing some business shares, etc.',
         },
         {
-            title: 'How can I trust Ergo Auction House?',
+            title: 'How do I know I can trust the Ergo Auction House?',
             content:
                 'Ergo Auction House is community-driven and open source.' +
                 'The code, smart contracts and proxy contract are all audited and verifiable by all.'
@@ -46,7 +46,7 @@ const data = {
                 ' your funds will be immediately returned to your wallet.',
         },
         {
-            title: 'What happens if I start an auction but no one places bid on it?',
+            title: 'What happens if I start an auction but no one else bids?',
             content:
                 'You\'ll receive your token back while not being charged with any fees (other than the starting fee).',
         },
