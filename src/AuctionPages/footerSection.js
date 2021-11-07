@@ -151,7 +151,7 @@ export default class FooterSection extends React.Component {
                         This auction is already finished!
                     </text>}
                     {this.props.box.remTime !== 0 && <text>
-                        This auction has been bought with "Instant Buy" option.
+                        This auction has been bought with the "Instant Buy" option.
                     </text>}
                 </p>}
                     </span>
