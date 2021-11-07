@@ -239,7 +239,6 @@ export async function decodeBoxes(boxes, block) {
     cur.forEach(bx => {
         bx.isFav = !!favs.includes(bx.assets[0].tokenId);
     })
-    console.log(cur, 'ok')
     return cur
 }
 

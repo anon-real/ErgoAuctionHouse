@@ -264,7 +264,7 @@ export async function assembleFinishedAuctions(boxes) {
             const dataInput = additionalData.dataInput;
             const auctionFee = Math.floor((box.curBid * parseInt(dataInput.additionalRegisters.R4.renderedValue)) / 1000)
             const feeTo = Address.fromErgoTree(dataInput.additionalRegisters.R5.renderedValue).address;
-            const artistFee = Math.floor((box.curBid * box.royalty) / 10000)
+            const artistFee = Math.floor((box.curBid * box.royalty) / 1000)
             const minimalErg = 500000
 
             let artBox = await boxById(box.assets[0].tokenId)
@@ -360,7 +360,6 @@ export async function assembleFinishedAuctions(boxes) {
                     dataInputs: [dataInput.boxId],
                 }
             };
-            console.log(request)
 
 
             if (artistAddr !== null) {

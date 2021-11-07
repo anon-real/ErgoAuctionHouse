@@ -52,7 +52,7 @@ export async function yoroiSendFunds(need, addr, block, registers={}, notif=true
 
     const allBal = await getYoroiTokens()
     if (keys.filter(key => key !== 'ERG').filter(key => !Object.keys(allBal).includes(key) || allBal[key].amount < have[key]).length > 0) {
-        showMsg('Not enough balance in the Yoroi wallet!', true)
+        showMsg('Not enough balance in the Yoroi wallet! See FAQ for more info.', true)
         return
     }
 
@@ -71,7 +71,7 @@ export async function yoroiSendFunds(need, addr, block, registers={}, notif=true
         }
     }
     if (keys.filter(key => have[key] > 0).length > 0) {
-        showMsg('Not enough balance in the Yoroi wallet!', true)
+        showMsg('Not enough balance in the Yoroi wallet! See FAQ for more info.', true)
         return
     }
 

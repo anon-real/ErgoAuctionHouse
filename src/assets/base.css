@@ -17045,10 +17045,10 @@ svg {
 }
 
 .search-container{
-    margin-top: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    /*margin-top: 30px;*/
+    /*display: flex;*/
+    /*align-items: center;*/
+    /*justify-content: space-between;*/
 }
 
 .search-box{
@@ -17056,7 +17056,8 @@ svg {
     width:400px;
     border:1px solid lightgray;
     border-radius: 0.25rem;
-    padding:0.375rem 0.75rem;
+    padding:0.175rem 0.75rem;
+    margin-left: 10px;
 }
 
 .search-box input{

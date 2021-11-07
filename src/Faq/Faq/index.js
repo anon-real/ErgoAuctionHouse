@@ -24,6 +24,11 @@ const data = {
             content: 'There is no fee for minting new artworks.',
         },
         {
+            title: 'I get "Not enough balance in the Yoroi wallet!"',
+            content: 'If you think the messages not right, try to open your wallet and wait a few seconds for the transaction table to get updated.' +
+                'If the issue remains unresolved, send all your funds to one of your addresses and wait for it to be mined.',
+        },
+        {
             title: 'What tokens can I auction?',
             content: 'You can auction any token that you think is valuable somehow. Whether it is Artwork NFT, PoW-backed NFTs or it is representing some business shares, etc.',
         },

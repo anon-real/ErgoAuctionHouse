@@ -1,8 +1,6 @@
 import React, {Fragment} from 'react';
 import cx from 'classnames';
 
-import {connect} from 'react-redux';
-
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import WalletModal from "./Components/WalletModal";
 import {
@@ -21,10 +19,11 @@ import {
 } from "reactstrap";
 import nodeWallet from "../../assets/images/Ergo_auction_house_logo.png";
 import {Row} from "react-bootstrap";
-import {isWalletSaved, showMsg} from "../../auction/helpers";
+import {encodeQueries, isWalletSaved, parseQueries, showMsg} from "../../auction/helpers";
 import NewAuctionAssembler from "../../AuctionPages/ActiveAuction/Active/newAuctionAssembler";
 import SendModal from "../../AuctionPages/ActiveAuction/Active/sendModal";
 import NewArtwork from "../../AuctionPages/Owned/newArtwork";
+import {withRouter} from "react-router-dom";
 
 class Header extends React.Component {
     constructor(props) {
@@ -32,6 +31,7 @@ class Header extends React.Component {
         this.state = {}
         this.openAuction = this.openAuction.bind(this);
         this.toggleAssemblerModal = this.toggleAssemblerModal.bind(this);
+        this.updateParams = this.updateParams.bind(this);
     }
 
     componentDidMount() {
@@ -40,6 +40,10 @@ class Header extends React.Component {
 
     componentWillUnmount() {
         window.removeEventListener('scroll', this.handleScroll);
+    }
+
+    componentWillReceiveProps(nextProps, nextContext) {
+        this.setState(parseQueries(nextProps.location.search))
     }
 
     handleScroll(event) {
@@ -89,6 +93,15 @@ class Header extends React.Component {
         });
     }
 
+    updateParams(key, newVal) {
+        let queries = parseQueries(this.props.location.search)
+        queries[key] = newVal
+        this.props.history.push({
+            pathname: '/auction/active',
+            search: encodeQueries(queries)
+        })
+    }
+
     render() {
         let {
             headerBackgroundColor,
@@ -135,9 +148,9 @@ class Header extends React.Component {
                                 />
 
                             </NavbarBrand>
-                            <NavbarToggler/>
-                            <Collapse navbar>
-                                <Col md='8'>
+                            <NavbarToggler onClick={() => this.setState({isOpen: !this.state.isOpen})}/>
+                            <Collapse isOpen={this.state.isOpen} navbar>
+                                <Col md='9'>
                                     <Nav className="mr-auto" navbar>
                                         <NavItem>
                                             <NavLink href="#/auction/active?type=all"
@@ -161,9 +174,31 @@ class Header extends React.Component {
                                                 FAQ
                                             </NavLink>
                                         </NavItem>
+                                        {/*<div className="search-container">*/}
+                                        <div className="search-box">
+                                            <form className="d-flex justify-content-between align-items-center"
+                                                  onSubmit={(e) => {
+                                                      e.preventDefault();
+                                                      this.updateParams('searchValue', this.state.searchValue)
+                                                  }}>
+                                                {/*< className="">*/}
+                                                <input
+                                                    placeholder="Search in name, description and addresses"
+                                                    value={this.state.searchValue}
+                                                    onChange={(e) => {
+                                                        this.setState({searchValue: e.target.value})
+                                                    }}
+                                                />
+                                                    <button className="search-icon-container" type="submit">
+                                                        {/*<i className="lnr lnr-magnifier search-icon"/>*/}
+                                                        <span className="lnr lnr-magnifier font-size-lg"/>
+                                                    </button>
+                                            </form>
+                                        </div>
+                                        {/*</div>*/}
                                     </Nav>
                                 </Col>
-                                <Col md='4'>
+                                <Col md='3'>
                                     <div className='float-right'>
                                         <Row>
                                             <UncontrolledButtonDropdown>
@@ -185,6 +220,7 @@ class Header extends React.Component {
                                         </Row>
                                     </div>
                                 </Col>
+
                             </Collapse>
                         </Navbar>
                     </ReactCSSTransitionGroup>
@@ -204,4 +240,5 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({});
 
-export default connect(mapStateToProps, mapDispatchToProps)(Header);
+// export default connect(mapStateToProps, mapDispatchToProps)(Header);
+export default withRouter(Header)
