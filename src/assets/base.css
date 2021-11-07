@@ -17136,3 +17136,9 @@ svg {
 .notificationItem:hover{
     background: #c0c0c030;
 }
+
+.audioTab {
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+}
