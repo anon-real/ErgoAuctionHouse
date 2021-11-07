@@ -16922,12 +16922,14 @@ a.badge-alternate:hover, a.badge-alternate:focus {
 .imgDiv {
     height: 350px;
     border-radius: 8px;
-    overflow: hidden;
+    overflow: scroll;
     box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.08);
-    display: block;
+    display: flex;
     position: relative;
-    background: whitesmoke;
+    background: #f9f9f9;
+    justify-content: center;
 }
+
 
 svg {
     display: block;

@@ -7,6 +7,7 @@ import {faStar} from "@fortawesome/free-regular-svg-icons";
 import {faStar as faStarSolid} from "@fortawesome/free-solid-svg-icons";
 import {addForKey, removeForKey} from "../auction/helpers";
 import ArtworkDetails from "./artworkDetails";
+import noImg from "../assets/no-image-removebg-preview.jpg";
 
 export default class ArtworkMedia extends React.Component {
     constructor(props) {
@@ -77,7 +78,7 @@ export default class ArtworkMedia extends React.Component {
                         src={
                             box.artworkUrl
                                 ? box.artworkUrl
-                                : 'http://revisionmanufacture.com/assets/uploads/no-image.png'
+                                : noImg
                         }
                     />
                 </div>}
@@ -91,7 +92,7 @@ export default class ArtworkMedia extends React.Component {
                         src={
                             box.artworkUrl
                                 ? box.artworkUrl
-                                : 'http://revisionmanufacture.com/assets/uploads/no-image.png'
+                                : noImg
                         }
                     />
                     <AudioPlayer
