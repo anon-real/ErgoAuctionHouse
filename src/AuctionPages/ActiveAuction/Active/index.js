@@ -1,7 +1,14 @@
 import React, {Fragment} from 'react';
 
 import {currentBlock, followAuction, getAllActiveAuctions,} from '../../../auction/explorer';
-import {encodeQueries, friendlyAddress, getWalletAddress, isWalletSaved, parseQueries,} from '../../../auction/helpers';
+import {
+    encodeQueries,
+    friendlyAddress,
+    getAuctionUrl,
+    getWalletAddress,
+    isWalletSaved,
+    parseQueries,
+} from '../../../auction/helpers';
 import {css} from '@emotion/core';
 import PropagateLoader from 'react-spinners/PropagateLoader';
 import {assembleFinishedAuctions} from "../../../auction/assembler";
@@ -11,6 +18,9 @@ import TitleComponent2 from '../../../Layout/AppMain/PageTitleExamples/Variation
 import {decodeBoxes, longToCurrency,} from '../../../auction/serializer';
 import ShowAuctions from "./showActives";
 import {withRouter} from 'react-router-dom';
+import ArtworkMedia from "../../artworkMedia";
+
+const Coverflow = require('react-coverflow');
 
 const override = css`
   display: block;
@@ -170,7 +180,9 @@ class ActiveAuctions extends React.Component {
                 else return a.curBid - b.curBid
             })
         else if (key === '4')
-            auctions.sort((a, b) => b.creationHeight - a.creationHeight)
+            auctions.sort((a, b) => {
+                return b.creationHeight - a.creationHeight
+            })
         else if (key === '5' && isWalletSaved())
             auctions.sort((a, b) => (b.seller === getWalletAddress()) - (a.seller === getWalletAddress()))
         else if (key === '6' && isWalletSaved())
@@ -212,9 +224,9 @@ class ActiveAuctions extends React.Component {
 
     getHottest() {
         // const pictureAuctions = this.filterAuctions(this.state.allAuctions, 'picture')
-        const pictureAuctions = this.state.allAuctions
-        if (pictureAuctions.length >= 5)
-            return this.sortAuctions(this.state.allAuctions, '4').slice(0, 5)
+        const artworkAuctions = this.filterAuctions(this.state.allAuctions.filter(auc => auc.isArtwork && auc.minBid <= auc.curBid))
+        if (artworkAuctions.length >= 3)
+            return this.sortAuctions(artworkAuctions, '4').slice(0, 5)
         return []
     }
 
@@ -278,48 +290,14 @@ class ActiveAuctions extends React.Component {
                         <div className="page-title-actions">
                             <TitleComponent2/>
                         </div>
-                        <div>
-                            <Row>
-                                <Col className='text-right'>
-                                    <UncontrolledButtonDropdown>
-                                        <DropdownToggle caret outline className="mb-2 mr-2 border-0 font-size-lg"
-                                                        color="primary">
-                                            <i className="nav-link-icon lnr-sort-amount-asc"> </i>
-                                            {sortKeyToVal[this.state.sortKey]}
-                                        </DropdownToggle>
-                                        <DropdownMenu>
-                                            {Object.keys(sortKeyToVal).map(sortKey => <DropdownItem
-                                                onClick={() => {
-                                                    // this.sortAuctions([].concat(this.state.auctions), sortKey)
-                                                    this.updateParams('sortKey', sortKey)
-                                                }}>{sortKeyToVal[sortKey]}</DropdownItem>)}
-                                        </DropdownMenu>
-
-                                    </UncontrolledButtonDropdown>
-
-
-                                    <UncontrolledButtonDropdown>
-                                        <DropdownToggle caret outline className="mb-2 mr-2 border-0 font-size-lg"
-                                                        color="primary">
-                                            <i className="nav-link-icon pe-7s-filter"> </i>
-                                            {this.state.type}
-                                        </DropdownToggle>
-                                        <DropdownMenu>
-                                            {types.map(type => <DropdownItem
-                                                onClick={() => {
-                                                    // this.sortAuctions([].concat(this.state.auctions), sortKey)
-                                                    this.updateParams('type', type)
-                                                }}>{type}</DropdownItem>)}
-                                        </DropdownMenu>
-                                    </UncontrolledButtonDropdown>
-                                </Col>
-                            </Row>
-                        </div>
                     </div>
                 </div>
-                {/* {!this.state.loading && this.getHottest().length > 0  && <div
-                    className="mb-xl-5"
+                {!this.state.loading && this.getHottest().length > 0 && <div
+                    className="mb-xl-5 card mb-3 bg-white widget-chart"
                 >
+                    <div className='notArtwork'>
+                        <b className='font-size-xlg text-primary'>Hot auctions</b>
+                    </div>
                     <Coverflow
                         className='coverflow'
                         width={960}
@@ -328,8 +306,8 @@ class ActiveAuctions extends React.Component {
                         navigation={false}
                         enableHeading={true}
                         enableScroll={false}
-                    > */}
-                {/* {this.getHottest().map(hot => {
+                    >
+                        {this.getHottest().map(hot => {
                             // return <img style={{position: "relative"}} src={hot.artworkUrl} alt={hot.tokenName}
                             //      data-action={getAuctionUrl(hot.boxId)}/>
                             return <ArtworkMedia box={hot} height='100%' width='100%'
@@ -337,10 +315,47 @@ class ActiveAuctions extends React.Component {
                                                  avoidFav={true}
                                                  alt={hot.tokenName}
                                                  data-action={getAuctionUrl(hot.boxId)}/>
-                        })} */}
-                {/*     data-action="http://tw.yahoo.com"/>*/}
-                {/* </Coverflow> */}
-                {/* </div>} */}
+                        })}
+                        {/*data-action="http://tw.yahoo.com"/>*/}
+                    </Coverflow>
+                </div>}
+                {!this.state.loading && <div>
+                    <Row>
+                        <Col className='text-right'>
+                            <UncontrolledButtonDropdown>
+                                <DropdownToggle caret outline className="mb-2 mr-2 border-0 font-size-lg"
+                                                color="primary">
+                                    <i className="nav-link-icon lnr-sort-amount-asc"> </i>
+                                    {sortKeyToVal[this.state.sortKey]}
+                                </DropdownToggle>
+                                <DropdownMenu>
+                                    {Object.keys(sortKeyToVal).map(sortKey => <DropdownItem
+                                        onClick={() => {
+                                            // this.sortAuctions([].concat(this.state.auctions), sortKey)
+                                            this.updateParams('sortKey', sortKey)
+                                        }}>{sortKeyToVal[sortKey]}</DropdownItem>)}
+                                </DropdownMenu>
+
+                            </UncontrolledButtonDropdown>
+
+
+                            <UncontrolledButtonDropdown>
+                                <DropdownToggle caret outline className="mb-2 mr-2 border-0 font-size-lg"
+                                                color="primary">
+                                    <i className="nav-link-icon pe-7s-filter"> </i>
+                                    {this.state.type}
+                                </DropdownToggle>
+                                <DropdownMenu>
+                                    {types.map(type => <DropdownItem
+                                        onClick={() => {
+                                            // this.sortAuctions([].concat(this.state.auctions), sortKey)
+                                            this.updateParams('type', type)
+                                        }}>{type}</DropdownItem>)}
+                                </DropdownMenu>
+                            </UncontrolledButtonDropdown>
+                        </Col>
+                    </Row>
+                </div>}
                 {this.state.loading ? (
                     <div
                         style={{
