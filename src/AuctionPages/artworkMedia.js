@@ -37,7 +37,7 @@ export default class ArtworkMedia extends React.Component {
         let box = this.props.box;
         let icon = ''
         if (box.isPicture)
-            icon = 'lnr-music-note'
+            icon = 'lnr-picture'
         if (box.isAudio)
             icon = 'lnr-music-note'
         else if (box.isVideo)
