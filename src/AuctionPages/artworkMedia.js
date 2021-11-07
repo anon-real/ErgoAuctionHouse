@@ -104,7 +104,7 @@ export default class ArtworkMedia extends React.Component {
                         layout={"horizontal-reverse"}
                         preload={"none"}
                         autoPlay={false}
-                        style={{position: "absolute", bottom: "0px"}}
+                        className='audioTab'
                         src={box.audioUrl}
                     />
                 </div>}

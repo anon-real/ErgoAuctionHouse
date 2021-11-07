@@ -251,7 +251,7 @@ export function parseQueries(query) {
     queries.forEach(query => {
         let cur = query.split('=')
         if (cur[0].length > 0)
-            queryMp[cur[0]] = cur[1]
+            queryMp[cur[0]] = decodeURI(cur[1])
     })
     if (!Object.keys(queryMp).includes('artist'))
         queryMp['artist'] = undefined
