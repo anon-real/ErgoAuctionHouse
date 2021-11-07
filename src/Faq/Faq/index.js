@@ -25,8 +25,8 @@ const data = {
         },
         {
             title: 'I get "Not enough balance in the Yoroi wallet!"',
-            content: 'If you think the messages not right, try to open your wallet and wait a few seconds for the transaction table to get updated.' +
-                'If the issue remains unresolved, send all your funds to one of your addresses and wait for it to be mined.',
+            content: 'If you think the message is not right, try to open your wallet and wait a few seconds for the transaction table to get updated.' +
+                ' If the issue remains unresolved, send all your funds to one of your addresses and wait for it to be mined.',
         },
         {
             title: 'What tokens can I auction?',
@@ -62,11 +62,12 @@ export default class Faqs extends React.Component {
     render() {
         return (
             <Fragment>
-                <PageTitle
-                    heading="FAQ"
-                    subheading=""
-                    icon="pe-7s-attention icon-gradient bg-night-fade"
-                />
+                <div>
+                {/*<PageTitle*/}
+                {/*    heading="FAQ"*/}
+                {/*    subheading=""*/}
+                {/*    icon="pe-7s-attention icon-gradient bg-night-fade"*/}
+                {/*/>*/}
                 <Faq
                     data={data}
                     styles={{
@@ -83,6 +84,7 @@ export default class Faqs extends React.Component {
                         arrowColor: 'black',
                     }}
                 />
+                </div>
             </Fragment>
         );
     }
