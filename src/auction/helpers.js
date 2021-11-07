@@ -245,3 +245,22 @@ export async function firstOrig(id) {
         return null
     }
 }
+export function parseQueries(query) {
+    let queries = query.slice(1).split('&')
+    let queryMp = {}
+    queries.forEach(query => {
+        let cur = query.split('=')
+        if (cur[0].length > 0)
+            queryMp[cur[0]] = cur[1]
+    })
+    if (!Object.keys(queryMp).includes('artist'))
+        queryMp['artist'] = undefined
+    if (!Object.keys(queryMp).includes('searchValue'))
+        queryMp['searchValue'] = undefined
+    return queryMp
+}
+
+export function encodeQueries(queries) {
+    return Object.keys(queries).filter(key => queries[key]).map(key => `${key}=${queries[key]}`).join('&')
+}
+
