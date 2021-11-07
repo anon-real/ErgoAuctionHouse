@@ -23,7 +23,7 @@ const sortKeyToVal = {
     '2': 'Highest bid',
     '3': 'Lowest bid',
     '4': 'Latest bids',
-    '5': 'My artworks first',
+    '5': 'My auctions first',
     '6': 'My bids first',
     '7': 'My favorites first',
     '8': 'ERG auctions first',

@@ -80,11 +80,12 @@ function resolveIpfs(url, isVideo = false) {
 export async function decodeArtwork(box, tokenId, considerArtist = true) {
     let inf = await getNFTInfo(tokenId)
     if (inf !== undefined && considerArtist) {
+        if (!inf.isArtwork) inf.type = 'other'
         if (box === null) box = {}
         box = {...box, ...inf}
         return box
     }
-    inf = {}
+    inf = {type: 'other'}
 
     const res = await getIssuingBox(tokenId)
     if (box === null)

@@ -25,7 +25,7 @@ const data = {
         },
         {
             title: 'I get "Not enough balance in the Yoroi wallet!"',
-            content: 'If you think the message is not right, try to open your wallet and wait a few seconds for the transaction table to get updated.' +
+            content: 'If you think the message is not right, try to open your wallet and wait a few seconds for the transaction table to get updated. If you have some pending transactions, you should wait for them to be mined first.' +
                 ' If the issue remains unresolved, send all your funds to one of your addresses and wait for it to be mined.',
         },
         {

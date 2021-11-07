@@ -35,7 +35,9 @@ export default class ArtworkMedia extends React.Component {
 
     render() {
         let box = this.props.box;
-        let icon = 'lnr-picture'
+        let icon = ''
+        if (box.isPicture)
+            icon = 'lnr-music-note'
         if (box.isAudio)
             icon = 'lnr-music-note'
         else if (box.isVideo)
@@ -56,7 +58,7 @@ export default class ArtworkMedia extends React.Component {
                     close={() => this.setState({artDetail: !this.state.artDetail})}
                 />}
 
-                {!this.props.removeIcon && <i
+                {!this.props.removeIcon && icon.length > 0 && <i
                     style={{zIndex: 1, cursor: "pointer"}}
                     onClick={() => {
                         if (!this.props.avoidDetail) this.setState({artDetail: true})
@@ -125,6 +127,9 @@ export default class ArtworkMedia extends React.Component {
                             }
                         }}
                     />
+                </div>}
+                {!box.isArtwork && <div className='notArtwork'>
+                    <b className='font-size-xlg text-grey'>This is not an artwork</b>
                 </div>}
             </div>
         );
