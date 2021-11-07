@@ -55,6 +55,10 @@ const data = {
             content:
                 'You\'ll receive your token back while not being charged with any fees (other than the starting fee).',
         },
+        {
+            title: "I'd like to donate to devs and further development of the Auction House",
+            content: `Any donation will help and is appreciated. Please send your donations to 9ho3quMB1Vs6ejycB4t3tNw5oTkiu2ZSGT9VfBFshxb21baT3ex.`,
+        },
     ],
 };
 
@@ -74,7 +78,7 @@ export default class Faqs extends React.Component {
                         bgColor: '#fff',
                         titleTextColor: '#48482a',
                         rowTitleColor: '#444457',
-                        rowTitleTextSize: 'large',
+                        rowTitleTextSize: 'medium',
                         rowContentColor: '#48484a',
                         rowContentTextSize: '16px',
                         rowContentPaddingTop: '10px',
