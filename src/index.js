@@ -9,7 +9,7 @@ import Main from './AuctionPages/Main';
 import configureStore from './config/configureStore';
 import {Provider} from 'react-redux';
 import {currentHeight, getBoxesForAsset,} from './auction/explorer';
-import {isNotifSupported, showMsg} from './auction/helpers';
+import {isNotifSupported, notifyMe, showMsg} from './auction/helpers';
 import {handleAll, pendings} from "./auction/assembler";
 import {additionalData, auctionNFT} from "./auction/consts";
 
@@ -17,6 +17,7 @@ const store = configureStore();
 const rootElement = document.getElementById('root');
 
 const renderApp = (Component) => {
+    notifyMe('yo', 'yo.com').then(() => {})
     handleAll().then(res => {})
     setInterval(() => {
         handleAll().then(res => {})

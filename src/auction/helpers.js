@@ -176,7 +176,7 @@ export function isNotifSupported() {
     return 'Notification' in window
 }
 
-async function notifyMe(msg, lnk) {
+export async function notifyMe(msg, lnk) {
     if (additionalData.lastNotif) {
         const lastNotif = moment.duration(moment().diff(moment(additionalData.lastNotif))).asSeconds();
         if (lastNotif < notifCoolOff) return
@@ -186,7 +186,7 @@ async function notifyMe(msg, lnk) {
     if (Notification.permission !== 'granted')
         await Notification.requestPermission();
     else {
-        const notification = new Notification('Notification title', {
+        const notification = new Notification('New Notification for the Ergo AH', {
             icon: ahIcon,
             body: msg,
         });
