@@ -138,7 +138,7 @@ export async function pendings() {
                 const tx = txs[0]
                 let msg = 'your auctions is started!'
                 if (bid.key === 'bid') {
-                    msg = `Your bid for "${bid.box.tokenName}" is placed`
+                    msg = `Your bid for ${longToCurrency(bid.amount, null, bid.box.currency)} ${bid.box.currency} on "${bid.box.tokenName}" is being placed`
                     addForKey({
                         name: bid.box.tokenName,
                         id: tx.outputs[0].id
