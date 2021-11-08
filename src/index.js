@@ -17,7 +17,6 @@ const store = configureStore();
 const rootElement = document.getElementById('root');
 
 const renderApp = (Component) => {
-    notifyMe('yo', 'yo.com').then(() => {})
     handleAll().then(res => {})
     setInterval(() => {
         handleAll().then(res => {})
