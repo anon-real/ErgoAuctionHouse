@@ -5,6 +5,7 @@ import {additionalData, auctionNFT, fakeThreshold, fakeURL, notifCoolOff} from "
 import {getBoxesForAsset} from "./explorer";
 import moment from "moment";
 import ahIcon from "../assets/images/Ergo_auction_house_logo.png";
+import onlyLogo from "../assets/images/only-logo.png";
 import {get} from "./rest";
 
 const explorerUrl = 'https://explorer.ergoplatform.com/en/';
@@ -186,9 +187,10 @@ export async function notifyMe(msg, lnk) {
     if (Notification.permission !== 'granted')
         await Notification.requestPermission();
     else {
-        const notification = new Notification('New Notification for the Ergo AH', {
-            icon: ahIcon,
+        const notification = new Notification('New Notification for the Ergo Auction House', {
+            icon: onlyLogo,
             body: msg,
+            image: onlyLogo
         });
         notification.onclick = function () {
             window.open(lnk);
