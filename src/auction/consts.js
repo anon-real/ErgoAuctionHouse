@@ -48,13 +48,6 @@ export const supportedCurrencies = {
         minSupported: 100,
         initial: 1,
     },
-    TestUSD: {
-        name: 'TestUSD',
-        id: '67280a3b27b57abd667ea5822c419636a07952bec908800fdb0949781789340d',
-        decimal: 2,
-        minSupported: 100,
-        initial: 1,
-    }
 }
 export const assmUrl = 'https://assembler.ergoauctions.org/';
 export const startFee = 100000000
