@@ -342,6 +342,7 @@ export default class ActiveAuctions extends React.Component {
                                     <Button
                                         onClick={this.openAuction}
                                         outline
+                                        disabled={true}
                                         className="btn-outline-lin m-2 border-0"
                                         color="primary"
                                     >
