@@ -374,6 +374,7 @@ export async function assembleFinishedAuctions(boxes) {
                         dataInputs: [],
                     }
                 };
+                console.log(request, artistRealShare)
                 await post(getUrl(assmUrl) + '/follow', artistRealShare)
                     .then((res) => {
                         res.json()
