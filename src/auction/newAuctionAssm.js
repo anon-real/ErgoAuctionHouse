@@ -16,7 +16,7 @@ const template = `{
   val endTime = $endTimeL
   val bidDelta = $bidDeltaL
   val currencyId = fromBase64("$currencyId")
-  val buyItNow = $buyItNow
+  val buyItNow = $buyItNowL
   val startAuction = {
       OUTPUTS(0).propositionBytes == auctionAddress &&
       OUTPUTS(0).tokens.size > 0 &&
