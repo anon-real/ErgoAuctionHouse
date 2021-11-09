@@ -3,7 +3,9 @@ import {withRouter} from 'react-router-dom';
 
 import MetisMenu from 'react-metismenu';
 
-import {About, ActiveNav, HistoryNav, Home} from './NavItems';
+import {About, ActiveNav, HistoryNav, MyArtworks} from './NavItems';
+import {Navbar, NavDropdown} from "react-bootstrap";
+import {Container} from "reactstrap";
 
 class Nav extends Component {
 
@@ -12,11 +14,16 @@ class Nav extends Component {
     render() {
         return (
             <Fragment>
-                <div className="divider text-muted opacity-2" />
-                <MetisMenu content={ActiveNav} activeLinkFromLocation className="vertical-nav-menu" iconNamePrefix="" classNameStateIcon="pe-7s-angle-down"/>
-                <MetisMenu content={HistoryNav} activeLinkFromLocation className="vertical-nav-menu" iconNamePrefix="" classNameStateIcon="pe-7s-angle-down"/>
-                <div className="divider text-muted opacity-2" />
-                <MetisMenu content={About} activeLinkFromLocation className="vertical-nav-menu" iconNamePrefix="" classNameStateIcon="pe-7s-angle-down"/>
+                <div className="divider text-muted opacity-2"/>
+                {/*<MetisMenu content={ActiveNav} activeLinkFromLocation className="vertical-nav-menu" iconNamePrefix=""*/}
+                {/*           classNameStateIcon="pe-7s-angle-down"/>*/}
+                {/*<MetisMenu content={HistoryNav} activeLinkFromLocation className="vertical-nav-menu" iconNamePrefix=""*/}
+                {/*           classNameStateIcon="pe-7s-angle-down"/>*/}
+                {/*<MetisMenu content={MyArtworks} activeLinkFromLocation className="vertical-nav-menu" iconNamePrefix=""*/}
+                {/*           classNameStateIcon="pe-7s-angle-down"/>*/}
+                {/*<div className="divider text-muted opacity-2"/>*/}
+                {/*<MetisMenu content={About} activeLinkFromLocation className="vertical-nav-menu" iconNamePrefix=""*/}
+                {/*           classNameStateIcon="pe-7s-angle-down"/>*/}
             </Fragment>
         );
     }

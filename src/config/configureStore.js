@@ -2,10 +2,10 @@ import {combineReducers, createStore} from 'redux';
 import reducers from '../reducers';
 
 export default function configureStore() {
-  return createStore(
-    combineReducers({
-      ...reducers
-    }),
-    {},
-  );
+    return createStore(
+        combineReducers({
+            ...reducers
+        }),
+        {},
+    );
 }

@@ -14,6 +14,7 @@ import {setEnableMobileMenu} from '../../reducers/ThemeOptions';
 class AppSidebar extends Component {
 
     state = {};
+
     constructor(props) {
         super(props);
     }
@@ -43,7 +44,7 @@ class AppSidebar extends Component {
                     transitionAppearTimeout={1500}
                     transitionEnter={false}
                     transitionLeave={false}>
-                    <HeaderLogo/>
+                    {/*<HeaderLogo/>*/}
                     <PerfectScrollbar>
                         <div className="app-sidebar__inner">
                             <Nav/>

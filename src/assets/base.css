@@ -8309,14 +8309,14 @@ button.bg-alternate:focus {
     .mx-2 {
         margin-left: 0rem !important;
     }
-  }
+}
 
-  @media only screen and (max-width: 1200px) {
+@media only screen and (max-width: 1200px) {
     .ml-2,
     .mx-2 {
         margin-left: 0rem !important;
     }
-  }
+}
 
 .m-3 {
     margin: 1rem !important;
@@ -10710,20 +10710,6 @@ button,
     transition: all .4s linear;
 }
 
-.app-header {
-    height: 60px;
-    display: flex;
-    align-items: center;
-    align-content: center;
-    position: relative;
-    z-index: 10;
-    transition: all .2s;
-}
-
-.app-header.header-shadow {
-    box-shadow: 0 0.46875rem 2.1875rem rgba(0, 0, 0, 0.03), 0 0.9375rem 1.40625rem rgba(0, 0, 0, 0.03), 0 0.25rem 0.53125rem rgba(0, 0, 0, 0.05), 0 0.125rem 0.1875rem rgba(0, 0, 0, 0.03);
-}
-
 .app-header .app-header__content {
     display: flex;
     align-items: center;
@@ -10991,7 +10977,7 @@ button,
     margin-top: -60px;
     padding-top: 60px;
     transition: all .2s;
-    
+
 }
 
 .app-sidebar .app-sidebar__inner {
@@ -11313,7 +11299,7 @@ button,
 
 .fixed-sidebar .app-main .app-main__outer {
     z-index: 9;
-    padding-left: 280px;
+    /*padding-left: 280px;*/
 }
 
 .fixed-sidebar.fixed-header .app-sidebar .app-header__logo {
@@ -11325,7 +11311,7 @@ button,
 }
 
 .fixed-sidebar:not(.fixed-header) .app-header {
-    margin-left: 280px;
+    /*margin-left: 280px;*/
 }
 
 .fixed-sidebar:not(.fixed-header) .app-header .app-header__logo {
@@ -11333,7 +11319,7 @@ button,
 }
 
 .fixed-sidebar.closed-sidebar:not(.fixed-header) .app-header {
-    margin-left: 80px;
+    /*margin-left: 80px;*/
 }
 
 .fixed-sidebar.closed-sidebar:not(.fixed-header) .app-sidebar .app-header__logo {
@@ -11636,7 +11622,7 @@ button,
     align-items: center;
     align-content: center;
     text-align: center;
-    padding: 0.8333333333rem ;
+    padding: 0.8333333333rem;
     margin: 0 30px 0 0;
     background: #fff;
     box-shadow: 0 0.46875rem 2.1875rem rgba(0, 0, 0, 0.03), 0 0.9375rem 1.40625rem rgba(0, 0, 0, 0.03), 0 0.25rem 0.53125rem rgba(0, 0, 0, 0.05), 0 0.125rem 0.1875rem rgba(0, 0, 0, 0.03);
@@ -12278,6 +12264,7 @@ button,
 .bg-transparent {
     background: transparent !important;
 }
+
 .bg-primary-header {
     /* background-image: linear-gradient(120deg, white 0%, white 100%) !important; */
     background-image: linear-gradient(120deg, #fff 0%, #fff 100%) !important;
@@ -16933,17 +16920,228 @@ a.badge-alternate:hover, a.badge-alternate:focus {
 
 
 .imgDiv {
-    height: 300px;
-    margin: 1rem;
-    margin-top: 0.2rem;
+    height: 350px;
     border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0px 0px 0px 1px rgba(0,0,0,0.08);
-    display: block;
-    height: 300px
+    overflow: scroll;
+    box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.08);
+    display: flex;
+    position: relative;
+    background: #f9f9f9;
+    justify-content: center;
 }
+
 
 svg {
     display: block;
+    margin: auto;
+}
+
+.notificationContainer {
+    position: relative;
+    width:30px;
+    display: flex;
+    margin-right: 20px;
+    cursor: pointer;
+}
+
+.notificationItemContainer{
+    display: flex;
+    align-items: baseline;
+}
+
+.notificationItem {
+    cursor: pointer;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #e9ecef;
+    width:100%;
+}
+
+.notificationIcon {
+    color: var(--primary);
+    display:'flex';
+    align-items:'center';
+    font-size:30px;
+}
+
+.notificationBadge {
+    background-color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width:15px;
+    height:15px;
+    border-radius: 100%;
+    color: white;
+    font-size:10px;
+    position: absolute;
+    right: 2px;
+    top: 10px;
+}
+
+.notificationItemButton{
+    color: var(--primary)!important;
+    display:flex;
+    align-items:center;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.imgicon {
+    box-sizing: border-box;
+    margin: 0px;
+    min-width: 0px;
+    display: flex;
+    position: absolute;
+    top: 18px;
+    left: 18px;
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    background-color: darkgrey;
+    -webkit-box-align: center;
+    align-items: center;
+    -webkit-box-pack: center;
+    justify-content: center;
+
+}
+
+.imgfav {
+    box-sizing: border-box;
+    margin: 0px;
+    min-width: 0px;
+    display: flex;
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    background-color: darkgrey;
+    -webkit-box-align: center;
+    align-items: center;
+    -webkit-box-pack: center;
+    justify-content: center;
+
+}
+
+.coverflow__container__1P-xE {
+    background: none !important;
+}
+
+.dropzone {
+    text-align: center;
+    padding: 20px;
+    border: 3px dashed #eeeeee;
+    background-color: #fafafa;
+    color: #bdbdbd;
+}
+
+.notificationModalBody {
+    display:flex;
+    align-items:center;
+    flex-direction: column;
+    height: 300px;
+    overflow: auto;
+}
+
+.search-container{
+    /*margin-top: 30px;*/
+    /*display: flex;*/
+    /*align-items: center;*/
+    /*justify-content: space-between;*/
+}
+
+.search-box{
+    background-color: hsla(0,0%,100%,.55);
+    width:400px;
+    border:1px solid lightgray;
+    border-radius: 0.25rem;
+    padding:0.175rem 0.75rem;
+    margin-left: 10px;
+}
+
+.search-box input{
+    border:none;
+    background-color: transparent;
+    width: 100%;
+    outline: none;
+    height:30px
+}
+
+.search-icon-container{
+    border:none;
+    background-color: transparent;
+    outline: none;
+    cursor: pointer;
+}
+
+.search-icon{
+    color:darkgray;
+    cursor:pointer;
+}
+
+@media (max-width: 576px) {
+    .search-box{
+        width:100%
+    }
+}
+
+@media (max-width: 1200px) {
+    .search-container{
+        flex-direction: column;
+    }
+} 
+
+.disabled-input{
+    opacity:0.5;
+}
+
+.content {
+    padding: 16px;
+}
+
+.sticky {
+    position: fixed;
+    top: 0;
+    width: 100%
+}
+
+.sticky + .content {
+    padding-top: 102px;
+}
+.app-header {
+    height: 60px;
+    display: block;
+    align-items: center;
+    align-content: center;
+    position: relative;
+    z-index: 10;
+    transition: all .2s;
+}
+
+.app-header.header-shadow {
+    box-shadow: 0 0.46875rem 2.1875rem rgba(0, 0, 0, 0.03), 0 0.9375rem 1.40625rem rgba(0, 0, 0, 0.03), 0 0.25rem 0.53125rem rgba(0, 0, 0, 0.05), 0 0.125rem 0.1875rem rgba(0, 0, 0, 0.03);
+}
+
+.notificationItemMessage{
+    font-weight: bold;
+}
+
+.notificationItemDate{
+    font-size: 13px;
+    color: darkgray;
+}
+.notificationItem:hover{
+    background: #c0c0c030;
+}
+
+.audioTab {
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+}
+.notArtwork {
     margin: auto;
 }

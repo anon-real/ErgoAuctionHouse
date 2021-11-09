@@ -1,65 +1,16 @@
-import React, {Fragment, useRef} from 'react';
+import React, {Fragment} from 'react';
 
-import {
-    auctionFee,
-    currentHeight,
-    getAllActiveAuctions,
-} from '../../../auction/explorer';
-import {
-    friendlyAddress,
-    getWalletAddress,
-    isWalletNode, isWalletSaved,
-    showMsg,
-} from '../../../auction/helpers';
-import Clipboard from 'react-clipboard.js';
+import {currentHeight,} from '../../../auction/explorer';
 import {css} from '@emotion/core';
 import PropagateLoader from 'react-spinners/PropagateLoader';
-import SyncLoader from 'react-spinners/SyncLoader';
-import {
-    Button,
-    Col,
-    Container,
-    Form,
-    FormFeedback,
-    FormGroup,
-    FormText,
-    Input,
-    InputGroup,
-    InputGroupAddon,
-    InputGroupText,
-    Label,
-    Modal,
-    ModalBody,
-    ModalFooter,
-    ModalHeader,
-    Row,
-} from 'reactstrap';
-import cx from 'classnames';
-import TitleComponent2 from '../../../Layout/AppMain/PageTitleExamples/Variation2';
-import {
-    auctionTxRequest,
-    getAssets,
-    withdrawFinishedAuctions,
-} from '../../../auction/nodeWallet';
-import number from 'd3-scale/src/number';
-import ActivePicture from './activePicture';
-import {
-    decodeBoxes,
-    ergToNano,
-    isFloat,
-    isNatural,
-} from '../../../auction/serializer';
-import {assembleFinishedAuctions} from '../../../auction/assembler';
-import NewAuction from "./newAuction";
-import NewAuctionAssembler from "./newAuctionAssembler";
-import PlaceBidModal from "./placeBid";
+import {Row,} from 'reactstrap';
+import ActiveAuction from './activeAuction';
 import SendModal from "./sendModal";
-import ActiveAudio from "./activeAudio";
 import ActiveOther from "./activeOther";
 
 const override = css`
-    display: block;
-    margin: 0 auto;
+  display: block;
+  margin: 0 auto;
 `;
 
 export default class ShowAuctions extends React.Component {
@@ -92,39 +43,26 @@ export default class ShowAuctions extends React.Component {
         this.setState(this.setState({myBids: false}));
     }
 
-    toggleAssemblerModal(address = '', bid = 0, isAuction = false) {
+    toggleAssemblerModal(address = '', bid = 0, isAuction = false, currency = 'ERG') {
         this.setState({
             assemblerModal: !this.state.assemblerModal,
             bidAddress: address,
             bidAmount: bid,
-            isAuction: isAuction
+            isAuction: isAuction,
+            currency: currency
         });
     }
 
     render() {
         const listItems = this.state.auctions.map((box) => {
-            if (box.isPicture) {
-                return (
-                    <ActivePicture
-                        box={box}
-                        assemblerModal={this.toggleAssemblerModal}
-                    />
-                );
-            } else if (box.isAudio) {
-                return (
-                    <ActiveAudio
-                        box={box}
-                        assemblerModal={this.toggleAssemblerModal}
-                    />
-                );
-            } else {
-                return (
-                    <ActiveOther
-                        box={box}
-                        assemblerModal={this.toggleAssemblerModal}
-                    />
-                );
-            }
+            return (
+                <ActiveAuction
+                    box={box}
+                    assemblerModal={this.toggleAssemblerModal}
+                    updateParams={this.props.updateParams}
+                    preload={this.props.preload}
+                />
+            );
         });
         return (
             <Fragment>
@@ -134,6 +72,7 @@ export default class ShowAuctions extends React.Component {
                     bidAmount={this.state.bidAmount}
                     isAuction={this.state.isAuction}
                     bidAddress={this.state.bidAddress}
+                    currency={this.state.currency}
                 />
 
                 {!this.state.loading && this.state.auctions.length === 0 && (

@@ -1,18 +1,10 @@
 import React from 'react';
-import {
-    copyToClipboard,
-    friendlyAddress,
-    friendlyToken,
-    getAddrUrl,
-    getTxUrl,
-    isWalletSaved,
-    showMsg,
-} from '../../../auction/helpers';
+import {friendlyAddress, friendlyToken, getAddrUrl, getTxUrl,} from '../../../auction/helpers';
 import {ResponsiveContainer} from 'recharts';
 import SyncLoader from 'react-spinners/SyncLoader';
 import ReactTooltip from 'react-tooltip';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faAngleUp, faEllipsisH, faEllipsisV} from '@fortawesome/free-solid-svg-icons';
+import {faAngleUp, faEllipsisV} from '@fortawesome/free-solid-svg-icons';
 import {css} from '@emotion/core';
 import {getSpendingTx} from '../../../auction/explorer';
 import MyBidsModal from "../../ActiveAuction/Active/myBids";
@@ -20,18 +12,19 @@ import BidHistory from "../../ActiveAuction/Active/bidHistory";
 import ArtworkDetails from "../../artworkDetails";
 
 import {
-    CardFooter,
-    Row, Col,
     Button,
-    UncontrolledButtonDropdown,
-    DropdownToggle,
+    CardFooter,
+    Col,
     DropdownMenu,
+    DropdownToggle,
     Nav,
     NavItem,
     NavLink,
-    Progress, NavbarToggler
+    UncontrolledButtonDropdown
 } from 'reactstrap';
 import {Link} from "react-router-dom";
+import {longToCurrency} from "../../../auction/serializer";
+import ArtworkMedia from "../../artworkMedia";
 
 const override = css`
   display: block;
@@ -82,21 +75,13 @@ export default class HistoryBox extends React.Component {
         return (
             <Col key={this.props.box.id} md="4">
                 <ArtworkDetails
+                    box={this.props.box}
                     isOpen={this.state.infoModal}
                     close={() =>
                         this.setState({
                             infoModal: !this.state.infoModal,
                         })
                     }
-                    tokenId={this.props.box.assets[0].tokenId}
-                    tokenName={this.props.box.tokenName}
-                    tokenDescription={
-                        this.props.box.tokenDescription
-                    }
-                    simple={true}
-                    artHash={this.props.box.artHash}
-                    artworkUrl={this.props.box.artworkUrl}
-                    artist={this.props.box.artist}
                 />
 
                 <MyBidsModal
@@ -138,25 +123,25 @@ export default class HistoryBox extends React.Component {
                         </ResponsiveContainer>
 
                         <div className="d-inline-flex">
-                            <span className="widget-numbers">
-                                {this.props.box.value / 1e9} ERG
-                            </span>
+                            {this.props.box.curBid >= this.props.box.minBid && <span className="widget-numbers">
+                                {longToCurrency(this.props.box.curBid, -1, this.props.box.currency)} {this.props.box.currency}
+                            </span>}
+                            {this.props.box.curBid < this.props.box.minBid && <span className="widget-numbers">
+                                -
+                            </span>}
                             {this.props.box.isArtwork && <span
                                 onClick={() => this.setState({artDetail: true})}
                                 data-tip="Artwork NFT"
                                 className="icon-wrapper rounded-circle opacity-7 m-2 font-icon-wrapper">
                                 <i className="lnr-picture icon-gradient bg-plum-plate fsize-4"/>
                                 <ArtworkDetails
+                                    box={this.props.box}
                                     isOpen={this.state.artDetail}
                                     close={() => this.setState({artDetail: !this.state.artDetail})}
-                                    tokenId={this.props.box.assets[0].tokenId}
-                                    tokenName={this.props.box.tokenName}
-                                    tokenDescription={this.props.box.tokenDescription}
-                                    artHash={this.props.box.artHash}
-                                    artworkUrl={this.props.box.artworkUrl}
                                 />
                             </span>}
                         </div>
+                        <ArtworkMedia preload={false} avoidFav={true} box={this.props.box}/>
                         <div className="widget-chart-wrapper chart-wrapper-relative justify justify-content-lg-start">
                             <div
                                 style={{

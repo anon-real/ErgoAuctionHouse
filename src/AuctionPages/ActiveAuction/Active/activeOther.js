@@ -1,35 +1,33 @@
 import React from 'react';
 import {
-    Button,
+    ButtonGroup,
     CardFooter,
     Col,
     DropdownMenu,
     DropdownToggle,
-    Nav, NavItem, NavLink,
+    Nav,
+    NavItem,
+    NavLink,
     Progress,
-    UncontrolledButtonDropdown
+    UncontrolledButtonDropdown,
 } from 'reactstrap';
-import {
-    friendlyAddress,
-    friendlyToken,
-    getAddrUrl,
-    getTxUrl, getWalletAddress,
-    isWalletSaved,
-    showMsg,
-} from '../../../auction/helpers';
+import {friendlyAddress, friendlyToken, getAddrUrl, isWalletSaved, showMsg,} from '../../../auction/helpers';
 import {ResponsiveContainer} from 'recharts';
 import SyncLoader from 'react-spinners/SyncLoader';
 import ReactTooltip from 'react-tooltip';
+
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faAngleUp, faEllipsisV} from '@fortawesome/free-solid-svg-icons';
+import {faAngleUp, faEllipsisH, faEllipsisV} from '@fortawesome/free-solid-svg-icons';
 import {css} from '@emotion/core';
-import {auctionWithExtensionTree, getSpendingTx} from '../../../auction/explorer';
 import PlaceBidModal from './placeBid';
 import MyBidsModal from './myBids';
 import BidHistory from './bidHistory';
-import {Row} from "react-bootstrap";
-import ArtworkDetails from "../../artworkDetails";
+import {Button, Row} from 'react-bootstrap';
+import ArtworkDetails from '../../artworkDetails';
 import {Link} from "react-router-dom";
+import {longToCurrency} from "../../../auction/serializer";
+import {bidHelper} from "../../../auction/newBidAssm";
+import FooterSection from "../../footerSection";
 
 const override = css`
   display: block;
@@ -40,10 +38,10 @@ export default class ActiveOther extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            loading: false,
             bidModal: false,
             myBidsModal: false,
             detailsModal: false,
-            infoModal: false
         };
         this.openBid = this.openBid.bind(this);
         this.openMyBids = this.openMyBids.bind(this);
@@ -64,9 +62,9 @@ export default class ActiveOther extends React.Component {
                 'In order to place bids, you have to configure the wallet first.',
                 true
             );
-        } else if (this.props.box.remBlock <= 0) {
+        } else if (this.props.box.remTime <= 0) {
             showMsg(
-                'This auction is finished! It is pending for withdrawal; If you configure your wallet, the app can use it to withdraw finished auctions.',
+                'This auction is finished!',
                 true
             );
         } else {
@@ -76,19 +74,6 @@ export default class ActiveOther extends React.Component {
 
     openMyBids() {
         this.setState({myBidsModal: !this.state.myBidsModal});
-    }
-
-    showIssuingTx(box) {
-        box.loader = true;
-        this.forceUpdate();
-        getSpendingTx(box.assets[0].tokenId)
-            .then((res) => {
-                window.open(getTxUrl(res), '_blank');
-            })
-            .finally(() => {
-                box.loader = false;
-                this.forceUpdate();
-            });
     }
 
     showAddress(addr) {
@@ -111,25 +96,30 @@ export default class ActiveOther extends React.Component {
                     close={this.openMyBids}
                     highText="current active bid"
                 />
+                <BidHistory
+                    close={this.openDetails}
+                    box={this.props.box}
+                    isOpen={this.state.detailsModal}
+                />
                 <ArtworkDetails
+                    box={this.props.box}
                     isOpen={this.state.infoModal}
                     close={() =>
                         this.setState({
                             infoModal: !this.state.infoModal,
                         })
                     }
-                    tokenId={this.props.box.assets[0].tokenId}
-                    tokenName={this.props.box.tokenName}
-                    tokenDescription={
-                        this.props.box.tokenDescription
-                    }
-                    simple={true}
-                    artist={this.props.box.artist}
                 />
-                <BidHistory close={this.openDetails} box={this.props.box} isOpen={this.state.detailsModal}/>
-                <div className="card mb-3 widget-chart">
+                <div className="card mb-3 bg-white widget-chart" style={
+                    {
+                        'opacity': this.props.box.isFinished ? 0.6 : 1
+                    }
+                }>
+
+                    <b class="fsize-1 text-truncate" style={{marginTop: 8}}>{this.props.box.tokenName}</b>
+
                     <div className="widget-chart-actions">
-                        <UncontrolledButtonDropdown direction='left'>
+                        <UncontrolledButtonDropdown direction="left">
                             <DropdownToggle color="link">
                                 <FontAwesomeIcon icon={faEllipsisV}/>
                             </DropdownToggle>
@@ -140,12 +130,24 @@ export default class ActiveOther extends React.Component {
                                     </NavItem>
                                     <NavItem>
                                         <NavLink
-                                            href={'#/auction/specific/' + this.props.box.id}
-                                        >Go to Auction's Specific Link</NavLink>
+                                            href={
+                                                '#/auction/specific/' +
+                                                this.props.box.boxId
+                                            }
+                                        >
+                                            Link to Auction
+                                        </NavLink>
                                         <NavLink
-                                            onClick={() => {
-                                                this.setState({infoModal: true})
-                                            }}
+                                            onClick={() => this.openMyBids()}
+                                        >
+                                            My Bids
+                                        </NavLink>
+                                        <NavLink
+                                            onClick={() =>
+                                                this.setState({
+                                                    detailsModal: true,
+                                                })
+                                            }
                                         >
                                             Details
                                         </NavLink>
@@ -161,7 +163,7 @@ export default class ActiveOther extends React.Component {
                                 css={override}
                                 size={8}
                                 color={'#0086d3'}
-                                loading={this.props.box.loader}
+                                loading={this.state.loading}
                             />
                         </ResponsiveContainer>
 
@@ -172,9 +174,16 @@ export default class ActiveOther extends React.Component {
                         </div>
                         <div className="widget-chart-wrapper chart-wrapper-relative justify justify-content-lg-start">
                             <div
+                                onClick={() => {
+                                    this.setState({infoModal: true})
+                                }}
                                 style={{
                                     display: 'flex',
                                     justifyContent: 'center',
+                                    alignItems: 'center',
+                                    overflowY: 'hidden',
+                                    overflowX: 'hidden',
+                                    fontSize: '12px',
                                 }}
                                 className="widget-subheading m-1"
                             >
@@ -305,46 +314,7 @@ export default class ActiveOther extends React.Component {
                             <span>Details</span>
                         </Button>
                     </div>
-                    <CardFooter>
-                        <Col md={6} className="widget-description">
-                            Up by
-                            <span className="text-success pl-1 pr-1">
-                                <FontAwesomeIcon icon={faAngleUp}/>
-                                <span className="pl-1">
-                                    {this.props.box.increase}%
-                                </span>
-                            </span>
-                            since the initial bid
-                        </Col>
-
-                        <Col md={6} className="justify-content-end ml-3">
-                            <div className="widget-content">
-                                <div className="widget-content-outer">
-                                    <div className="widget-content-wrapper">
-                                        <div className="widget-content-left mr-3">
-                                            <div className="widget-numbers fsize-2 text-muted">
-                                                {this.props.box.remBlock}
-                                            </div>
-                                        </div>
-                                        <div className="widget-content-right">
-                                            <div
-                                                data-tip={this.props.box.ergoTree === auctionWithExtensionTree ?
-                                                    "Auto Extend Enabled" : ""}
-                                                className="text-muted opacity-6">
-                                                Blocks Remaining
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="widget-progress-wrapper">
-                                        <Progress
-                                            className="progress-bar-xs progress-bar-animated-alt"
-                                            value={this.props.box.doneBlock}
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                        </Col>
-                    </CardFooter>
+                    <FooterSection box={this.props.box} loading={(val) => this.setState({loading: val})} assemblerModal={this.props.assemblerModal} openBid={this.openBid}/>
                 </div>
             </Col>
         );

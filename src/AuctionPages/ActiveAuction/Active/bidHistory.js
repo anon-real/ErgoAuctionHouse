@@ -1,32 +1,19 @@
-import React, { Fragment } from 'react';
-import { Bar } from 'react-chartjs-2';
-import {
-    Button,
-    Col,
-    Container,
-    Modal,
-    ModalBody,
-    ModalHeader,
-    Row,
-    Tooltip,
-} from 'reactstrap';
-import {
-    friendlyToken,
-    getAddrUrl,
-    getTxUrl,
-    showMsg,
-} from '../../../auction/helpers';
+import React from 'react';
+import {Bar} from 'react-chartjs-2';
+import {Modal, ModalBody, ModalHeader, Row,} from 'reactstrap';
+import {friendlyToken, getTxUrl, showMsg,} from '../../../auction/helpers';
 import SyncLoader from 'react-spinners/SyncLoader';
-import { css } from '@emotion/core';
-import { allAuctionTrees, boxById, txById } from '../../../auction/explorer';
+import {css} from '@emotion/core';
+import {boxById, txById} from '../../../auction/explorer';
 import moment from 'moment';
-import { ResponsiveContainer } from 'recharts';
-import PropagateLoader from 'react-spinners/PropagateLoader';
+import {ResponsiveContainer} from 'recharts';
 import ReactTooltip from 'react-tooltip';
+import {auctionAddress, auctionTrees} from "../../../auction/consts";
+import {longToCurrency} from "../../../auction/serializer";
 
 const override = css`
-    display: block;
-    margin: 0 auto;
+  display: block;
+  margin: 0 auto;
 `;
 
 class BidHistory extends React.Component {
@@ -57,7 +44,7 @@ class BidHistory extends React.Component {
                         let time = moment(tx.summary.timestamp).format('lll');
                         this.setState({
                             data: {
-                                bids: [tx.outputs[0].value / 1e9].concat(
+                                bids: [longToCurrency(this.props.box.assets.length > 1 ? tx.outputs[0].assets[1].amount : tx.outputs[0].value, -1, this.props.box.currency)].concat(
                                     this.state.data.bids
                                 ),
                                 labels: [time].concat(this.state.data.labels),
@@ -65,13 +52,13 @@ class BidHistory extends React.Component {
                             },
                         });
 
-                        if (!allAuctionTrees.includes(res.ergoTree)) {
+                        if (auctionAddress !== res.address) {
                             this.setState({
                                 loading: false,
                                 remains: false,
                             });
                         } else {
-                            this.setState({ nextTx: res.txId });
+                            this.setState({nextTx: res.txId});
                             if (toLoad > 1) this.loadBids(res.txId, toLoad - 1);
                             else {
                                 this.setState({
@@ -86,12 +73,12 @@ class BidHistory extends React.Component {
                             false,
                             true
                         );
-                        this.setState({ loading: false });
+                        this.setState({loading: false});
                     });
             })
             .catch((_) => {
                 showMsg('Failed to load all bids history...', false, true);
-                this.setState({ loading: false });
+                this.setState({loading: false});
             });
     }
 
@@ -106,8 +93,12 @@ class BidHistory extends React.Component {
                 loading: true,
                 remains: true,
             });
-            this.loadBids(this.props.box.txId, 10);
+            this.loadBids(this.props.box.transactionId, 10);
         }
+    }
+
+    callbackFn(value, index, values) {
+        return value;
     }
 
     render() {
@@ -115,7 +106,7 @@ class BidHistory extends React.Component {
             labels: this.state.data.labels,
             datasets: [
                 {
-                    label: 'Bid Amount in ERG',
+                    label: `Bid Amount in ${this.props.box.currency}`,
                     backgroundColor: 'rgba(35, 67, 123, 1)',
                     borderWidth: 1,
                     hoverBackgroundColor: 'rgba(53, 102, 187, 1)',
@@ -132,7 +123,7 @@ class BidHistory extends React.Component {
                 className={this.props.className}
             >
                 <ModalHeader toggle={this.props.close}>
-                    <ReactTooltip />
+                    <ReactTooltip/>
                     <span className="fsize-1 text-muted">
                         Bid history of{' '}
                         {friendlyToken(this.props.box.assets[0], false, 5)}.
@@ -158,13 +149,7 @@ class BidHistory extends React.Component {
                                         {
                                             ticks: {
                                                 beginAtZero: true,
-                                                callback: function (
-                                                    value,
-                                                    index,
-                                                    values
-                                                ) {
-                                                    return value + ' ERG';
-                                                },
+                                                callback: this.callbackFn,
                                             },
                                         },
                                     ],
@@ -173,7 +158,7 @@ class BidHistory extends React.Component {
                         />
                     </div>
 
-                    <hr />
+                    <hr/>
                     <ResponsiveContainer height={40}>
                         <div
                             className="mt-1"
@@ -234,7 +219,7 @@ class BidHistory extends React.Component {
                                     )}
                                 </span>
                             )}
-                            <br />
+                            <br/>
                             <Row>
                                 <SyncLoader
                                     css={override}

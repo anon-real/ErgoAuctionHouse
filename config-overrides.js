@@ -6,7 +6,7 @@ module.exports = function override(config, env) {
      * Add WASM support
      */
 
-    // Make file-loader ignore WASM files
+        // Make file-loader ignore WASM files
     const wasmExtensionRegExp = /\.wasm$/;
     config.resolve.extensions.push('.wasm');
     config.module.rules.forEach(rule => {
@@ -21,7 +21,7 @@ module.exports = function override(config, env) {
     config.module.rules.push({
         test: wasmExtensionRegExp,
         include: path.resolve(__dirname, 'src'),
-        use: [{ loader: require.resolve('wasm-loader'), options: {} }]
+        use: [{loader: require.resolve('wasm-loader'), options: {}}]
     });
 
     return config;
