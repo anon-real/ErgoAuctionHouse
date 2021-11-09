@@ -188,28 +188,36 @@ class WalletModal extends React.Component {
                                 <p>
                                     Connects to your Yoroi wallet.
                                 </p>
+                                <p>
+                                    Currently, you should use <a target='_blank' href='https://chrome.google.com/webstore/detail/yoroi-nightly/poonlenmfdfbjfeeballhiibknlknepo?hl=en&authuser=0'>Yoroi Nightly</a>
+                                    {' '}with <a target='_blank' href='https://chrome.google.com/webstore/detail/yoroi-ergo-dapp-connector/chifollcalpmjdiokipacefnpmbgjnle/related?hl=en&authuser=0'>Ergo dapp Connector</a>
+                                    {' '}to be able to use this section.
+                                </p>
                             </TabPane>
                             <TabPane tabId="assembler">
                                 <p>
                                     You can use <b>any wallet</b> including <b>Yoroi</b> and <b>Ergo Wallet Android</b> to place bid and start new auctions.
                                 </p>
-                                <p>
-                                    This uses the assembler service which is an intermediate
-                                    step; you can find out more about it{' '}
-                                    <a
-                                        target="_blank"
-                                        href="https://www.ergoforum.org/t/tx-assembler-service-bypassing-node-requirement-for-dapps/443"
-                                    >
-                                        here
-                                    </a>
-                                    . Your funds will be safe, find out more
-                                    about how{' '}
-                                    <a target="_blank"
-                                       href="https://www.ergoforum.org/t/some-details-about-ergo-auction-house/428/6">
-                                        here
-                                    </a>
-                                    .
-                                </p>
+                                {/*<p>*/}
+                                {/*    This uses the assembler service which is an intermediate*/}
+                                {/*    step; you can find out more about it{' '}*/}
+                                {/*    <a*/}
+                                {/*        target="_blank"*/}
+                                {/*        href="https://www.ergoforum.org/t/tx-assembler-service-bypassing-node-requirement-for-dapps/443"*/}
+                                {/*    >*/}
+                                {/*        here*/}
+                                {/*    </a>*/}
+                                {/*    . Your funds will be safe, find out more*/}
+                                {/*    about how{' '}*/}
+                                {/*    <a target="_blank"*/}
+                                {/*       href="https://www.ergoforum.org/t/some-details-about-ergo-auction-house/428/6">*/}
+                                {/*        here*/}
+                                {/*    </a>*/}
+                                {/*    .*/}
+                                {/*</p>*/}
+                                <b>If you are an artist, make sure you read <a target='_blank' href='https://www.ergoforum.org/t/artist-guideline/2929'>this</a> before using the Ergo Auction House.</b>
+                                <br/>
+                                <br/>
 
                                 <FormGroup>
                                     <Label for="apiKey">Address</Label>
