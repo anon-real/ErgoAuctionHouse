@@ -396,3 +396,9 @@ export async function assembleFinishedAuctions(boxes) {
     });
 
 }
+
+export async function returnFunds(fromAddress, toAddress) {
+    const res = await (await get(getUrl(assmUrl) + `/return/${fromAddress}/${toAddress}`)).json()
+    if (res.txId !== undefined) return res.txId
+    throw new Error()
+}

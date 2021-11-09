@@ -24,6 +24,7 @@ import NewAuctionAssembler from "../../AuctionPages/ActiveAuction/Active/newAuct
 import SendModal from "../../AuctionPages/ActiveAuction/Active/sendModal";
 import NewArtwork from "../../AuctionPages/Owned/newArtwork";
 import {withRouter} from "react-router-dom";
+import Refund from "../../AuctionPages/refund";
 
 class Header extends React.Component {
     constructor(props) {
@@ -125,6 +126,11 @@ class Header extends React.Component {
                     currency={this.state.currency}
                 />
 
+                <Refund
+                    isOpen={this.state.refund}
+                    close={() => this.setState({refund: false})}
+                />
+
                 <NewArtwork
                     sendModal={this.toggleAssemblerModal}
                     isOpen={this.state.newArtworkModal}
@@ -166,6 +172,11 @@ class Header extends React.Component {
                                             <NavLink href="#/owned"
                                                      active={window.location.href.includes("#/owned")}
                                             >Owned Artworks</NavLink>
+                                        </NavItem>
+                                        <NavItem>
+                                            <NavLink onClick={() => this.setState({refund: true})}>
+                                                Refund
+                                            </NavLink>
                                         </NavItem>
                                         <NavItem>
                                             <NavLink href="#/faq"
