@@ -115,22 +115,9 @@ export default class OwnedArtworks extends React.Component {
         });
         return (
             <Fragment>
-                <NewArtwork
-                    sendModal={this.toggleSendModal}
-                    isOpen={this.state.newArtworkModal}
-                            close={() => this.setState({newArtworkModal: !this.state.newArtworkModal})}/>
                 <Row>
                     <Col md='8'/>
                     <Col md='4' className='text-right'>
-                        {isAssembler() && <Button
-                            onClick={() => this.setState({modalAssembler: true})}
-                            outline
-                            className="btn-outline-lin m-2 border-0"
-                            color="primary"
-                        >
-                            <i className="nav-link-icon lnr-plus-circle"> </i>
-                            <span>New Auction</span>
-                        </Button>}
                         <Button
                             onClick={() => this.setState({newArtworkModal: true})}
                             outline
