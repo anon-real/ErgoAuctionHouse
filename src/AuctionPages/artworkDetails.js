@@ -52,6 +52,17 @@ export default class ArtworkDetails extends React.Component {
                                 </b>
                             </Col>
                         </Row>
+                        <Row>
+                            <Col md="3">
+                                Auction Description:
+                            </Col>
+                            <Col md="9" style={{overflowY: "auto"}}>
+                                <b>
+                                    {this.props.box.description}
+
+                                </b>
+                            </Col>
+                        </Row>
                         {this.props.box.isArtwork && <Row>
                             <Col md="3">
                                 Artwork Checksum:

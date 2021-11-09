@@ -115,10 +115,14 @@ export default class OwnedArtworks extends React.Component {
         });
         return (
             <Fragment>
+                <NewArtwork
+                    sendModal={this.toggleSendModal}
+                    isOpen={this.state.newArtworkModal}
+                    close={() => this.setState({newArtworkModal: !this.state.newArtworkModal})}/>
                 <Row>
                     <Col md='8'/>
                     <Col md='4' className='text-right'>
-                        <Button
+                        {isWalletSaved() && <Button
                             onClick={() => this.setState({newArtworkModal: true})}
                             outline
                             className="btn-outline-lin font-size-lg m-2 border-0"
@@ -126,7 +130,7 @@ export default class OwnedArtworks extends React.Component {
                         >
                             <i className="nav-link-icon lnr-picture"> </i>
                             <span>Create Artwork</span>
-                        </Button>
+                        </Button>}
                     </Col>
                 </Row>
                 <NewAuctionAssembler
