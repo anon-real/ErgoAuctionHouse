@@ -291,6 +291,13 @@ class ActiveAuctions extends React.Component {
                             <TitleComponent2/>
                         </div>
                     </div>
+                    <div>
+                        <Row>
+                            <Col className='text-right'>
+                                <b><a href='https://v1.ergoauctions.org/' target='_blank'>Also make sure you check out the V1 auctions</a></b>
+                            </Col>
+                        </Row>
+                    </div>
                 </div>
                 {!this.state.loading && this.getHottest().length > 0 && <div
                     className="mb-xl-5 card mb-3 bg-white widget-chart"
