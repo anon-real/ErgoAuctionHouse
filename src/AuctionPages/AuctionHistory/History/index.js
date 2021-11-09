@@ -1,26 +1,22 @@
-import React, { Fragment } from 'react';
+import React, {Fragment} from 'react';
 
 import PageTitle from '../../../Layout/AppMain/PageTitle';
-import {
-    allAuctionTrees,
-    boxById,
-    getAuctionHistory, getCompleteAuctionHistory,
-} from '../../../auction/explorer';
-import HistoryBox from './historyBox';
+import {currentBlock, getCompleteAuctionHistory,} from '../../../auction/explorer';
 import PropagateLoader from 'react-spinners/PropagateLoader';
-import { css } from '@emotion/core';
-import { showMsg } from '../../../auction/helpers';
-import {decodeBox} from '../../../auction/serializer';
-import { Row } from 'react-bootstrap';
-import { Button } from 'reactstrap';
-import { ResponsiveContainer } from 'recharts';
+import {css} from '@emotion/core';
+import {showMsg} from '../../../auction/helpers';
+import {decodeAuction} from '../../../auction/serializer';
+import {Row} from 'react-bootstrap';
+import {Button} from 'reactstrap';
+import {ResponsiveContainer} from 'recharts';
 import ShowHistories from "./showHistories";
+import {auctionAddress} from "../../../auction/consts";
 
 const pagination = 100;
 
 const override = css`
-    display: block;
-    margin: 0 auto;
+  display: block;
+  margin: 0 auto;
 `;
 
 export default class AuctionsHistory extends React.Component {
@@ -36,34 +32,36 @@ export default class AuctionsHistory extends React.Component {
         this.loadMore();
     }
 
-    loadMore(show = false) {
+    async loadMore(show = false) {
+        const block = await currentBlock()
         if (this.state.still) {
-            this.setState({ loading: true });
+            this.setState({loading: true});
             getCompleteAuctionHistory(pagination, this.state.offset)
                 .then((res) => {
                     if (res.length < pagination) {
-                        this.setState({ still: false });
+                        this.setState({still: false});
                         if (show)
                             showMsg('Complete auction history is loaded.');
                     }
-                    let boxes = res
-                        .filter((tx) => !allAuctionTrees.includes(tx.outputs[0].ergoTree))
-                        .map((tx) => {
-                            return boxById(tx.inputs[0].id)
-                                .then(res => decodeBox(res))
-                        }).filter(res => res !== undefined);
-                    Promise.all(boxes)
+                    let boxes = res.filter((tx) => {
+                        return tx.outputs[0].address !== auctionAddress && tx.inputs[0].address === auctionAddress
+                    }).map(tx => {
+                        tx.inputs[0].spentTransactionId = tx.id
+                        return tx.inputs[0]
+                    })
+                        .map(bx => decodeAuction(bx, block));
+                    Promise.all(boxes).then((res) => {
+                        res.forEach((box) => {
+                            box.finalTx = box.spentTransactionId;
+                        });
+                        return res;
+                    })
                         .then((res) => {
-                            res.forEach((box) => {
-                                box.finalTx = box.spentTransactionId;
-                            });
-                            return res;
-                        })
-                        .then((res) =>
-                            this.setState({
-                                boxes: this.state.boxes.concat(res),
-                                offset: this.state.offset + pagination,
-                            })
+                                this.setState({
+                                    boxes: this.state.boxes.concat(res),
+                                    offset: this.state.offset + pagination,
+                                })
+                            }
                         )
                         .catch((_) => {
                             showMsg(
@@ -73,7 +71,7 @@ export default class AuctionsHistory extends React.Component {
                             );
                             setTimeout(() => this.loadMore(), 8000);
                         })
-                        .finally(() => this.setState({ loading: false }));
+                        .finally(() => this.setState({loading: false}));
                 })
                 .catch((_) => {
                     showMsg(
@@ -134,7 +132,7 @@ export default class AuctionsHistory extends React.Component {
                                 )}
                             </Button>
                         </Row>
-                        <br />
+                        <br/>
                         <Row>
                             <PropagateLoader
                                 css={override}

@@ -9,6 +9,7 @@ export async function post(url, body = {}, apiKey = '') {
         body: JSON.stringify(body),
     });
 }
+
 export async function get(url, apiKey = '') {
     return await fetch(url, {
         headers: {

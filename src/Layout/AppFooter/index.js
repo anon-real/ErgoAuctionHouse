@@ -4,8 +4,6 @@ import github from "../../assets/images/GitHub-Mark.png";
 
 class AppFooter extends React.Component {
     render() {
-
-
         return (
             <Fragment>
                 <div className="app-footer">
@@ -16,17 +14,18 @@ class AppFooter extends React.Component {
                                     <a target='_blank' href="https://ergoplatform.org/en/" className="nav-link">
                                         <img
                                             className='mr-2'
-                                            style={{ height: '20px', width: '20px' }}
+                                            style={{height: '20px', width: '20px'}}
                                             src={ergo}
                                         />
                                         Ergo Platform
                                     </a>
                                 </li>
                                 <li className="nav-item">
-                                    <a target='_blank' href="https://github.com/anon-real/ErgoAuction" className="nav-link">
+                                    <a target='_blank' href="https://github.com/anon-real/ErgoAuction"
+                                       className="nav-link">
                                         <img
                                             className='mr-2'
-                                            style={{ height: '20px', width: '20px' }}
+                                            style={{height: '20px', width: '20px'}}
                                             src={github}
                                         />
                                         Github
@@ -37,7 +36,8 @@ class AppFooter extends React.Component {
                     </div>
                 </div>
             </Fragment>
-        )}
+        )
+    }
 }
 
 export default AppFooter;

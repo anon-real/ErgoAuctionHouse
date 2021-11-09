@@ -1,35 +1,38 @@
-import React, {Fragment} from 'react';
-import {Bar} from 'react-chartjs-2';
+import React from 'react';
+import Select from 'react-select';
+import moment from 'moment';
 import {
     Button,
     Col,
-    Container, Form, FormFeedback, FormGroup, FormText, Input, InputGroup, InputGroupAddon, InputGroupText, Label,
+    Container,
+    Form,
+    FormFeedback,
+    FormGroup,
+    FormText,
+    Input,
+    InputGroup,
+    InputGroupAddon,
+    InputGroupText,
+    Label,
     Modal,
-    ModalBody, ModalFooter,
+    ModalBody,
+    ModalFooter,
     ModalHeader,
     Row,
-    Tooltip,
 } from 'reactstrap';
-import {
-    friendlyToken,
-    getAddrUrl,
-    getTxUrl, getWalletAddress,
-    showMsg,
-} from '../../../auction/helpers';
+import {friendlyAddress, isYoroi, showMsg,} from '../../../auction/helpers';
 import SyncLoader from 'react-spinners/SyncLoader';
 import {css} from '@emotion/core';
-import {allAuctionTrees, auctionFee, boxById, currentHeight, txById} from '../../../auction/explorer';
-import moment from 'moment';
-import {ResponsiveContainer} from 'recharts';
-import PropagateLoader from 'react-spinners/PropagateLoader';
-import ReactTooltip from 'react-tooltip';
-import {ergToNano, isFloat, isNatural} from "../../../auction/serializer";
-import {auctionTxRequest, getAssets} from "../../../auction/nodeWallet";
-import {getAuctionP2s, registerAuction} from "../../../auction/auctionAssembler";
+import {currencyToLong, isFloat, longToCurrency} from "../../../auction/serializer";
+import {newAuctionHelper} from "../../../auction/newAuctionAssm";
+import DateTimePicker from 'react-datetime-picker';
+import {supportedCurrencies} from "../../../auction/consts";
+import {getYoroiTokens} from "../../../auction/yoroiUtils";
+
 
 const override = css`
-    display: block;
-    margin: 0 auto;
+  display: block;
+  margin: 0 auto;
 `;
 
 class NewAuctionAssembler extends React.Component {
@@ -37,56 +40,86 @@ class NewAuctionAssembler extends React.Component {
         super();
         this.state = {
             modalLoading: false,
+            endTime: moment().add(5, 'days')._d,
+            currency: supportedCurrencies.ERG,
+            auctionStep: longToCurrency(supportedCurrencies.ERG.minSupported, supportedCurrencies.ERG.decimal),
+            initialBid: longToCurrency(supportedCurrencies.ERG.minSupported, supportedCurrencies.ERG.decimal),
+            instantAmount: longToCurrency(supportedCurrencies.ERG.minSupported * 10, supportedCurrencies.ERG.decimal),
+            enableInstantBuy: false,
+            tokenLoading: false,
+            tokens: [],
+            selectedToken: null,
+            tokenAmount: 1
         }
         this.canStartAuction = this.canStartAuction.bind(this);
+        this.changeCurrency = this.changeCurrency.bind(this);
     }
 
     componentWillReceiveProps(nextProps, nextContext) {
         if (this.props.isOpen && !nextProps.isOpen) {
             this.setState({modalLoading: false, assets: {}});
+        } else if (!this.props.isOpen && nextProps.isOpen) {
+            if (isYoroi()) {
+                this.setState({tokenLoading: true})
+                getYoroiTokens().then(res => {
+                    const rendered = Object.keys(res).map(key => {
+                        return {
+                            label: res[key].name + ` (${friendlyAddress(key, 5)})`,
+                            value: key,
+                            amount: res[key].amount,
+                        }
+                    })
+                    let st = {tokens: rendered, tokenLoading: false}
+                    if (this.props.selected)
+                        st.selectedToken = rendered.filter(tok => tok.value === this.props.selected)[0]
+                    this.setState(st)
+                })
+            }
         }
+    }
+
+    componentWillMount() {
+    }
+
+    changeCurrency(name) {
+        this.setState({
+            currency: supportedCurrencies[name],
+            auctionStep: longToCurrency(supportedCurrencies[name].minSupported, supportedCurrencies[name].decimal),
+            initialBid: longToCurrency(supportedCurrencies[name].minSupported, supportedCurrencies[name].decimal),
+            instantAmount: longToCurrency(supportedCurrencies[name].minSupported * 10, supportedCurrencies[name].decimal),
+        })
     }
 
     canStartAuction() {
         return (
             !this.state.modalLoading &&
-            ergToNano(this.state.initialBid) >= 100000000 &&
-            this.state.auctionDuration > 0 &&
-            ergToNano(this.state.auctionStep) >= 100000000
+            ((this.state.selectedToken !== null && parseInt(this.state.tokenAmount)) > 0 || !isYoroi()) &&
+            currencyToLong(this.state.initialBid, this.state.currency.decimal) >= this.state.currency.minSupported &&
+            currencyToLong(this.state.auctionStep, this.state.currency.decimal) >= this.state.currency.minSupported
         );
     }
 
     startAuction() {
         this.setState({modalLoading: true});
-        currentHeight()
-            .then((height) => {
-                getAuctionP2s(ergToNano(this.state.initialBid), height + parseInt(this.state.auctionDuration) + 5,
-                    ergToNano(this.state.auctionStep)).then(addr => {
-                    let description = this.state.description;
-                    if (!description) description = '';
-                    registerAuction(
-                        addr.address,
-                        ergToNano(this.state.initialBid),
-                        getWalletAddress(),
-                        ergToNano(this.state.auctionStep),
-                        height,
-                        height + parseInt(this.state.auctionDuration) + 5, // +5 to take into account the time it takes to be mined
-                        description,
-                        this.state.auctionAutoExtend
-                    ).then(res => {
-                        this.props.close()
-                        this.props.assemblerModal(addr.address, ergToNano(this.state.initialBid) - 10000000, true)
-
-                    }).catch(err => {
-                        showMsg('Error while registering the request to the assembler!', true);
-                        this.setState({modalLoading: false})
-                    })
-
-                }).catch(_ => {
-                    showMsg('Could not contact the assembler service.', true);
-                    this.setState({modalLoading: false})
-                })
-            }).catch(_ => showMsg('Could not get height from the explorer, try again!', true));
+        let description = this.state.description;
+        if (!description) description = '';
+        newAuctionHelper(
+            currencyToLong(this.state.initialBid, this.state.currency.decimal),
+            this.state.currency,
+            (this.state.enableInstantBuy ? currencyToLong(this.state.instantAmount, this.state.currency.decimal) : -1),
+            currencyToLong(this.state.auctionStep, this.state.currency.decimal),
+            parseInt(moment(this.state.endTime).format('x')),
+            description,
+            this.state.selectedToken,
+            parseInt(this.state.tokenAmount),
+            this.props.assemblerModal
+        ).catch(e => {
+            console.log(e)
+            showMsg('Could not get height from the explorer, try again!', true)
+        }).finally(() => {
+                this.props.close()
+                this.setState({modalLoading: false})
+            })
     }
 
     render() {
@@ -111,49 +144,116 @@ class NewAuctionAssembler extends React.Component {
                         </Row>
 
                         <Form>
-                            <FormGroup>
-                                <Label for="bid">Initial Bid</Label>
-                                <InputGroup>
-                                    <Input
-                                        type="text"
-                                        invalid={
-                                            ergToNano(
-                                                this.state
-                                                    .initialBid
-                                            ) < 100000000
-                                        }
-                                        value={
-                                            this.state.initialBid
-                                        }
-                                        onChange={(e) => {
-                                            if (
-                                                isFloat(
-                                                    e.target.value
-                                                )
-                                            ) {
-                                                this.setState({
-                                                    initialBid:
-                                                    e.target
-                                                        .value,
-                                                });
-                                            }
-                                        }}
-                                        id="bid"
-                                    />
-                                    <InputGroupAddon addonType="append">
-                                        <InputGroupText>
-                                            ERG
-                                        </InputGroupText>
-                                    </InputGroupAddon>
-                                    <FormFeedback invalid>
-                                        Must be at least 0.1 ERG
-                                    </FormFeedback>
-                                </InputGroup>
-                                <FormText>
-                                    Specify initial bid of the
-                                    auction.
-                                </FormText>
-                            </FormGroup>
+                            {isYoroi() && <Row>
+                                <Col>
+                                    <FormGroup>
+                                        <Label for="bid">Token to Auction</Label>
+                                        <Select
+                                            className="basic-single"
+                                            classNamePrefix="select"
+                                            isDisabled={false}
+                                            isLoading={this.state.tokenLoading}
+                                            defaultValue={this.state.selectedToken}
+                                            value={this.state.selectedToken}
+                                            isClearable={false}
+                                            isRtl={false}
+                                            isSearchable={true}
+                                            name="color"
+                                            options={this.state.tokens}
+                                            onChange={(changed) => this.setState({selectedToken: changed})}
+                                        />
+                                    </FormGroup>
+                                    <FormText>
+                                        You own these tokens in your Yoroi wallet, select the one you'd like to auction.
+                                    </FormText>
+                                </Col>
+                                {this.state.selectedToken !== null && this.state.selectedToken.amount > 1 && <Col>
+                                    <FormGroup>
+                                        <Label for="auctionStep">
+                                            Select Amount
+                                        </Label>
+                                        <InputGroup>
+                                            <Input
+                                                type="number"
+                                                value={this.state.tokenAmount}
+                                                onChange={(e) => {
+                                                    this.setState({
+                                                        tokenAmount: e.target.value,
+                                                    });
+                                                }}
+                                            />
+                                        </InputGroup>
+                                        <FormText>
+                                            You have {this.state.selectedToken.amount} of this token, specify how many
+                                            of those you want to auction.
+                                        </FormText>
+                                    </FormGroup>
+                                </Col>}
+                            </Row>}
+                            <Row>
+                                <Col md="6">
+                                    <FormGroup>
+                                        <Label for="bid">Minimum Bid</Label>
+                                        <InputGroup>
+                                            <Input
+                                                type="text"
+                                                invalid={
+                                                    currencyToLong(
+                                                        this.state.initialBid,
+                                                        this.state.currency.decimal
+                                                    ) < this.state.currency.minSupported
+                                                }
+                                                value={
+                                                    this.state.initialBid
+                                                }
+                                                onChange={(e) => {
+                                                    if (
+                                                        isFloat(
+                                                            e.target.value
+                                                        )
+                                                    ) {
+                                                        this.setState({
+                                                            initialBid:
+                                                            e.target
+                                                                .value,
+                                                        });
+                                                    }
+                                                }}
+                                                id="bid"
+                                            />
+                                            <InputGroupAddon addonType="append">
+                                                <select onChange={(curr) => this.changeCurrency(curr.target.value)}>
+                                                    {Object.keys(supportedCurrencies).map(res => {
+                                                        return <option>{res}</option>
+                                                    })}
+                                                </select>
+                                            </InputGroupAddon>
+                                            <FormFeedback invalid>
+                                                Must be at
+                                                least {longToCurrency(this.state.currency.minSupported, this.state.currency.decimal)} {this.state.currency.name}
+                                            </FormFeedback>
+                                        </InputGroup>
+                                        <FormText>
+                                            <b>Specify the currency</b> and the minimum bid amount; the first bid will be at least this amount. Note that you need a little bit
+                                            of this currency in your wallet to start the auction!
+                                        </FormText>
+                                    </FormGroup>
+                                </Col>
+                                <Col md="6">
+                                    <FormGroup>
+                                        <Label for="duration">
+                                            Auction End Time
+                                        </Label>
+                                        <InputGroup>
+                                            <DateTimePicker value={this.state.endTime} onChange={(tm => {
+                                                this.setState({endTime: tm})
+                                            })}/></InputGroup>
+                                        <FormText>
+                                            Your auction will end at this time.
+                                        </FormText>
+                                    </FormGroup>
+                                </Col>
+                            </Row>
                             <div className="divider"/>
                             <Row>
                                 <Col md="6">
@@ -165,10 +265,7 @@ class NewAuctionAssembler extends React.Component {
                                             <Input
                                                 type="text"
                                                 invalid={
-                                                    ergToNano(
-                                                        this.state
-                                                            .auctionStep
-                                                    ) < 100000000
+                                                    currencyToLong(this.state.auctionStep, this.state.currency.decimal) < this.state.currency.minSupported
                                                 }
                                                 value={
                                                     this.state.auctionStep
@@ -190,11 +287,12 @@ class NewAuctionAssembler extends React.Component {
                                             />
                                             <InputGroupAddon addonType="append">
                                                 <InputGroupText>
-                                                    ERG
+                                                    {this.state.currency.name}
                                                 </InputGroupText>
                                             </InputGroupAddon>
                                             <FormFeedback invalid>
-                                                Must be at least 0.1 ERG
+                                                Must be at
+                                                least {longToCurrency(this.state.currency.minSupported, this.state.currency.decimal)} {this.state.currency.name}
                                             </FormFeedback>
                                         </InputGroup>
                                         <FormText>
@@ -205,8 +303,8 @@ class NewAuctionAssembler extends React.Component {
                                 </Col>
                                 <Col md="6">
                                     <FormGroup>
-                                        <Label for="duration">
-                                            Auction Duration
+                                        <Label>
+                                            Instant Buy Amount
                                         </Label>
                                         <InputGroup>
                                             <InputGroupAddon addonType="prepend">
@@ -215,12 +313,12 @@ class NewAuctionAssembler extends React.Component {
                                                         <Input
                                                             checked={
                                                                 this.state
-                                                                    .auctionAutoExtend
+                                                                    .enableInstantBuy
                                                             }
                                                             onChange={(e) =>
                                                                 this.setState(
                                                                     {
-                                                                        auctionAutoExtend:
+                                                                        enableInstantBuy:
                                                                         e
                                                                             .target
                                                                             .checked,
@@ -230,48 +328,48 @@ class NewAuctionAssembler extends React.Component {
                                                             className="mr-2"
                                                             addon
                                                             type="checkbox"
-                                                            aria-label="Checkbox for following text input"
                                                         />
-                                                        Auto Extend
+                                                        Enable instant buy
                                                     </Label>
                                                 </InputGroupText>
                                             </InputGroupAddon>
-
                                             <Input
-                                                type="number"
-                                                value={
-                                                    this.state
-                                                        .auctionDuration
+                                                type="text"
+                                                invalid={
+                                                    this.state.enableInstantBuy && currencyToLong(this.state.instantAmount, this.state.currency.decimal) <= currencyToLong(this.state.initialBid, this.state.currency.decimal)
                                                 }
-                                                onChange={(event) => {
+                                                disabled={!this.state.enableInstantBuy}
+                                                value={
+                                                    this.state.instantAmount
+                                                }
+                                                onChange={(e) => {
                                                     if (
-                                                        isNatural(
-                                                            event.target
-                                                                .value
+                                                        isFloat(
+                                                            e.target.value
                                                         )
-                                                    )
+                                                    ) {
                                                         this.setState({
-                                                            auctionDuration:
-                                                            event.target
+                                                            instantAmount:
+                                                            e.target
                                                                 .value,
                                                         });
+                                                    }
                                                 }}
-                                                id="duration"
+                                                id="auctionStep"
                                             />
                                             <InputGroupAddon addonType="append">
                                                 <InputGroupText>
-                                                    Blocks
+                                                    {this.state.currency.name}
                                                 </InputGroupText>
                                             </InputGroupAddon>
+                                            <FormFeedback invalid>
+                                                Instant buy amount must be bigger than the Minimum bid!
+                                            </FormFeedback>
                                         </InputGroup>
                                         <FormText>
-                                            Auction will last for this
-                                            number of blocks (e.g. 720 for
-                                            ~1 day). <br/> By enabling auto
-                                            extend, your auction's duration
-                                            will be extended slightly if a
-                                            bid is placed near the end of
-                                            the auction.
+                                            If you enable this, anyone can instantly win your auction by bidding by at
+                                            least this
+                                            amount.
                                         </FormText>
                                     </FormGroup>
                                 </Col>
@@ -281,8 +379,7 @@ class NewAuctionAssembler extends React.Component {
                                 <Label for="description">Description</Label>
                                 <Input
                                     invalid={
-                                        this.state.description !==
-                                        undefined &&
+                                        this.state.description !== undefined &&
                                         this.state.description.length > 250
                                     }
                                     value={this.state.description}
@@ -303,6 +400,9 @@ class NewAuctionAssembler extends React.Component {
                                     auctioning here.
                                 </FormText>
                             </FormGroup>
+                            <FormText>
+                                <b data-tip='ok'>* Auto Extend feature is by default enabled for all auctions.</b>
+                            </FormText>
                         </Form>
                     </Container>
                 </ModalBody>
@@ -317,7 +417,7 @@ class NewAuctionAssembler extends React.Component {
                     <Button
                         className="mr-2 btn-transition"
                         color="secondary"
-                        disabled={!this.canStartAuction()}
+                        disabled={!this.canStartAuction() || this.state.tokenLoading}
                         onClick={() => this.startAuction()}
                     >
                         Create Auction

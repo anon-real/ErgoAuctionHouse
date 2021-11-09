@@ -1,17 +1,9 @@
-import React, {Fragment} from 'react';
+import React from 'react';
 import {Button, Container, Modal, ModalBody, ModalFooter, ModalHeader} from 'reactstrap';
-import {friendlyAddress, friendlyToken, getMyBids, getTxUrl, showMsg} from '../../../auction/helpers';
+import {friendlyAddress, isAssembler, showMsg} from '../../../auction/helpers';
 import Clipboard from "react-clipboard.js";
-import {auctionFee} from "../../../auction/explorer";
 import QRCode from "react-qr-code";
-
-const statusToBadge = {
-    'pending mining': 'info',
-    rejected: 'warning',
-    complete: 'primary',
-    'current active bid': 'success',
-    'winner': 'success',
-};
+import {additionalData, supportedCurrencies, txFee} from "../../../auction/consts";
 
 export default class SendModal extends React.Component {
     constructor(props) {
@@ -24,6 +16,7 @@ export default class SendModal extends React.Component {
                 isOpen={this.props.isOpen}
                 backdrop="static"
                 toggle={this.close}
+                size='md'
             >
                 <ModalHeader>
                         <span className="fsize-1 text-muted">
@@ -37,16 +30,24 @@ export default class SendModal extends React.Component {
                             <Clipboard
                                 component="b"
                                 data-clipboard-text={
-                                    (this.props.bidAmount + auctionFee) /
-                                    1e9
+                                    this.props.bidAmount
                                 }
                                 onSuccess={() => showMsg('Copied!')}
                             >
                                 exactly{' '}
-                                {(this.props.bidAmount + auctionFee) / 1e9}{' '}
-                                erg
-                            </Clipboard>{' '}
-                            {this.props.isAuction && <span>and the <b>token</b> you want to auction</span>}{' '}
+                                {this.props.bidAmount}{' '}{this.props.currency}
+                            </Clipboard>
+                            {this.props.isAuction && <span>
+                                {this.props.currency !== 'ERG' && <Clipboard
+                                    component="b"
+                                    data-clipboard-text={
+                                        this.props.bidAmount
+                                    }
+                                    onSuccess={() => showMsg('Copied!')}
+                                >
+                                    {', '}{(parseInt(additionalData.dataInput.additionalRegisters.R8.renderedValue) + supportedCurrencies.ERG.minSupported) / 1e9} ERG
+                                </Clipboard>}
+                                {' '}and the <b>token</b> you want to auction</span>}{' '}
                             to{' '}
                             <Clipboard
                                 component="b"
@@ -62,26 +63,45 @@ export default class SendModal extends React.Component {
                                     )
                                 }
                             ></b>
-                            {!this.props.isAuction ?
-                                <p>
-                                    You have a limited time to do that, your bid will be placed automatically
-                                    afterward.
-                                </p> : <p>
-                                    You have a limited time to do that, your auction will be started automatically
-                                    afterward.
-                                </p>}
+                            <br/>
+                            <br/>
+                            <li>
+                                The operation will be done as soon as the funds are sent.
+                            </li>
+                            <li>
+                                You can send the requested funds in multiple transactions.
+                            </li>
+                            <li>
+                                Your funds are safe, find out more about how{' '}
+                                <a
+                                    target="_blank"
+                                    href="https://www.ergoforum.org/t/some-details-about-ergo-auction-house/428/6"
+                                >
+                                    here.
+                                </a>
+                            </li>
+                            {this.props.isAuction && <li>
+                                Starting auction fee (<b>{parseInt(additionalData.dataInput.additionalRegisters.R8.renderedValue) / 1e9} ERG</b>) is included in the funds above.
+                            </li>}
+                            <li>
+                                You have a limited time to send the funds.
+                            </li>
+                            {this.props.isAuction && isAssembler() && <li>
+                                <b>Follow: 1- Scan the QR code 2- Add the token that you want to auction 3- Send the transaction </b>
+                            </li>}
                         </p>
-                        <p>
-                            Your funds will be safe, find out more about how{' '}
-                            <a
-                                target="_blank"
-                                href="https://www.ergoforum.org/t/some-details-about-ergo-auction-house/428/6"
-                            >
-                                here.
-                            </a>
-                        </p>
-                        <QRCode value={"https://explorer.ergoplatform.com/payment-request?address=" + this.props.bidAddress +
-                        "&amount=" + (this.props.bidAmount + auctionFee) / 1e9}/>
+                        {this.props.currency === 'ERG' && <QRCode
+                            size={320}
+                            value={"https://explorer.ergoplatform.com/payment-request?address=" + this.props.bidAddress +
+                            "&amount=" + this.props.bidAmount}/>}
+                        {this.props.currency !== 'ERG' && this.props.isAuction && <QRCode
+                            size={320}
+                            value={"https://explorer.ergoplatform.com/payment-request?address=" + this.props.bidAddress +
+                            "&amount=" + ((supportedCurrencies.ERG.minSupported + parseInt(additionalData.dataInput.additionalRegisters.R8.renderedValue)) / 1e9) +`&${supportedCurrencies[this.props.currency].id}=${this.props.bidAmount}`}/>}
+                        {this.props.currency !== 'ERG' && !this.props.isAuction && this.props.currency && <QRCode
+                            size={320}
+                            value={"https://explorer.ergoplatform.com/payment-request?address=" + this.props.bidAddress +
+                            "&amount=" + 4 * (txFee / 1e9) + `&${supportedCurrencies[this.props.currency].id}=${this.props.bidAmount}`}/>}
                     </Container>
                 </ModalBody>
                 <ModalFooter>

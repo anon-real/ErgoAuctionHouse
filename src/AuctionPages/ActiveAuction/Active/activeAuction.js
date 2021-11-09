@@ -1,54 +1,30 @@
 import React from 'react';
-import {
-    Button,
-    CardFooter,
-    Col,
-    DropdownMenu,
-    DropdownToggle,
-    Nav,
-    NavItem,
-    NavLink,
-    Progress,
-    UncontrolledButtonDropdown,
-} from 'reactstrap';
-import {
-    friendlyAddress,
-    friendlyName,
-    friendlyToken,
-    getAddrUrl,
-    getTxUrl,
-    getWalletAddress,
-    isWalletSaved,
-    showMsg,
-} from '../../../auction/helpers';
+import {Col, DropdownMenu, DropdownToggle, Nav, NavItem, NavLink, Row, UncontrolledButtonDropdown,} from 'reactstrap';
+import {friendlyAddress, getAddrUrl, isWalletSaved, showMsg,} from '../../../auction/helpers';
 import {ResponsiveContainer} from 'recharts';
 import SyncLoader from 'react-spinners/SyncLoader';
 import ReactTooltip from 'react-tooltip';
 
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faAngleUp, faEllipsisV, faEllipsisH} from '@fortawesome/free-solid-svg-icons';
+import {faEllipsisH} from '@fortawesome/free-solid-svg-icons';
 import {css} from '@emotion/core';
-import {
-    auctionWithExtensionTree,
-    getSpendingTx,
-} from '../../../auction/explorer';
 import PlaceBidModal from './placeBid';
 import MyBidsModal from './myBids';
 import BidHistory from './bidHistory';
-import {Row} from 'react-bootstrap';
-import ArtworkDetails from '../../artworkDetails';
-import Clipboard from "react-clipboard.js";
-import {Link} from "react-router-dom";
+import FooterSection from "../../footerSection";
+import 'react-h5-audio-player/lib/styles.css';
+import ArtworkMedia from "../../artworkMedia";
 
 const override = css`
   display: block;
   margin: 0 auto;
 `;
 
-export default class ActivePicture extends React.Component {
+export default class ActiveAuction extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            loading: false,
             bidModal: false,
             myBidsModal: false,
             detailsModal: false,
@@ -62,15 +38,6 @@ export default class ActivePicture extends React.Component {
         this.setState({detailsModal: !this.state.detailsModal});
     }
 
-    getTime(blockRem) {
-        let time = blockRem * 2
-        if (time <= 60) return [time, 'Minutes']
-        time = (time / 60).toFixed(0)
-        if (time <= 24) return [time, 'Hours']
-        time = (time / 24).toFixed(0)
-        return [time, 'Days']
-    }
-
     openBid() {
         if (this.state.bidModal) {
             this.setState({bidModal: !this.state.bidModal});
@@ -81,9 +48,9 @@ export default class ActivePicture extends React.Component {
                 'In order to place bids, you have to configure the wallet first.',
                 true
             );
-        } else if (this.props.box.remBlock <= 0) {
+        } else if (this.props.box.remTime <= 0) {
             showMsg(
-                'This auction is finished! It is pending for withdrawal.',
+                'This auction is finished!',
                 true
             );
         } else {
@@ -101,9 +68,8 @@ export default class ActivePicture extends React.Component {
 
     render() {
         let box = this.props.box;
-        let time = this.getTime(box.remBlock)
         return (
-            <Col key={box.id} lg="6" xl="4" md="6">
+            <Col key={box.id} xs="12" md="6" lg="6" xl="4">
                 <PlaceBidModal
                     isOpen={this.state.bidModal}
                     box={this.props.box}
@@ -121,14 +87,34 @@ export default class ActivePicture extends React.Component {
                     box={this.props.box}
                     isOpen={this.state.detailsModal}
                 />
-                <div className="card mb-3 bg-white widget-chart">
-                    
-                    <b className="fsize-1 text-truncate" style={{marginTop: 8}}>{this.props.box.tokenName}</b>
+                <div className="card mb-3 bg-white widget-chart" style={
+                    {
+                        'opacity': this.props.box.isFinished || this.state.loading ? 0.6 : 1
+                    }
+                }>
+
+                    <Row style={{marginTop: 8}}>
+                        <Col className="text-truncate">
+                            <b data-tip={this.props.box.tokenName}>{this.props.box.tokenName}</b>
+                        </Col>
+
+                        {(this.props.box.royalty > 0 || this.props.box.totalIssued > 1) &&
+                        <Col className="text-truncate">
+                            {this.props.box.royalty > 0 &&
+                            <i data-tip={`Includes ${this.props.box.royalty / 10}% royalty on secondary sales`} style={{fontSize: '12px'}}
+                               className="font-weight-light">{`${this.props.box.royalty / 10}% royalty`}</i>}
+                            {this.props.box.totalIssued > 1 &&
+                            <i data-tip={`This is a Fungible Token with total issuance of ${this.props.box.totalIssued}`}
+                               style={{fontSize: '12px'}}
+                               className="font-weight-light">{` - ${this.props.box.assets[0].amount} out of ${this.props.box.totalIssued}`}</i>}</Col>
+                        }
+
+                    </Row>
 
                     <div className="widget-chart-actions">
                         <UncontrolledButtonDropdown direction="left">
                             <DropdownToggle color="link">
-                                <FontAwesomeIcon icon={faEllipsisH} />
+                                <FontAwesomeIcon icon={faEllipsisH}/>
                             </DropdownToggle>
                             <DropdownMenu className="dropdown-menu-md-left">
                                 <Nav vertical>
@@ -139,7 +125,7 @@ export default class ActivePicture extends React.Component {
                                         <NavLink
                                             href={
                                                 '#/auction/specific/' +
-                                                this.props.box.id
+                                                this.props.box.boxId
                                             }
                                         >
                                             Link to Auction
@@ -163,47 +149,17 @@ export default class ActivePicture extends React.Component {
                             </DropdownMenu>
                         </UncontrolledButtonDropdown>
                     </div>
-
                     <div className="widget-chart-content">
                         <ResponsiveContainer height={10}>
                             <SyncLoader
                                 css={override}
                                 size={8}
                                 color={'#0086d3'}
-                                loading={this.props.box.loader}
+                                loading={this.state.loading}
                             />
                         </ResponsiveContainer>
-
-                        <div style={{cursor: 'pointer'}} className="imgDiv">
-                            <ArtworkDetails
-                                isOpen={this.state.artDetail}
-                                close={() =>
-                                    this.setState({
-                                        artDetail: !this.state.artDetail,
-                                    })
-                                }
-                                tokenId={this.props.box.assets[0].tokenId}
-                                tokenName={this.props.box.tokenName}
-                                tokenDescription={
-                                    this.props.box.tokenDescription
-                                }
-                                artHash={this.props.box.artHash}
-                                artworkUrl={this.props.box.artworkUrl}
-                                artist={this.props.box.artist}
-                            />
-                            <img
-                                onClick={() =>
-                                    this.setState({artDetail: true})
-                                }
-                                className="auctionImg"
-                                src={
-                                    this.props.box.artworkUrl
-                                        ? this.props.box.artworkUrl
-                                        : 'http://revisionmanufacture.com/assets/uploads/no-image.png'
-                                }
-                            />
-                        </div>
                         <ReactTooltip effect="solid" place="bottom"/>
+                        <ArtworkMedia preload={this.props.preload} box={this.props.box}/>
 
                         <div className="widget-chart-wrapper chart-wrapper-relative">
                             <div
@@ -218,13 +174,12 @@ export default class ActivePicture extends React.Component {
                             >
                                 <p className="text-primary mr-2 ml-2">
                                     <div className="text-truncate">{this.props.box.description}</div>
-                                    <Link
-                                        to={'/auction/active?type=picture&artist=' + this.props.box.artist}
+                                    <b
+                                        style={{cursor: "pointer"}}
+                                        onClick={() => this.props.updateParams('artist', this.props.box.artist)}
                                     >
-                                        <b
-                                        >
-                                            {' '}- By {friendlyAddress(this.props.box.artist, 4)}
-                                        </b></Link>
+                                        {' '}- By {friendlyAddress(this.props.box.artist, 5)}
+                                    </b>
                                 </p>
                             </div>
                         </div>
@@ -241,7 +196,7 @@ export default class ActivePicture extends React.Component {
                         >
                             <span data-tip={this.props.box.seller}>
                                 Seller{' '}
-                                {friendlyAddress(this.props.box.seller, 9)}
+                                {friendlyAddress(this.props.box.seller, 5)}
                             </span>
                             <i
                                 onClick={() =>
@@ -265,7 +220,7 @@ export default class ActivePicture extends React.Component {
                         >
                             <span data-tip={this.props.box.bidder}>
                                 Bidder{' '}
-                                {friendlyAddress(this.props.box.bidder, 9)}
+                                {friendlyAddress(this.props.box.bidder, 5)}
                             </span>
                             <i
                                 onClick={() =>
@@ -280,81 +235,8 @@ export default class ActivePicture extends React.Component {
                             />
                         </div>
                     </div>
-                    <CardFooter>
-                        <Col md={6} className="widget-description">
-                            <Row>
-                                <span>
-                                    <b className="fsize-1">
-                                        {(this.props.box.value / 1e9).toFixed(
-                                            2
-                                        )}{' '}
-                                        ERG
-                                    </b>{' '}
-                                    <text
-                                        style={{fontSize: '10px'}}
-                                        className="text-success pl-1 pr-1"
-                                    >
-                                        {this.props.box.increase}%
-                                        <FontAwesomeIcon icon={faAngleUp}/>
-                                    </text>
-                                </span>
-                            </Row>
-                        </Col>
-
-                        <Col md={6} className="justify-content-end ml-3">
-                            <div className="widget-content">
-                                <div className="widget-content-outer">
-                                    <div className="widget-content-wrapper">
-                                        <div className="widget-content-left mr-3">
-                                            <div className="widget-numbers fsize-1 text-muted">
-                                                ~{time[0]}
-                                            </div>
-                                        </div>
-                                        <div className="widget-content-right">
-                                            <div
-                                                data-tip={
-                                                    this.props.box.ergoTree ===
-                                                    auctionWithExtensionTree
-                                                        ? 'Auto Extend Enabled'
-                                                        : ''
-                                                }
-                                                className="text-muted opacity-6"
-                                            >
-                                                {time[1]}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="widget-progress-wrapper">
-                                        <Progress
-                                            className="progress-bar-xs progress-bar-animated-alt"
-                                            value={this.props.box.doneBlock}
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                        </Col>
-
-
-                    </CardFooter>
-
-                    <button type="button" class="btn btn-outline-primary btn-lg" style={{fontSize: 14}} 
-                    onClick={(e) => {
-                        e.preventDefault();
-                        this.openBid();
-                    }}>
-                        <text>
-                            Place Bid
-                        </text>{' '}
-                        <text>
-                            for{' '}
-                            <b>
-                                {(this.props.box.value +
-                                    this.props.box.minStep) /
-                                    1e9}{' '}
-                                ERG
-                            </b>
-                        </text>
-                    </button>
+                    <FooterSection box={this.props.box} loading={(val) => this.setState({loading: val})}
+                                   assemblerModal={this.props.assemblerModal} openBid={this.openBid}/>
 
                 </div>
             </Col>
