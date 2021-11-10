@@ -49,3 +49,15 @@ export async function getNFTInfo(id) {
     let store = tx.objectStore('nft');
     return store.get(id);
 }
+
+export async function deleteNFTInfo(info) {
+    let db
+    if (additionalData.db === undefined) db = await setUpDb()
+    else db = additionalData.db
+    additionalData.db = db
+    if (db === null) return
+    let tx = db.transaction('nft', 'readwrite');
+    let store = tx.objectStore('nft');
+    store.delete(info);
+    return tx.complete;
+}
