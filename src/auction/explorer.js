@@ -35,7 +35,7 @@ export function getBoxesForAsset(asset) {
 }
 
 export function getActiveAuctions(addr) {
-    return getRequest(`/boxes/unspent/byAddress/${addr}`, explorerApiV1)
+    return getRequest(`/boxes/unspent/byAddress/${addr}?limit=500`, explorerApiV1)
         .then(res => res.items)
         .then((boxes) => boxes.filter((box) => box.assets.length > 0));
 }

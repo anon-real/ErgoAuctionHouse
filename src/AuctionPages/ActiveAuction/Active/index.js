@@ -58,7 +58,6 @@ class ActiveAuctions extends React.Component {
             lastLoaded: [],
             lastUpdated: 0,
             searchValue: '',
-            selectedAuctions: []
         };
         this.sortAuctions = this.sortAuctions.bind(this);
         this.filterAuctions = this.filterAuctions.bind(this);
@@ -215,11 +214,9 @@ class ActiveAuctions extends React.Component {
     }
 
     getToShow() {
-        if (this.state.selectedAuctions) {
-            const auctions = (this.state.selectedAuctions?.length !== 0) ? this.state.selectedAuctions.slice(0, this.state.end) : this.state.allAuctions.slice(0, this.state.end);
-            const filtered = this.filterAuctions(auctions);
-            return this.sortAuctions(filtered).slice(0, this.state.end)
-        } else return []
+        const auctions = this.state.allAuctions;
+        const filtered = this.filterAuctions(auctions);
+        return this.sortAuctions(filtered).slice(0, this.state.end)
     }
 
     getHottest() {
