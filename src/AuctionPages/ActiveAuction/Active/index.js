@@ -293,7 +293,7 @@ class ActiveAuctions extends React.Component {
                     <div>
                         <Row>
                             <Col className='text-right'>
-                                <b><a href='https://v1.ergoauctions.org/' target='_blank'>Also make sure you check out the V1 auctions</a></b>
+                                <b><a href='https://v1.ergoauctions.org/' target='_blank'>Make sure to check out the V1 auctions!</a></b>
                             </Col>
                         </Row>
                     </div>
