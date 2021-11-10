@@ -1,5 +1,5 @@
 import React from 'react';
-import {Button, Container, Modal, ModalBody, ModalFooter} from 'reactstrap';
+import {Button, Container, Modal, ModalBody, ModalFooter, ModalHeader} from 'reactstrap';
 import {bidHelper} from "../auction/newBidAssm";
 import {getArtworkUrl} from "../auction/helpers";
 
@@ -8,9 +8,11 @@ export default class FakeModal extends React.Component {
         return (
             <Modal
                 isOpen={this.props.isOpen}
-                backdrop="static"
                 toggle={this.props.close}
             >
+                <ModalHeader toggle={this.props.close}>
+                    <span className="fsize-1 text-muted">Potential warning</span>
+                </ModalHeader>
                 <ModalBody>
                     <Container>
                         <p className="text-danger mr-2 ml-2">
