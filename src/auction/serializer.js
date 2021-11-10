@@ -1,11 +1,11 @@
 import {Serializer} from '@coinbarn/ergo-ts/dist/serializer';
 import moment from 'moment';
 import {Address, AddressKind} from "@coinbarn/ergo-ts/dist/models/address";
-import {boxById, getIssuingBox, txById} from "./explorer";
+import {boxById, getIssuingBox, getSpendingTx, txById} from "./explorer";
 import {supportedCurrencies} from "./consts";
 import {getEncodedBox} from "./assembler";
 import {getForKey} from "./helpers";
-import {addNFTInfo, getNFTInfo} from "./dbUtils";
+import {addNFTInfo, deleteNFTInfo, getNFTInfo} from "./dbUtils";
 
 var momentDurationFormatSetup = require("moment-duration-format");
 
@@ -83,7 +83,10 @@ export async function decodeArtwork(box, tokenId, considerArtist = true) {
         if (!inf.isArtwork) inf.type = 'other'
         if (box === null) box = {}
         box = {...box, ...inf}
-        return box
+        if (inf.artist === 'Unknown') {
+            await deleteNFTInfo(tokenId)
+        }
+        else return box
     }
     inf = {type: 'other'}
 
@@ -159,17 +162,8 @@ export async function decodeArtwork(box, tokenId, considerArtist = true) {
             inf.royalty = 0
             if (tokBox.additionalRegisters.R4)
                 inf.royalty = await decodeNum(tokBox.additionalRegisters.R4, true)
-            if (tokBox.additionalRegisters.R5) {
-                inf.royalty = await decodeNum(tokBox.additionalRegisters.R4, true)
-                // inf.artist = Address.fromErgoTree(await decodeString(tokBox.additionalRegisters.R5)).address;
-            }
-            if (AddressKind.P2PK === new Address(tokBox.address).getType())
-                inf.artist = tokBox.address
-            else if (inf.artist === 'Unknown') {
-                const tokTx = await txById(tokBox.txId)
-                if (AddressKind.P2PK === new Address(tokTx.inputs[0].address).getType())
-                    inf.artist = tokTx.inputs[0].address
-            }
+
+            inf.artist = await getArtist(tokBox)
         } catch (e) {
             console.error(e)
         }
@@ -180,6 +174,14 @@ export async function decodeArtwork(box, tokenId, considerArtist = true) {
             .catch((e) => console.error(e))
     }
     return {...box, ...inf}
+}
+
+export async function getArtist(bx) {
+    while (AddressKind.P2PK !== new Address(bx.address).getType()) {
+        let tx = await txById(bx.txId === undefined ? bx.outputTransactionId : bx.txId)
+        bx = tx.inputs[0]
+    }
+    return bx.address
 }
 
 export async function decodeAuction(box, block) {
