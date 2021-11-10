@@ -161,7 +161,7 @@ export async function decodeArtwork(box, tokenId, considerArtist = true) {
                 inf.royalty = await decodeNum(tokBox.additionalRegisters.R4, true)
             if (tokBox.additionalRegisters.R5) {
                 inf.royalty = await decodeNum(tokBox.additionalRegisters.R4, true)
-                inf.artist = Address.fromErgoTree(await decodeString(tokBox.additionalRegisters.R5)).address;
+                // inf.artist = Address.fromErgoTree(await decodeString(tokBox.additionalRegisters.R5)).address;
             }
             if (AddressKind.P2PK === new Address(tokBox.address).getType())
                 inf.artist = tokBox.address
