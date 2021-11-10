@@ -32,7 +32,7 @@ const sortKeyToVal = {
     '1': 'Highest remaining time',
     '2': 'Highest bid',
     '3': 'Lowest bid',
-    '4': 'Latest bids',
+    '4': 'Hottest first',
     '5': 'My auctions first',
     '6': 'My bids first',
     '7': 'My favorites first',
@@ -180,6 +180,8 @@ class ActiveAuctions extends React.Component {
             })
         else if (key === '4')
             auctions.sort((a, b) => {
+                if (a.curBid < a.minBid) return 1
+                if (b.curBid < b.minBid) return -1
                 return b.creationHeight - a.creationHeight
             })
         else if (key === '5' && isWalletSaved())
@@ -221,9 +223,9 @@ class ActiveAuctions extends React.Component {
 
     getHottest() {
         // const pictureAuctions = this.filterAuctions(this.state.allAuctions, 'picture')
-        const artworkAuctions = this.filterAuctions(this.state.allAuctions.filter(auc => auc.isArtwork && auc.minBid <= auc.curBid))
-        if (artworkAuctions.length >= 3)
-            return this.sortAuctions(artworkAuctions, '4').slice(0, 5)
+        // const artworkAuctions = this.filterAuctions(this.state.allAuctions.filter(auc => auc.isArtwork && auc.minBid <= auc.curBid))
+        // if (artworkAuctions.length >= 3)
+        //     return this.sortAuctions(artworkAuctions, '4').slice(0, 5)
         return []
     }
 
@@ -296,33 +298,33 @@ class ActiveAuctions extends React.Component {
                         </Row>
                     </div>
                 </div>
-                {!this.state.loading && this.getHottest().length > 0 && <div
-                    className="mb-xl-5 card mb-3 bg-white widget-chart"
-                >
-                    <div className='notArtwork'>
-                        <b className='font-size-xlg text-primary'>Hot auctions</b>
-                    </div>
-                    <Coverflow
-                        className='coverflow'
-                        width={960}
-                        height={550}
-                        displayQuantityOfSide={2}
-                        navigation={false}
-                        enableHeading={true}
-                        enableScroll={false}
-                    >
-                        {this.getHottest().map(hot => {
-                            // return <img style={{position: "relative"}} src={hot.artworkUrl} alt={hot.tokenName}
-                            //      data-action={getAuctionUrl(hot.boxId)}/>
-                            return <ArtworkMedia box={hot} height='100%' width='100%'
-                                                 avoidDetail={true}
-                                                 avoidFav={true}
-                                                 alt={hot.tokenName}
-                                                 data-action={getAuctionUrl(hot.boxId)}/>
-                        })}
-                        {/*data-action="http://tw.yahoo.com"/>*/}
-                    </Coverflow>
-                </div>}
+                {/*{!this.state.loading && this.getHottest().length > 0 && <div*/}
+                {/*    className="mb-xl-5 card mb-3 bg-white widget-chart"*/}
+                {/*>*/}
+                {/*    <div className='notArtwork'>*/}
+                {/*        <b className='font-size-xlg text-primary'>Hot auctions</b>*/}
+                {/*    </div>*/}
+                {/*    <Coverflow*/}
+                {/*        className='coverflow'*/}
+                {/*        width={960}*/}
+                {/*        height={550}*/}
+                {/*        displayQuantityOfSide={2}*/}
+                {/*        navigation={false}*/}
+                {/*        enableHeading={true}*/}
+                {/*        enableScroll={false}*/}
+                {/*    >*/}
+                {/*        {this.getHottest().map(hot => {*/}
+                {/*            // return <img style={{position: "relative"}} src={hot.artworkUrl} alt={hot.tokenName}*/}
+                {/*            //      data-action={getAuctionUrl(hot.boxId)}/>*/}
+                {/*            return <ArtworkMedia box={hot} height='100%' width='100%'*/}
+                {/*                                 avoidDetail={true}*/}
+                {/*                                 avoidFav={true}*/}
+                {/*                                 alt={hot.tokenName}*/}
+                {/*                                 data-action={getAuctionUrl(hot.boxId)}/>*/}
+                {/*        })}*/}
+                {/*        /!*data-action="http://tw.yahoo.com"/>*!/*/}
+                {/*    </Coverflow>*/}
+                {/*</div>}*/}
                 {!this.state.loading && <div>
                     <Row>
                         <Col className='text-right'>
