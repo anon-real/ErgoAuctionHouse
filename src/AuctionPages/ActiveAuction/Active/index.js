@@ -218,7 +218,7 @@ class ActiveAuctions extends React.Component {
     getToShow() {
         const auctions = this.state.allAuctions;
         const filtered = this.filterAuctions(auctions);
-        return this.sortAuctions(filtered).slice(0, this.state.end)
+        return this.sortAuctions(filtered)
     }
 
     getHottest() {
@@ -380,7 +380,7 @@ class ActiveAuctions extends React.Component {
                 ) : (
                     <div className="page-list-container">
                         <ShowAuctions
-                            auctions={this.getToShow()}
+                            auctions={this.getToShow().slice(0, this.state.end)}
                             updateParams={this.updateParams}
                         />
                     </div>
