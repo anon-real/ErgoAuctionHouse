@@ -265,7 +265,7 @@ export async function assembleFinishedAuctions(boxes) {
             const auctionFee = Math.floor((box.curBid * parseInt(dataInput.additionalRegisters.R4.renderedValue)) / 1000)
             const feeTo = Address.fromErgoTree(dataInput.additionalRegisters.R5.renderedValue).address;
             const artistFee = Math.floor((box.curBid * box.royalty) / 1000)
-            const minimalErg = 500000
+            const minimalErg = 400000
 
             let artBox = await boxById(box.assets[0].tokenId)
             const boxEncoded = await getEncodedBoxSer(artBox)
@@ -290,13 +290,13 @@ export async function assembleFinishedAuctions(boxes) {
                     address: box.seller,
                 };
                 feeBox = {
-                    value: auctionFee,
+                    value: auctionFee + 100000,
                     address: feeTo,
                     registers: {
                         R4: boxEncoded
                     },
                 };
-                sellerErg -= auctionFee
+                sellerErg -= auctionFee + 100000
 
                 artistFeeBox = {
                     value: artistFee + txFee,
