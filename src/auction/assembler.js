@@ -278,7 +278,7 @@ export async function assembleFinishedAuctions(boxes) {
                 }],
             };
             let artistAddr = null
-            if (!isP2pkAddr(artBox.ergoTree)) artistAddr = await getReturnAddr(artBox.address)
+            if (!isP2pkAddr(artBox.ergoTree) && artistFee > 0) artistAddr = await getReturnAddr(artBox.address)
 
             let seller = {}
             let feeBox = {}
