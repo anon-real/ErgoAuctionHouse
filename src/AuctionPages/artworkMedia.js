@@ -128,8 +128,15 @@ export default class ArtworkMedia extends React.Component {
                         }}
                     />
                 </div>}
-                {!box.isArtwork && <div className='notArtwork'>
-                    <b className='font-size-xlg text-grey'>This is not an artwork</b>
+                {!box.isArtwork && <div
+                    style={{cursor: 'pointer'}}
+                    onClick={() => {
+                        if (!this.props.avoidDetail) this.setState({artDetail: true})
+                    }}
+                    className='notArtwork'>
+                    <b className='font-size-xlg text-grey'>May not be an artwork</b>
+                    <br/>
+                    <text className='font-size-md text-grey'>Click to see details</text>
                 </div>}
             </div>
         );
