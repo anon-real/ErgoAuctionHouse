@@ -238,7 +238,7 @@ export function isJson(str) {
 
 export async function firstOrig(id) {
     try {
-        let res = await fetch(fakeURL + `?copiedTokenId=${id}&theshold=${fakeThreshold}&format=json`)
+        let res = await fetch(fakeURL + `?copiedTokenId=${id}&threshold=${fakeThreshold}&format=json`)
         res = await res.json()
         res = res.results
         if (res.length > 0) return res[0].originalNFT.token_id
