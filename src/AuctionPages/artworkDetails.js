@@ -77,6 +77,20 @@ export default class ArtworkDetails extends React.Component {
                                 </Clipboard>{' '}
                             </Col>
                         </Row>}
+                        <Row>
+                            <Col md="3">
+                                Token ID:
+                            </Col>
+                            <Col md="9">
+                                <Clipboard
+                                    component="b"
+                                    data-clipboard-text={this.props.box.assets[0].tokenId}
+                                    onSuccess={() => showMsg('Copied!')}
+                                >
+                                    {friendlyAddress(this.props.box.assets[0].tokenId, 15)}
+                                </Clipboard>{' '}
+                            </Col>
+                        </Row>
                         {this.props.box.artist && <Row>
                             <Col md="3">
                                 Artist Address:
