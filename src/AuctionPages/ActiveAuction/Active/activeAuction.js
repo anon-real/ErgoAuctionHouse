@@ -125,7 +125,8 @@ export default class ActiveAuction extends React.Component {
                                         <NavLink
                                             href={
                                                 '#/auction/specific/' +
-                                                this.props.box.boxId
+                                                    // this.props.box.boxId
+                                                (this.props.box.stableId? this.props.box.stableId : this.props.box.boxId)
                                             }
                                         >
                                             Link to Auction

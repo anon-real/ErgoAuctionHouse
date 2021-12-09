@@ -78,6 +78,9 @@ function resolveIpfs(url, isVideo = false) {
 }
 
 export async function decodeArtwork(box, tokenId, considerArtist = true) {
+    const res = await getIssuingBox(tokenId)
+    if (box === null)
+        box = res[0]
     let inf = await getNFTInfo(tokenId)
     if (inf !== undefined && considerArtist) {
         if (!inf.isArtwork) inf.type = 'other'
@@ -90,9 +93,6 @@ export async function decodeArtwork(box, tokenId, considerArtist = true) {
     }
     inf = {type: 'other'}
 
-    const res = await getIssuingBox(tokenId)
-    if (box === null)
-        box = res[0]
     inf.totalIssued = res[0].assets[0].amount
     if (Object.keys(res[0].additionalRegisters).length >= 5) {
         inf.isArtwork = true

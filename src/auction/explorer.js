@@ -52,8 +52,10 @@ export async function getAllActiveAuctions() {
     let idToNew = {}
     spending.forEach(s => {
         let curId = s.inputs[s.inputs.length - 1].boxId
-        if (idToNew[curId] === undefined || idToNew[curId].value < s.value)
+        if (idToNew[curId] === undefined || idToNew[curId].value < s.value) {
             idToNew[curId] = s.outputs[0]
+            idToNew[curId].stableId = curId
+        }
     })
     const all = auctionAddresses.map((addr) => getActiveAuctions(addr));
     return Promise.all(all)
