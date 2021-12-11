@@ -59,7 +59,7 @@ export const artworkTypes = {
 
 export const remFavNotif = 12
 
-export const fakeThreshold = 0.05
+export const fakeThreshold = 0.5
 export const fakeURL = 'https://ergolui.com/nft-check/nfthashcompares/'
 
 export const notifCoolOff = 40
