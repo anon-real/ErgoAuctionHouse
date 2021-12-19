@@ -55,6 +55,7 @@ export async function getAllActiveAuctions() {
         if (idToNew[curId] === undefined || idToNew[curId].value < s.value) {
             idToNew[curId] = s.outputs[0]
             idToNew[curId].stableId = curId
+            idToNew[curId].stableTxId = s.inputs[s.inputs.length - 1].outputTransactionId
         }
     })
     const all = auctionAddresses.map((addr) => getActiveAuctions(addr));
