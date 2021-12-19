@@ -93,7 +93,8 @@ class BidHistory extends React.Component {
                 loading: true,
                 remains: true,
             });
-            this.loadBids(this.props.box.transactionId, 10);
+            this.loadBids(this.props.box.stableId? this.props.box.stableTxId : this.props.box.transactionId, 10);
+            // this.loadBids(this.props.box.transactionId, 10);
         }
     }
 
