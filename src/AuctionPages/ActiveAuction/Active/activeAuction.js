@@ -14,6 +14,7 @@ import BidHistory from './bidHistory';
 import FooterSection from "../../footerSection";
 import 'react-h5-audio-player/lib/styles.css';
 import ArtworkMedia from "../../artworkMedia";
+import {textStyle} from "../../../assets/reactCss";
 
 const override = css`
   display: block;
@@ -174,7 +175,7 @@ export default class ActiveAuction extends React.Component {
                                 }}
                             >
                                 <p className="text-primary mr-2 ml-2">
-                                    <div className="text-truncate">{this.props.box.description}</div>
+                                    <div style={textStyle}>{this.props.box.description}</div>
                                     <b
                                         style={{cursor: "pointer"}}
                                         onClick={() => this.props.updateParams('artist', this.props.box.artist)}
