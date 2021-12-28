@@ -16,6 +16,8 @@ const override = css`
   margin: 0 auto;
 `;
 
+const maxLoad = 50
+
 class BidHistory extends React.Component {
     constructor(props) {
         super();
@@ -93,7 +95,9 @@ class BidHistory extends React.Component {
                 loading: true,
                 remains: true,
             });
-            this.loadBids(this.props.box.stableId? this.props.box.stableTxId : this.props.box.transactionId, 10);
+            let txId = this.props.box.stableId? this.props.box.stableTxId : this.props.box.transactionId
+            if (!txId) txId = this.props.box.outputTransactionId
+            this.loadBids(txId, maxLoad);
             // this.loadBids(this.props.box.transactionId, 10);
         }
     }
@@ -175,7 +179,7 @@ class BidHistory extends React.Component {
                                         place="right"
                                     />
                                     <div
-                                        data-tip="load 10 more bids"
+                                        data-tip={`load ${maxLoad} more bids`}
                                         id="loadMoreIcn"
                                         style={{
                                             display: 'flex',
@@ -195,7 +199,7 @@ class BidHistory extends React.Component {
                                                 });
                                                 this.loadBids(
                                                     this.state.nextTx,
-                                                    10
+                                                    maxLoad
                                                 );
                                             }}
                                             style={{

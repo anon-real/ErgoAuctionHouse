@@ -104,7 +104,7 @@ export default class HistoryBox extends React.Component {
                                     </NavItem>
                                     <NavItem>
                                         <NavLink
-                                            href={'#/auction/specific/' + this.props.box.id}
+                                            href={'#/auction/specific/' + this.props.box.boxId}
                                         >Go to Auction's specific Link</NavLink>
                                     </NavItem>
                                 </Nav>
