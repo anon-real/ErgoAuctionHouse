@@ -257,7 +257,7 @@ export default class HistoryBox extends React.Component {
                             <span>My Bids</span>
                         </Button>
                         <Button
-                            onClick={() => this.showTx(this.props.box.finalTx)}
+                            onClick={() => this.showTx(this.props.box.finalTx? this.props.box.finalTx : this.props.box.spentTransactionId)}
                             outline
                             className="btn-outline-light m-2 border-0"
                             color="primary"
