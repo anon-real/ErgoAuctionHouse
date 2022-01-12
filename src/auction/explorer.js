@@ -103,6 +103,7 @@ export async function followAuction(id) {
             cur = new_cur
         else break
     }
+    cur = await getRequest(`/boxes/${cur.id}`, explorerApiV1)
     return cur
 }
 
