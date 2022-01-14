@@ -9,15 +9,27 @@ import Main from './AuctionPages/Main';
 import configureStore from './config/configureStore';
 import {Provider} from 'react-redux';
 import {currentHeight, getBoxesForAsset,} from './auction/explorer';
-import {isNotifSupported, notifyMe, showMsg} from './auction/helpers';
+import {addNotification, getForKey, isNotifSupported, notifyMe, setForKey, showMsg} from './auction/helpers';
 import {handleAll, pendings} from "./auction/assembler";
 import {additionalData, auctionNFT} from "./auction/consts";
 
 const store = configureStore();
 const rootElement = document.getElementById('root');
 
+function handleUpdates() {
+    let updates = getForKey('newUpdates')
+    if (!updates.map(up => up.key).includes('luna')) {
+        updates = updates.concat([{
+            key: 'luna'
+        }])
+        setForKey(updates, 'newUpdates')
+        addNotification('LunaDog is now a supported currency in the ergo auction house.', 'https://explorer.ergoplatform.com/en/token/5a34d53ca483924b9a6aa0c771f11888881b516a8d1a9cdc535d063fe26d065e')
+    }
+}
+
 const renderApp = (Component) => {
     handleAll().then(res => {})
+    handleUpdates()
     setInterval(() => {
         handleAll().then(res => {})
     }, 60000);
