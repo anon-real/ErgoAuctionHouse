@@ -41,6 +41,13 @@ export const supportedCurrencies = {
         minSupported: 100,
         initial: 1,
     },
+    LunaDog: {
+        name: 'LunaDog',
+        id: '5a34d53ca483924b9a6aa0c771f11888881b516a8d1a9cdc535d063fe26d065e',
+        decimal: 8,
+        minSupported: 100000000,
+        initial: 1,
+    },
     kushti: {
         name: 'kushti',
         id: 'fbbaac7337d051c10fc3da0ccb864f4d32d40027551e1c3ea3ce361f39b91e40',
