@@ -23,7 +23,7 @@ function handleUpdates() {
             key: 'luna'
         }])
         setForKey(updates, 'newUpdates')
-        addNotification('LunaDog is now a supported currency in the ergo auction house.', 'https://explorer.ergoplatform.com/en/token/5a34d53ca483924b9a6aa0c771f11888881b516a8d1a9cdc535d063fe26d065e')
+        addNotification('LunaDog is now a supported currency in the ergo auction house', 'https://explorer.ergoplatform.com/en/token/5a34d53ca483924b9a6aa0c771f11888881b516a8d1a9cdc535d063fe26d065e')
     }
 }
 
