@@ -12,7 +12,7 @@ const template = `{
   val bidAmount = $bidAmountL
   val currencyId = fromBase64("$currencyId")
   val placeBid = {
-    INPUTS(INPUTS.size - 1).id == fromBase64("$auctionId") &&
+    INPUTS(INPUTS.size - 1).id == fromBase64("$auctionId") && OUTPUTS.size == 3 &&
       OUTPUTS(0).R5[Coll[Byte]].get == userAddress.propBytes && 
       ((currencyId.size == 0 && OUTPUTS(0).value == bidAmount) ||
          (OUTPUTS(0).tokens(1)._1 == currencyId && OUTPUTS(0).tokens(1)._2 == bidAmount))
