@@ -71,23 +71,23 @@ export default class ActiveAuction extends React.Component {
         let box = this.props.box;
         return (
             <Col key={box.id} xs="12" md="6" lg="6" xl="4">
-                <PlaceBidModal
-                    isOpen={this.state.bidModal}
-                    box={this.props.box}
-                    close={this.openBid}
-                    assemblerModal={this.props.assemblerModal}
-                />
-                <MyBidsModal
-                    isOpen={this.state.myBidsModal}
-                    box={this.props.box}
-                    close={this.openMyBids}
-                    highText="current active bid"
-                />
-                <BidHistory
-                    close={this.openDetails}
-                    box={this.props.box}
-                    isOpen={this.state.detailsModal}
-                />
+                {/*<PlaceBidModal*/}
+                {/*    isOpen={this.state.bidModal}*/}
+                {/*    box={this.props.box}*/}
+                {/*    close={this.openBid}*/}
+                {/*    assemblerModal={this.props.assemblerModal}*/}
+                {/*/>*/}
+                {/*<MyBidsModal*/}
+                {/*    isOpen={this.state.myBidsModal}*/}
+                {/*    box={this.props.box}*/}
+                {/*    close={this.openMyBids}*/}
+                {/*    highText="current active bid"*/}
+                {/*/>*/}
+                {/*<BidHistory*/}
+                {/*    close={this.openDetails}*/}
+                {/*    box={this.props.box}*/}
+                {/*    isOpen={this.state.detailsModal}*/}
+                {/*/>*/}
                 <div className="card mb-3 bg-white widget-chart" style={
                     {
                         'opacity': this.props.box.isFinished || this.state.loading ? 0.6 : 1
@@ -102,12 +102,12 @@ export default class ActiveAuction extends React.Component {
                         {(this.props.box.royalty > 0 || this.props.box.totalIssued > 1) &&
                         <Col className="text-truncate">
                             {this.props.box.royalty > 0 &&
-                            <i data-tip={`Includes ${this.props.box.royalty / 10}% royalty on secondary sales`} style={{fontSize: '12px'}}
-                               className="font-weight-light">{`${this.props.box.royalty / 10}% royalty`}</i>}
+                            <i data-tip={`Includes ${this.props.box.royalty * 100}% royalty on secondary sales`} style={{fontSize: '12px'}}
+                               className="font-weight-light">{`${this.props.box.royalty * 100}% royalty`}</i>}
                             {this.props.box.totalIssued > 1 &&
                             <i data-tip={`This is a Fungible Token with total issuance of ${this.props.box.totalIssued}`}
                                style={{fontSize: '12px'}}
-                               className="font-weight-light">{` - ${this.props.box.assets[0].amount} out of ${this.props.box.totalIssued}`}</i>}</Col>
+                               className="font-weight-light">{` - ${this.props.box.token.amount} out of ${this.props.box.totalIssued}`}</i>}</Col>
                         }
 
                     </Row>

@@ -21,12 +21,12 @@ export default class ArtworkMedia extends React.Component {
     favNFT() {
         if (this.props.box.isFav) {
             this.props.box.isFav = false
-            removeForKey('fav-artworks', this.props.box.assets[0].tokenId)
+            removeForKey('fav-artworks', this.props.box.token.id)
         } else {
             this.props.box.isFav = true
             addForKey({
-                asset: this.props.box.assets[0],
-                id: this.props.box.assets[0].tokenId,
+                asset: this.props.box.token,
+                id: this.props.box.token.id,
                 boxId: this.props.box.boxId
             }, 'fav-artworks')
         }
