@@ -1,18 +1,18 @@
 import React, {Fragment} from 'react';
 
 import PageTitle from '../../../Layout/AppMain/PageTitle';
-import {currentBlock, getCompleteAuctionHistory,} from '../../../auction/explorer';
+import {currentBlock2, getCompleteAuctionHistory,getAuctionHistory2} from '../../../auction/explorer';
 import PropagateLoader from 'react-spinners/PropagateLoader';
 import {css} from '@emotion/core';
 import {showMsg} from '../../../auction/helpers';
-import {decodeAuction} from '../../../auction/serializer';
+import {decodeAuction2} from '../../../auction/serializer';
 import {Row} from 'react-bootstrap';
 import {Button} from 'reactstrap';
 import {ResponsiveContainer} from 'recharts';
 import ShowHistories from "./showHistories";
 import {auctionAddress} from "../../../auction/consts";
 
-const pagination = 100;
+const pagination = 5;
 
 const override = css`
   display: block;
@@ -23,7 +23,7 @@ export default class AuctionsHistory extends React.Component {
     constructor() {
         super();
         this.state = {
-            offset: 0,
+            offset: 1,
             still: true,
             loading: true,
             boxes: [],
@@ -33,33 +33,29 @@ export default class AuctionsHistory extends React.Component {
     }
 
     async loadMore(show = false) {
-        const block = await currentBlock()
+        const block = await currentBlock2()
         if (this.state.still) {
             this.setState({loading: true});
-            getCompleteAuctionHistory(pagination, this.state.offset)
+            getAuctionHistory2(pagination, this.state.offset)
                 .then((res) => {
+                    console.log(res);
                     if (res.length < pagination) {
                         this.setState({still: false});
                         if (show)
                             showMsg('Complete auction history is loaded.');
                     }
-                    let boxes = res.filter((tx) => {
-                        return tx.outputs[0].address !== auctionAddress && tx.inputs[0].address === auctionAddress
-                    }).map(tx => {
-                        tx.inputs[0].spentTransactionId = tx.id
-                        return tx.inputs[0]
-                    })
-                        .map(bx => decodeAuction(bx, block));
+                    let boxes = res.map(bx => decodeAuction2(bx, block));
+                    console.log(boxes);
                     Promise.all(boxes).then((res) => {
                         res.forEach((box) => {
-                            box.finalTx = box.spentTransactionId;
+                            box.finalTx = box.transactionId;
                         });
                         return res;
                     })
                         .then((res) => {
                                 this.setState({
                                     boxes: this.state.boxes.concat(res),
-                                    offset: this.state.offset + pagination,
+                                    offset: this.state.offset + 1,
                                 })
                             }
                         )

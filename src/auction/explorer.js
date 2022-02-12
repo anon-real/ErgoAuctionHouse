@@ -89,6 +89,13 @@ export function getAuctionHistory(limit, offset, auctionAddr) {
         .then((res) => res.items);
 }
 
+export function getAuctionHistory2(limit, page) {
+    return getRequest(
+        `/auctions/all/?page=${page}&limit=${limit}&sort=des`, localApi
+    )
+        .then((res) => res.data);
+}
+
 export async function getCompleteAuctionHistory(limit, offset) {
     let allHistory = auctionAddresses.map(addr => getAuctionHistory(limit, offset, addr))
     return Promise.all(allHistory)

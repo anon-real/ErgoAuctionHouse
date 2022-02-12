@@ -90,7 +90,7 @@ export default class HistoryBox extends React.Component {
                     close={this.openMyBids}
                     highText='winner'
                 />
-                <BidHistory close={this.openDetails} box={this.props.box} isOpen={this.state.detailsModal}/>
+                {/*<BidHistory close={this.openDetails} box={this.props.box} isOpen={this.state.detailsModal}/>*/}
                 <div className="card mb-3 widget-chart">
                     <div className="widget-chart-actions">
                         <UncontrolledButtonDropdown direction='left'>
@@ -151,9 +151,9 @@ export default class HistoryBox extends React.Component {
                                 className="widget-subheading m-1"
                             >
                                 <span
-                                    data-tip={this.props.box.assets[0].tokenId}
+                                    data-tip={this.props.box.token.id}
                                 >
-                                    {friendlyToken(this.props.box.assets[0], true, 8)}
+                                    {friendlyToken(this.props.box.token, true, 8)}
                                 </span>
                                 <i
                                     onClick={() =>

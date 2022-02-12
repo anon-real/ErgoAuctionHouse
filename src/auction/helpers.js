@@ -14,9 +14,9 @@ export function friendlyToken(token, quantity = true, length = 13) {
     let res = '';
     if (quantity) res = token.amount + ' of ';
     res +=
-        token.tokenId.slice(0, length) +
+        token.id.slice(0, length) +
         '...' +
-        token.tokenId.slice(-length) +
+        token.id.slice(-length) +
         ' token';
     return res
 }
