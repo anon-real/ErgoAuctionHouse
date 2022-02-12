@@ -1,13 +1,13 @@
 import React, {Fragment} from 'react';
 
-import {currentBlock, currentHeight, followAuction,} from '../../../auction/explorer';
+import {currentBlock2, currentHeight, followAuction2,} from '../../../auction/explorer';
 import {isWalletSaved, showMsg,} from '../../../auction/helpers';
 import {css} from '@emotion/core';
 import PropagateLoader from 'react-spinners/PropagateLoader';
 import {Button,} from 'reactstrap';
 import cx from 'classnames';
 import TitleComponent2 from '../../../Layout/AppMain/PageTitleExamples/Variation2';
-import {decodeBoxes,} from '../../../auction/serializer';
+import {decodeBoxes2,} from '../../../auction/serializer';
 import NewAuctionAssembler from "./newAuctionAssembler";
 import ShowAuctions from "./showActives";
 import ShowHistories from "../../AuctionHistory/History/showHistories";
@@ -74,18 +74,19 @@ export default class SpecificAuctions extends React.Component {
     }
 
     refreshInfo(force = false, firstTime = false) {
+
         if (!force) {
             this.setState({lastUpdated: this.state.lastUpdated + 5});
             if (this.state.lastUpdated < 40) return;
         }
+
         this.setState({lastUpdated: 0});
-        currentBlock()
+        currentBlock2()
             .then((block) => {
                 this.setState({currentHeight: block.height});
-                followAuction(this.state.boxId)
-                    .then(res => [res])
+                followAuction2(this.state.boxId)
                     .then((boxes) => {
-                        decodeBoxes(boxes, block)
+                        decodeBoxes2([boxes], block)
                             .then((boxes) => {
                                 this.setState({
                                     auctions: boxes,
@@ -115,6 +116,7 @@ export default class SpecificAuctions extends React.Component {
 
     render() {
         function getBoxDis(auctions) {
+            console.log(auctions);
             if (auctions && auctions[0].spentTransactionId)
                 return <ShowHistories
                     boxes={auctions}
