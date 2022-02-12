@@ -242,6 +242,9 @@ export async function getArtist(bx) {
     return bx.address
 }
 export async function decodeAuction2(box, block) {
+    box.stableId = box.currentBidBoxId
+    box.stableTxId = box.transactionId
+
     if (box.bids.length>0) {
         box.bids.sort(function(a, b) {
             if (b.amount !== 0 && a.amount !== 0)
