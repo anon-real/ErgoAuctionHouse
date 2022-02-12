@@ -69,25 +69,26 @@ export default class ActiveAuction extends React.Component {
 
     render() {
         let box = this.props.box;
+        console.log(box);
         return (
             <Col key={box.id} xs="12" md="6" lg="6" xl="4">
-                {/*<PlaceBidModal*/}
-                {/*    isOpen={this.state.bidModal}*/}
-                {/*    box={this.props.box}*/}
-                {/*    close={this.openBid}*/}
-                {/*    assemblerModal={this.props.assemblerModal}*/}
-                {/*/>*/}
-                {/*<MyBidsModal*/}
-                {/*    isOpen={this.state.myBidsModal}*/}
-                {/*    box={this.props.box}*/}
-                {/*    close={this.openMyBids}*/}
-                {/*    highText="current active bid"*/}
-                {/*/>*/}
-                {/*<BidHistory*/}
-                {/*    close={this.openDetails}*/}
-                {/*    box={this.props.box}*/}
-                {/*    isOpen={this.state.detailsModal}*/}
-                {/*/>*/}
+                <PlaceBidModal
+                    isOpen={this.state.bidModal}
+                    box={this.props.box}
+                    close={this.openBid}
+                    assemblerModal={this.props.assemblerModal}
+                />
+                <MyBidsModal
+                    isOpen={this.state.myBidsModal}
+                    box={this.props.box}
+                    close={this.openMyBids}
+                    highText="current active bid"
+                />
+                <BidHistory
+                    close={this.openDetails}
+                    box={this.props.box}
+                    isOpen={this.state.detailsModal}
+                />
                 <div className="card mb-3 bg-white widget-chart" style={
                     {
                         'opacity': this.props.box.isFinished || this.state.loading ? 0.6 : 1
