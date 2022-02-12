@@ -69,7 +69,7 @@ export default class ActiveAuction extends React.Component {
 
     render() {
         let box = this.props.box;
-        console.log(box);
+        // console.log(box);
         return (
             <Col key={box.id} xs="12" md="6" lg="6" xl="4">
                 <PlaceBidModal

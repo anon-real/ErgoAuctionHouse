@@ -12,8 +12,8 @@ function getRequest(url, api = explorerApi) {
     return get(api + url).then(res => res.json())
 }
 
-export async function getAllActiveAuctions2(limit=-1) {
-    return getRequest(`/auctions/all/active?limit=${limit}`,localApi)
+export async function getAllActiveAuctions2(limit=-1,page=1) {
+    return getRequest(`/auctions/all/active?limit=${limit}&page=${page}`,localApi)
         .then(res => res)
 }
 
