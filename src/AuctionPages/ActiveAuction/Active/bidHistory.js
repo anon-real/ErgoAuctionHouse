@@ -10,6 +10,7 @@ import {ResponsiveContainer} from 'recharts';
 import ReactTooltip from 'react-tooltip';
 import {auctionAddress, auctionTrees} from "../../../auction/consts";
 import {longToCurrency} from "../../../auction/serializer";
+import { data } from 'autoprefixer';
 
 const override = css`
   display: block;
@@ -24,7 +25,6 @@ class BidHistory extends React.Component {
         this.state = {
             loading: false,
             remains: true,
-            nextTx: props.box.txId,
             data: {
                 bids: [],
                 labels: [],
@@ -38,50 +38,25 @@ class BidHistory extends React.Component {
         window.open(getTxUrl(txId), '_blank');
     }
 
-    loadBids(txId, toLoad) {
-        txById(txId)
-            .then((tx) => {
-                boxById(tx.inputs[tx.inputs.length - 1].id)
-                    .then((res) => {
-                        let time = moment(tx.summary.timestamp).format('lll');
-                        this.setState({
-                            data: {
-                                bids: [longToCurrency(this.props.box.numberOfAssets > 1 ? tx.outputs[0].assets[1].amount : tx.outputs[0].value, -1, this.props.box.currency)].concat(
-                                    this.state.data.bids
-                                ),
-                                labels: [time].concat(this.state.data.labels),
-                                txIds: [txId].concat(this.state.data.txIds),
-                            },
-                        });
+    loadBids(box) {
+        console.log(box);
+        let data = {
+            bids: [],
+            labels: [],
+            txIds: [],
+        }
+        box.bids.map((bid)=>{
+            let time = moment(bid.timeStamp).format('lll');
+            data.bids.push(longToCurrency(this.props.box.numberOfAssets > 1 ? bid.amount : bid.value, -1, this.props.box.currency))
+            data.labels.push(time)
+            data.txIds.push(bid.transactionId)
+        })
+        this.setState({
+            loading: false,
+            remains: false,
+            data
+        });
 
-                        if (auctionAddress !== res.address) {
-                            this.setState({
-                                loading: false,
-                                remains: false,
-                            });
-                        } else {
-                            this.setState({nextTx: res.txId});
-                            if (toLoad > 1) this.loadBids(res.txId, toLoad - 1);
-                            else {
-                                this.setState({
-                                    loading: false,
-                                });
-                            }
-                        }
-                    })
-                    .catch((_) => {
-                        showMsg(
-                            'Failed to load all bids history...',
-                            false,
-                            true
-                        );
-                        this.setState({loading: false});
-                    });
-            })
-            .catch((_) => {
-                showMsg('Failed to load all bids history...', false, true);
-                this.setState({loading: false});
-            });
     }
 
     componentWillReceiveProps(nextProps, nextContext) {
@@ -95,9 +70,9 @@ class BidHistory extends React.Component {
                 loading: true,
                 remains: true,
             });
-            let txId = this.props.box.stableId? this.props.box.stableTxId : this.props.box.transactionId
-            if (!txId) txId = this.props.box.outputTransactionId
-            this.loadBids(txId, maxLoad);
+            // let txId = this.props.box.stableId? this.props.box.stableTxId : this.props.box.transactionId
+            // if (!txId) txId = this.props.box.outputTransactionId
+            this.loadBids(this.props.box);
             // this.loadBids(this.props.box.transactionId, 10);
         }
     }
@@ -131,7 +106,7 @@ class BidHistory extends React.Component {
                     <ReactTooltip/>
                     <span className="fsize-1 text-muted">
                         Bid history of{' '}
-                        {friendlyToken(this.props.box.assets[0], false, 5)}.
+                        {friendlyToken(this.props.box.token, false, 5)}.
                         Click on bars to see transaction.
                     </span>
                 </ModalHeader>
@@ -192,22 +167,22 @@ class BidHistory extends React.Component {
                                             {this.state.data.txIds.length} Bids
                                             Are Loaded
                                         </span>
-                                        <i
-                                            onClick={() => {
-                                                this.setState({
-                                                    loading: true,
-                                                });
-                                                this.loadBids(
-                                                    this.state.nextTx,
-                                                    maxLoad
-                                                );
-                                            }}
-                                            style={{
-                                                fontSize: '1.5rem',
-                                                marginLeft: '5px',
-                                            }}
-                                            className="pe-7s-plus icon-gradient bg-night-sky"
-                                        />
+                                        {/*<i*/}
+                                        {/*    onClick={() => {*/}
+                                        {/*        this.setState({*/}
+                                        {/*            loading: true,*/}
+                                        {/*        });*/}
+                                        {/*        this.loadBids(*/}
+                                        {/*            this.state.nextTx,*/}
+                                        {/*            maxLoad*/}
+                                        {/*        );*/}
+                                        {/*    }}*/}
+                                        {/*    style={{*/}
+                                        {/*        fontSize: '1.5rem',*/}
+                                        {/*        marginLeft: '5px',*/}
+                                        {/*    }}*/}
+                                        {/*    className="pe-7s-plus icon-gradient bg-night-sky"*/}
+                                        {/*/>*/}
                                     </div>
                                 </div>
                             )}
