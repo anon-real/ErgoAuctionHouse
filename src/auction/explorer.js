@@ -127,6 +127,12 @@ export async function followAuction(id) {
     return cur
 }
 
+export async function followAuction2(id) {
+    return await getRequest(`/auctions/${id}`, localApi)
+
+}
+
+
 export function txByAddress(addr) {
     return getRequest(`/addresses/${addr}/transactions`)
         .then((res) => res.items);
