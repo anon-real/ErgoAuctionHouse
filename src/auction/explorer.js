@@ -17,6 +17,11 @@ export async function getAllActiveAuctions2(limit=-1,page=1,query="") {
         .then(res => res)
 }
 
+export async function getStatus(query="") {
+    return getRequest(`/auctions/getStatus?${query}`,localApi)
+        .then(res => res)
+}
+
 export async function currentHeight() {
     return getRequest('/blocks?limit=1')
         .then(res => {
