@@ -81,7 +81,7 @@ class ActiveAuctions extends React.Component {
             if (this.isBottom(wrappedElement)) {
                 if(this.state.lastEnd === this.state.end){
                     this.setState({end: this.state.end + 1})
-                    this.updateAuctions().then(auctions => {
+                    this.updateAuctions(this.state.type,this.state.searchValue).then(auctions => {
                         console.log(auctions);
                         let queries = parseQueries(this.props.location.search)
                         queries.allAuctions = this.state.allAuctions.concat(auctions)
@@ -108,6 +108,7 @@ class ActiveAuctions extends React.Component {
             pathname: '/auction/active',
             search: encodeQueries(queries)
         })
+
     }
 
     componentDidMount() {
@@ -124,7 +125,7 @@ class ActiveAuctions extends React.Component {
             const lastUpdated = this.state.lastUpdated
             let newLastUpdate = lastUpdated + 10
             if (lastUpdated > updatePeriod) {
-                this.updateAuctions().then(auctions => {
+                this.updateAuctions(this.state.type,this.state.searchValue).then(auctions => {
                     this.setState({allAuctions: auctions, lastUpdated: 0, loading: false})
                 })
             } else this.setState({lastUpdated: newLastUpdate})
@@ -133,7 +134,16 @@ class ActiveAuctions extends React.Component {
     }
 
     componentWillReceiveProps(nextProps, nextContext) {
-        this.setState(parseQueries(nextProps.location.search))
+        let queries = parseQueries(nextProps.location.search)
+        console.log(queries);
+        this.updateAuctions(queries.type,queries.searchValue).then(auctions => {
+            queries.allAuctions = auctions
+            queries.loading = false
+            queries.lastUpdated = 0
+            this.setState(queries)
+            assembleFinishedAuctions(auctions).then(r => {
+            })
+        });
     }
 
     componentWillUnmount() {
@@ -143,9 +153,9 @@ class ActiveAuctions extends React.Component {
         }
     }
 
-    async updateAuctions(type=this.state.type,searchValue=this.state.searchValue) {
+    async updateAuctions(type,searchValue) {
         // console.log(this.state.end);
-        console.log(this.sortAuctions2());
+        console.log(searchValue);
         const block = await currentBlock2()
         let boxes
         let auctions
@@ -153,7 +163,10 @@ class ActiveAuctions extends React.Component {
             boxes = [await followAuction2(this.state.boxId)]
             auctions = await decodeBoxes2(boxes, block)
         } else {
-            boxes = await getAllActiveAuctions2(limit,this.state.end,`${this.filterAuctions2(type)}&${this.sortAuctions2()}`)
+            if(searchValue)
+                boxes = await getAllActiveAuctions2(limit,this.state.end,`${this.filterAuctions2(type)}&${this.sortAuctions2()}&search=${searchValue}`)
+            else
+                boxes = await getAllActiveAuctions2(limit,this.state.end,`${this.filterAuctions2(type)}&${this.sortAuctions2()}`)
             boxes = boxes.data
             // console.log(await test());
             // console.log(boxes);
@@ -162,6 +175,7 @@ class ActiveAuctions extends React.Component {
             // auctions = auctions.data
             // console.log(auctions);
         }
+        // console.log(auctions);
 
         // console.log(auctions);
         return auctions
@@ -193,10 +207,10 @@ class ActiveAuctions extends React.Component {
     }
     filterAuctions2(type,forceType = null) {
         // const artist = this.state.artist
-        console.log(forceType);
+        // console.log(forceType);
         // console.log(type);
         if (forceType) type = forceType
-        console.log(type);
+        // console.log(type);
         // if (artist !== undefined) {
         //     auctions = auctions.filter(auc => artist.split(',').includes(auc.artist))
         // }
@@ -294,14 +308,16 @@ class ActiveAuctions extends React.Component {
     }
 
     calcValues(auctions) {
+        console.log(auctions);
         let values = {ERG: 0}
-        auctions.forEach(bx => {
-            if (bx.curBid >= bx.minBid) {
-                if (!Object.keys(values).includes(bx.currency))
-                    values[bx.currency] = 0
-                values[bx.currency] += bx.curBid
-            }
-        })
+        if(auctions)
+            auctions.forEach(bx => {
+                if (bx.curBid >= bx.minBid) {
+                    if (!Object.keys(values).includes(bx.currency))
+                        values[bx.currency] = 0
+                    values[bx.currency] += bx.curBid
+                }
+            })
         return values
     }
 
@@ -331,7 +347,7 @@ class ActiveAuctions extends React.Component {
     // }
 
     render() {
-        let values = this.calcValues(this.filterAuctions(this.state.allAuctions))
+        let values = this.calcValues(this.filterAuctions2(this.state.allAuctions))
         return (
             <Fragment>
                 <div className="app-page-title">

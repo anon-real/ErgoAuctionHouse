@@ -198,6 +198,8 @@ class Header extends React.Component {
                                                     value={this.state.searchValue}
                                                     onChange={(e) => {
                                                         this.setState({searchValue: e.target.value})
+                                                        this.updateParams('searchValue', e.target.value)
+
                                                     }}
                                                 />
                                                     <button className="search-icon-container" type="submit">
