@@ -18,12 +18,12 @@ const rootElement = document.getElementById('root');
 
 function handleUpdates() {
     let updates = getForKey('newUpdates')
-    if (!updates.map(up => up.key).includes('luna')) {
+    if (!updates.map(up => up.key).includes('twitter')) {
         updates = updates.concat([{
-            key: 'luna'
+            key: 'twitter'
         }])
         setForKey(updates, 'newUpdates')
-        addNotification('LunaDog is now a supported currency in the Ergo Auction House', 'https://explorer.ergoplatform.com/en/token/5a34d53ca483924b9a6aa0c771f11888881b516a8d1a9cdc535d063fe26d065e')
+        addNotification('We now have an official twitter account. Big things are planned, follow to stay tuned!', 'https://twitter.com/ErgoAuction')
     }
 }
 
