@@ -403,3 +403,7 @@ export async function returnFunds(fromAddress, toAddress) {
     if (res.txId !== undefined) return res.txId
     throw new Error()
 }
+export async function getAssemblerAddress() {
+    const res = await (await get(getUrl(assmUrl) + `/wallet`)).json()
+    return res.address
+}

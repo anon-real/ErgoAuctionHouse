@@ -17,7 +17,7 @@ const template = `{
       OUTPUTS(0).value == $ergAmountL &&
       OUTPUTS(0).propositionBytes == fromBase64("$toAddress") &&
       assetType == fromBase64("$artworkType") &&
-      artworkHash == fromBase64("$curHash")
+      artworkHash == fromBase64("$curHash") && HEIGHT < $height
     }
     val returnFunds = {
         val total = INPUTS.fold(0L, {(x:Long, b:Box) => x + b.value}) - 4000000
@@ -26,7 +26,7 @@ const template = `{
     sigmaProp(OUTPUTS.size == 2 && (outputOk || returnFunds) && HEIGHT < $timestampL)
 }`;
 
-export async function issueArtwork(name, description, quantity, royalty, hash, assetType, url, cover, modal) {
+export async function issueArtwork(height, name, description, quantity, royalty, hash, assetType, url, cover, modal, silent=false) {
     let outBox = {
         ergValue: txFee,
         amount: quantity,
@@ -43,7 +43,7 @@ export async function issueArtwork(name, description, quantity, royalty, hash, a
     outBox.registers.R9 = await encodeHex(Serializer.stringToHex(url))
     if (cover) outBox.registers.R9 = await colTuple(Serializer.stringToHex(url), Serializer.stringToHex(cover))
 
-    const address = (await getArtworkP2s(txFee, quantity, hash, assetType)).address
+    const address = (await getArtworkP2s(height, txFee, quantity, hash, assetType)).address
     let request = {
         address: address,
         returnTo: getWalletAddress(),
@@ -59,6 +59,8 @@ export async function issueArtwork(name, description, quantity, royalty, hash, a
     };
 
     const res = await follow(request)
+    res.address = address
+    if (silent) return res
     if (res.id === undefined)
         showMsg('Error while issuing artwork', true)
     else {
@@ -66,7 +68,7 @@ export async function issueArtwork(name, description, quantity, royalty, hash, a
             R4: await encodeNum(royalty * 10, true),
             R5: await encodeHex(new Address(getWalletAddress()).ergoTree),
         }
-        if (isYoroi()) {
+        if (isYoroi() && !silent) {
             const txId = await yoroiSendFunds({ERG: txFee * 2}, address, await currentBlock(), registers, false)
             if (txId !== undefined && txId.length > 0)
                 addNotification(`Your artwork "${name}" is being issued`, getTxUrl(txId))
@@ -103,7 +105,7 @@ export async function issueArtwork(name, description, quantity, royalty, hash, a
     }
 }
 
-async function getArtworkP2s(ergAmount, quantity, artworkHash, assetType) {
+async function getArtworkP2s(height, ergAmount, quantity, artworkHash, assetType) {
     let ourAddr = getWalletAddress();
 
     let userTreeHex = new Address(ourAddr).ergoTree
@@ -119,6 +121,7 @@ async function getArtworkP2s(ergAmount, quantity, artworkHash, assetType) {
         .replace('$artworkType', encodedAssetType)
         .replace('$curHash', artworkHash64)
         .replace('$issueAmount', quantity)
+        .replace('$height', height)
         .replace('$timestamp', moment().valueOf())
         .replaceAll('\n', '\\n');
     return p2s(script);
@@ -133,7 +136,7 @@ async function getIntermediateArtworkP2s(royalty, artistAddr, address) {
       OUTPUTS(0).R4[Int].get == ${royalty} &&
       OUTPUTS(0).R5[Coll[Byte]].get == fromBase64("${artistTree}") &&
       OUTPUTS(0).propositionBytes == fromBase64("${p2sAddr}") &&
-      OUTPUTS.size == 2
+      OUTPUTS.size == 2 && HEIGHT < ${moment().valueOf()}L
     }`
     return p2s(script);
 }

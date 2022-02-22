@@ -1,5 +1,5 @@
 import React, {Fragment} from 'react';
-import {Button, FormText, Input, Label, Modal, ModalBody, ModalFooter} from "reactstrap";
+import {Button, Col, FormText, Input, Label, Modal, ModalBody, ModalFooter, Progress, Row} from "reactstrap";
 import BeatLoader from "react-spinners/BeatLoader";
 import FormGroup from "react-bootstrap/lib/FormGroup";
 import InputGroup from "react-bootstrap/lib/InputGroup";
@@ -11,20 +11,26 @@ import ModalHeader from "react-bootstrap/lib/ModalHeader";
 import {uploadArtwork} from "../../auction/helpers";
 import {artworkTypes} from "../../auction/consts";
 import {issueArtwork} from "../../auction/issueArtworkAssm";
-import { Range } from 'react-range';
+import {Range} from 'react-range';
 import {currentHeight} from "../../auction/explorer";
+import {distribute} from "../../auction/distributeAssm";
 
-export default class NewArtwork extends React.Component {
+export default class MassMint extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            progress: 0,
             loading: false,
             checksum: null,
             description: "",
             name: "",
             quantity: 1,
-            values: [2]
+            values: [2],
+            files: [],
+            info: {}
         };
+
+        this.info = {}
 
         this.issue = this.issue.bind(this);
         this.okToIssue = this.okToIssue.bind(this);
@@ -33,21 +39,34 @@ export default class NewArtwork extends React.Component {
     }
 
     okToIssue() {
-        return !this.state.loading && this.state.checksum !== null && this.state.name.length && parseInt(this.state.quantity) >= 1
+        return !this.state.loading && this.state.files.length > 0
     }
 
     async issue() {
-        this.setState({loading: true})
-        const height = await currentHeight() + 720
-        const type = artworkTypes[this.getFileType(this.state.file)]
-        const cid = await uploadArtwork(this.state.file)
-        let cover = null
-        if (this.getFileType(this.state.file) === 'audio' && this.state.audioCover)
-            cover = await uploadArtwork(this.state.audioCover)
-        await issueArtwork(height, this.state.name, this.state.description, parseInt(this.state.quantity), this.state.values[0],
-            this.state.checksum, type, cid, cover, this.props.sendModal)
+        this.setState({loading: true, progress: 0})
+        const height = await currentHeight()
+        let addresses = []
+        for (let i = 0; i < this.state.files.length; i++) {
+            const file = this.state.files[i]
+            const hash = file.hash
+            const name = this.info[hash].name
+            const description = this.info[hash].description
+            const quantity = parseInt(this.info[hash].quantity)
+            const royalty = parseInt(this.info[hash].royalty)
+            const type = artworkTypes[this.getFileType(file)]
+            const cid = await uploadArtwork(file)
+            const res = await issueArtwork(height, name, description, quantity, royalty,
+                hash, type, cid, null, this.props.sendModal, true)
+            addresses = addresses.concat([{
+                address: res.address,
+                royalty: royalty
+            }])
+            this.setState({progress: ((i + 1) / this.state.files.length) * 100})
+        }
+        await distribute(addresses, this.props.sendModal)
         this.setState({loading: false})
         this.props.close()
+
     }
 
     getFileType(file) {
@@ -68,32 +87,125 @@ export default class NewArtwork extends React.Component {
         this.setState({loading: false, checksum: checksum, file: file})
     }
 
-    hashFile(file) {
+    readFileAsync(file) {
+        return new Promise((resolve, reject) => {
+            let reader = new FileReader();
+            reader.onload = () => {
+                resolve(reader.result);
+            };
+            reader.onerror = reject;
+            reader.readAsArrayBuffer(file);
+        })
+    }
+
+    async hashFile(file) {
+        return sha256(await this.readFileAsync(file))
+    }
+
+    async handleFiles(fs) {
         this.setState({loading: true})
-        let reader = new FileReader()
-        let setCS = this.setFileChecksum
-        reader.onload = function (e) {
-            let checksum = sha256(e.target.result)
-            setCS(checksum, file)
-        }
-        reader.readAsArrayBuffer(file)
+        for (let i = 0; i < fs.length; i++)
+            fs[i].hash = await this.hashFile(fs[i])
+        this.setState({loading: false, files: fs})
     }
 
     render() {
         return (
             <Fragment>
                 <Modal
-                    size="md"
+                    size="lg"
                     isOpen={this.props.isOpen}
-                    toggle={() => this.props.close()}
+                    // toggle={() => this.props.close()}
                 >
                     <ModalHeader toggle={this.props.close}>
                         <span className="fsize-1 text-muted">
-                        Creating new item
+                        Mass minting artworks - up to 100 NFTs
                     </span>
                     </ModalHeader>
                     <ModalBody>
-                        <div
+                        {this.state.next && <div
+                            style={{
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                            }}
+                        >
+                            <div
+                                style={{
+                                    height: "500px",
+                                    overflow: 'scroll'
+                                }}
+                            >
+                                {this.state.files.map(f => {
+                                    return <Row
+                                        className="imgDivMint"
+                                    >
+                                        <Col md={5}>
+                                            <img
+                                                style={{height: "180px", maxHeight: "150px"}}
+                                                src={URL.createObjectURL(f)}/>
+                                        </Col>
+
+                                        <Col md={7}>
+                                            <Row style={{margin: '5px'}}>
+                                                <Col>
+                                                    <FormText>
+                                                        Name
+                                                    </FormText>
+                                                    <Input
+                                                        defaultValue={this.state.name}
+                                                        onChange={(e) => {
+                                                            this.info[f.hash].name = e.target.value
+                                                        }}
+                                                    />
+                                                </Col>
+                                                <Col>
+                                                    <FormText>
+                                                        Quantity
+                                                    </FormText>
+                                                    <Input
+                                                        type="number"
+                                                        defaultValue={this.state.quantity}
+                                                        onChange={(e) => {
+                                                            let state = {}
+                                                            this.info[f.hash].quantity = e.target.value
+                                                        }}
+                                                    />
+                                                </Col>
+                                            </Row>
+                                            <Row style={{margin: '5px'}}>
+                                                <Col md={4}>
+                                                    <FormText>
+                                                        Royalty Percentage
+                                                    </FormText>
+                                                    <Input
+                                                        defaultValue={this.state.values[0]}
+                                                        onChange={(e) => {
+                                                            let state = {}
+                                                            this.info[f.hash].royalty = e.target.value
+                                                            console.log('here')
+                                                        }}
+                                                    />
+                                                </Col>
+                                                <Col>
+                                                    <FormText>
+                                                        Description
+                                                    </FormText>
+                                                    <Input
+                                                        type="textarea"
+                                                        defaultValue={this.state.description}
+                                                        onChange={(e) => {
+                                                            this.info[f.hash].description = e.target.value
+                                                        }}
+                                                    />
+                                                </Col>
+                                            </Row>
+                                        </Col>
+                                    </Row>
+                                })}
+                            </div>
+                        </div>}
+
+                        {!this.state.next && <div
                             style={{
                                 display: 'flex',
                                 justifyContent: 'center',
@@ -103,16 +215,17 @@ export default class NewArtwork extends React.Component {
                             <fieldset disabled={this.state.loading}>
                                 <Form>
                                     <FormGroup>
-                                        <Label for="tokenName">Select the Artwork *</Label>
+                                        <Label for="tokenName">Select artworks *</Label>
                                         <InputGroup>
                                             {/*<Basic/>*/}
                                             {/*<ImageAudioVideo/>*/}
                                             <Dropzone onDrop={(f) => {
-                                                this.hashFile(f[0])
+                                                // this.hashFile(f[0])
+                                                this.handleFiles(f)
                                             }}
-                                                      accept="image/*,audio/*,video/*"
-                                                      multiple={false}
-                                                      inputContent={(files, extra) => (extra.reject ? 'Image, audio and video files only' : 'Drag Files')}
+                                                      accept="image/*,video/*"
+                                                      multiple={true}
+                                                      inputContent={(files, extra) => (extra.reject ? 'Select all artworks you want to mint at once (pictures and videos are supported)' : 'Drag Files')}
                                                       styles={{
                                                           dropzoneReject: {borderColor: 'red', backgroundColor: '#DAA'},
                                                           inputLabel: (files, extra) => (extra.reject ? {color: 'red'} : {}),
@@ -121,13 +234,14 @@ export default class NewArtwork extends React.Component {
                                                 {({getRootProps, getInputProps}) => (
                                                     <div {...getRootProps({className: "dropzone"})}>
                                                         <input {...getInputProps()} />
-                                                        <p>drag & drop file or browse the artwork on your device</p>
+                                                        <p>drag & drop artworks or browse artworks on your device</p>
                                                     </div>
                                                 )}
                                             </Dropzone>
                                         </InputGroup>
-                                        <FormText>{this.state.file ? this.state.file.name : 'select your artwork file (picture, video or audio)'}
-                                            <b>{this.state.file ? ' - ' + this.getFileType(this.state.file) + ' artwork' : ''}</b>
+                                        <FormText>
+                                            select all your artworks (pictures anb videos)
+                                            - {this.state.files.length} artworks selected
                                         </FormText>
 
                                     </FormGroup>
@@ -151,7 +265,7 @@ export default class NewArtwork extends React.Component {
 
                                     </FormGroup>}
                                     <FormGroup>
-                                        <Label for="tokenName">Quantity*</Label>
+                                        <Label for="tokenName">Default Quantity*</Label>
                                         <InputGroup>
                                             <Input
                                                 type="number"
@@ -168,7 +282,7 @@ export default class NewArtwork extends React.Component {
                                         </FormText>
                                     </FormGroup>
                                     <FormGroup>
-                                        <Label for="tokenName">Name*</Label>
+                                        <Label for="tokenName">Default Name*</Label>
                                         <InputGroup>
                                             <Input
                                                 value={this.state.name}
@@ -181,7 +295,7 @@ export default class NewArtwork extends React.Component {
                                         <FormText>artwork name</FormText>
                                     </FormGroup>
                                     <FormGroup>
-                                        <Label for="description">Description</Label>
+                                        <Label for="description">Default Description</Label>
                                         <InputGroup>
                                             <Input
                                                 type="textarea"
@@ -197,15 +311,15 @@ export default class NewArtwork extends React.Component {
                                     </FormGroup>
 
                                     <FormGroup>
-                                        <Label className="mb-3" for="tokenName">Royalty Percentage*</Label>
+                                        <Label className="mb-3" for="tokenName">Default Royalty Percentage*</Label>
                                         <InputGroup className="mb-2">
                                             <Range
                                                 step={1}
                                                 min={0}
                                                 max={10}
                                                 values={this.state.values}
-                                                onChange={(values) => this.setState({ values })}
-                                                renderTrack={({ props, children }) => (
+                                                onChange={(values) => this.setState({values})}
+                                                renderTrack={({props, children}) => (
                                                     <div
                                                         {...props}
                                                         style={{
@@ -218,7 +332,7 @@ export default class NewArtwork extends React.Component {
                                                         {children}
                                                     </div>
                                                 )}
-                                                renderThumb={({ props }) => (
+                                                renderThumb={({props}) => (
                                                     <div
                                                         {...props}
                                                         style={{
@@ -231,12 +345,14 @@ export default class NewArtwork extends React.Component {
                                                 )}
                                             />
                                         </InputGroup>
-                                        <FormText>You will receive {this.state.values[0]}% share on secondary sales</FormText>
+                                        <FormText>You will receive {this.state.values[0]}% share on secondary
+                                            sales</FormText>
                                     </FormGroup>
                                 </Form>
                             </fieldset>
 
-                        </div>
+                        </div>}
+                        {this.state.next && <Progress color="info" value={this.state.progress}/> }
                     </ModalBody>
                     <ModalFooter>
                         <BeatLoader
@@ -252,14 +368,36 @@ export default class NewArtwork extends React.Component {
                         >
                             Cancel
                         </Button>
-                        <Button
+                        {this.state.next && <Button
+                            className="ml mr-2 btn-transition"
+                            color="secondary"
+                            disabled={this.state.loading}
+                            onClick={() => {
+                                this.issue()
+                            }}
+                        >
+                            Issue
+                        </Button>}
+                        {!this.state.next && <Button
                             className="mr-2 btn-transition"
                             color="secondary"
                             disabled={!this.okToIssue()}
-                            onClick={this.issue}
+                            onClick={() => {
+                                let state = {next: true}
+                                for (let i = 0; i < this.state.files.length; i++) {
+                                    let f = this.state.files[i]
+                                    this.info[f.hash] = {
+                                        name: this.state.name,
+                                        description: this.state.description,
+                                        quantity: this.state.quantity,
+                                        royalty: this.state.values[0],
+                                    }
+                                }
+                                this.setState(state)
+                            }}
                         >
-                            Issue
-                        </Button>
+                            Next
+                        </Button>}
                     </ModalFooter>
                 </Modal>
             </Fragment>

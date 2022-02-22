@@ -266,3 +266,13 @@ export function encodeQueries(queries) {
     return Object.keys(queries).filter(key => queries[key]).map(key => `${key}=${queries[key]}`).join('&')
 }
 
+const saveFile = async (content, fname) => {
+    const blob = new Blob([JSON.stringify(content, null, 2)], {type : 'application/json'});
+    const a = document.createElement('a');
+    a.download = fname;
+    a.href = URL.createObjectURL(blob);
+    a.addEventListener('click', (e) => {
+        setTimeout(() => URL.revokeObjectURL(a.href), 30 * 1000);
+    });
+    a.click();
+};

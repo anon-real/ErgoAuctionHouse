@@ -16930,6 +16930,17 @@ a.badge-alternate:hover, a.badge-alternate:focus {
     justify-content: center;
 }
 
+.imgDivMint {
+    height: 200px;
+    border-radius: 8px;
+    overflow: scroll;
+    box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.08);
+    /*display: flex;*/
+    position: relative;
+    background: #f9f9f9;
+    /*justify-content: center;*/
+}
+
 
 svg {
     display: block;

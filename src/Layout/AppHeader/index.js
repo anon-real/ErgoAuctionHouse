@@ -23,6 +23,7 @@ import {encodeQueries, isWalletSaved, parseQueries, showMsg} from "../../auction
 import NewAuctionAssembler from "../../AuctionPages/ActiveAuction/Active/newAuctionAssembler";
 import SendModal from "../../AuctionPages/ActiveAuction/Active/sendModal";
 import NewArtwork from "../../AuctionPages/Owned/newArtwork";
+import MassMint from "../../AuctionPages/Owned/massMint";
 import {withRouter} from "react-router-dom";
 import Refund from "../../AuctionPages/refund";
 
@@ -131,7 +132,7 @@ class Header extends React.Component {
                     close={() => this.setState({refund: false})}
                 />
 
-                <NewArtwork
+                <MassMint
                     sendModal={this.toggleAssemblerModal}
                     isOpen={this.state.newArtworkModal}
                     close={() => this.setState({newArtworkModal: !this.state.newArtworkModal})}/>
