@@ -86,7 +86,7 @@ export default class PlaceBidModal extends React.Component {
                     <ModalHeader toggle={this.props.close}>
                         <span className="fsize-1 text-muted">
                             New bid for{' '}
-                            {friendlyToken(this.props.box.assets[0], false, 5)}
+                            {friendlyToken(this.props.box.token, false, 5)}
                         </span>
                     </ModalHeader>
                     <ModalBody>
