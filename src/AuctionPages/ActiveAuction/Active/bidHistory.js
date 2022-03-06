@@ -46,7 +46,7 @@ class BidHistory extends React.Component {
                         let time = moment(tx.summary.timestamp).format('lll');
                         this.setState({
                             data: {
-                                bids: [longToCurrency(this.props.box.assets.length > 1 ? tx.outputs[0].assets[1].amount : tx.outputs[0].value, -1, this.props.box.currency)].concat(
+                                bids: [longToCurrency(this.props.box.numberOfAssets > 1 ? tx.outputs[0].assets[1].amount : tx.outputs[0].value, -1, this.props.box.currency)].concat(
                                     this.state.data.bids
                                 ),
                                 labels: [time].concat(this.state.data.labels),

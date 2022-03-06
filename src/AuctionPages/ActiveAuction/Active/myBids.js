@@ -17,8 +17,8 @@ export default class MyBidsModal extends React.Component {
         this.state = {
             curBids: getMyBids().filter((bid) => {
                 return (
-                    bid.token.tokenId === props.box.assets[0].tokenId &&
-                    bid.token.amount === props.box.assets[0].amount
+                    bid.token.tokenId === props.box.token.id &&
+                    bid.token.amount === props.box.token.amount
                 );
             }),
         };
@@ -28,8 +28,8 @@ export default class MyBidsModal extends React.Component {
         this.state = {
             curBids: getMyBids().filter((bid) => {
                 return (
-                    bid.token.tokenId === this.props.box.assets[0].tokenId &&
-                    bid.token.amount === this.props.box.assets[0].amount
+                    bid.token.tokenId === this.props.box.token.id &&
+                    bid.token.amount === this.props.box.token.amount
                 );
             }),
         };
@@ -46,7 +46,7 @@ export default class MyBidsModal extends React.Component {
                 <ModalHeader toggle={this.props.close}>
                     <span className="fsize-1 text-muted">
                         Bids for{' '}
-                        {friendlyToken(this.props.box.assets[0], false, 5)}.
+                        {friendlyToken(this.props.box.token, false, 5)}.
                         Statuses will get updated automatically.
                     </span>
                 </ModalHeader>
