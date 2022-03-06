@@ -1,6 +1,6 @@
 import React, {Fragment} from 'react';
 
-import {currentBlock2, followAuction, getAllActiveAuctions,getAllActiveAuctions2} from '../../../auction/explorer';
+import {currentBlock2, followAuction2, getAllActiveAuctions,getAllActiveAuctions2} from '../../../auction/explorer';
 import {
     encodeQueries,
     friendlyAddress,
@@ -127,7 +127,7 @@ class ActiveAuctions extends React.Component {
         let boxes
         let auctions
         if (this.state.specific) {
-            boxes = [await followAuction(this.state.boxId)]
+            boxes = [await followAuction2(this.state.boxId)]
             auctions = await decodeBoxes2(boxes, block)
         } else {
             boxes = await getAllActiveAuctions2()
