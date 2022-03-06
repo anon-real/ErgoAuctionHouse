@@ -121,7 +121,10 @@ export async function followAuction(id) {
     cur = await getRequest(`/boxes/${cur.id}`, explorerApiV1)
     return cur
 }
+export async function followAuction2(id) {
+    return await getRequest(`/auctions/${id}`, localApi)
 
+}
 export function txByAddress(addr) {
     return getRequest(`/addresses/${addr}/transactions`)
         .then((res) => res.items);
