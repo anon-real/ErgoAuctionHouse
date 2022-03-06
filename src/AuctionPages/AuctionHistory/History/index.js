@@ -12,7 +12,7 @@ import {ResponsiveContainer} from 'recharts';
 import ShowHistories from "./showHistories";
 import {auctionAddress} from "../../../auction/consts";
 
-const pagination = 5;
+const pagination = 200;
 
 const override = css`
   display: block;
