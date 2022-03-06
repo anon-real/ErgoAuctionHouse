@@ -19,6 +19,7 @@ import {decodeBoxes, longToCurrency,decodeBoxes2} from '../../../auction/seriali
 import ShowAuctions from "./showActives";
 import {withRouter} from 'react-router-dom';
 import ArtworkMedia from "../../artworkMedia";
+import { last } from 'chroma-js/src/utils';
 
 const Coverflow = require('react-coverflow');
 
@@ -53,11 +54,12 @@ class ActiveAuctions extends React.Component {
             loading: true,
             allAuctions: [],
             sortKey: '0',
-            end: limit,
+            end: 1,
             values: [],
             lastLoaded: [],
             lastUpdated: 0,
             searchValue: '',
+            lastEnd: 1
         };
         this.sortAuctions = this.sortAuctions.bind(this);
         this.filterAuctions = this.filterAuctions.bind(this);
@@ -75,7 +77,21 @@ class ActiveAuctions extends React.Component {
         if (!this.state.loading && document.getElementsByClassName('page-list-container') !== undefined) {
             const wrappedElement = document.getElementsByClassName('page-list-container')[0]
             if (this.isBottom(wrappedElement)) {
-                this.setState({end: this.state.end + limit})
+                if(this.state.lastEnd === this.state.end){
+                    this.setState({end: this.state.end + 1})
+                    this.updateAuctions().then(auctions => {
+                        console.log(auctions);
+                        let queries = parseQueries(this.props.location.search)
+                        queries.allAuctions = this.state.allAuctions.concat(auctions)
+                        queries.loading = false
+                        queries.lastUpdated = 0
+                        this.setState({lastEnd:this.state.lastEnd+1})
+                        this.setState(queries)
+                        assembleFinishedAuctions(auctions).then(r => {
+                        })
+                    })
+                }
+
             }
         }
     };
@@ -130,7 +146,7 @@ class ActiveAuctions extends React.Component {
             boxes = [await followAuction2(this.state.boxId)]
             auctions = await decodeBoxes2(boxes, block)
         } else {
-            boxes = await getAllActiveAuctions2()
+            boxes = await getAllActiveAuctions2(limit,this.state.end)
             boxes = boxes.data
             // console.log(await test());
             // console.log(boxes);
@@ -389,7 +405,7 @@ class ActiveAuctions extends React.Component {
                 ) : (
                     <div className="page-list-container">
                         <ShowAuctions
-                            auctions={this.getToShow().slice(0, this.state.end)}
+                            auctions={this.getToShow()}
                             updateParams={this.updateParams}
                         />
                     </div>
