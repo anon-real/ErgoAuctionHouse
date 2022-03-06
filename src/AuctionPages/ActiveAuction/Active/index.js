@@ -1,6 +1,6 @@
 import React, {Fragment} from 'react';
 
-import {currentBlock, followAuction, getAllActiveAuctions,} from '../../../auction/explorer';
+import {currentBlock2, followAuction, getAllActiveAuctions,getAllActiveAuctions2} from '../../../auction/explorer';
 import {
     encodeQueries,
     friendlyAddress,
@@ -15,7 +15,7 @@ import {assembleFinishedAuctions} from "../../../auction/assembler";
 import {Col, DropdownItem, DropdownMenu, DropdownToggle, Row, UncontrolledButtonDropdown,} from 'reactstrap';
 import cx from 'classnames';
 import TitleComponent2 from '../../../Layout/AppMain/PageTitleExamples/Variation2';
-import {decodeBoxes, longToCurrency,} from '../../../auction/serializer';
+import {decodeBoxes, longToCurrency,decodeBoxes2} from '../../../auction/serializer';
 import ShowAuctions from "./showActives";
 import {withRouter} from 'react-router-dom';
 import ArtworkMedia from "../../artworkMedia";
@@ -123,14 +123,23 @@ class ActiveAuctions extends React.Component {
     }
 
     async updateAuctions() {
-        const block = await currentBlock()
+        const block = await currentBlock2()
         let boxes
+        let auctions
         if (this.state.specific) {
             boxes = [await followAuction(this.state.boxId)]
+            auctions = await decodeBoxes2(boxes, block)
         } else {
-            boxes = await getAllActiveAuctions()
+            boxes = await getAllActiveAuctions2()
+            boxes = boxes.data
+            // console.log(await test());
+            // console.log(boxes);
+            auctions = await decodeBoxes2(boxes, block)
+            // auctions = await test();
+            // auctions = auctions.data
+            // console.log(auctions);
         }
-        const auctions = await decodeBoxes(boxes, block)
+
         return auctions
     }
 

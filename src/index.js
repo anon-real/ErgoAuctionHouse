@@ -27,8 +27,8 @@ function handleUpdates() {
     }
 }
 
-const renderApp = (Component) => {
-    handleAll().then(res => {})
+const renderApp = async (Component) => {
+    await handleAll().then(res => {})
     handleUpdates()
     setInterval(() => {
         handleAll().then(res => {})

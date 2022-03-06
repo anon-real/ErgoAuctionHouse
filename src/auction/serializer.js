@@ -76,7 +76,64 @@ function resolveIpfs(url, isVideo = false) {
         return url.replace(ipfsPrefix, 'https://cloudflare-ipfs.com/ipfs/')
     }
 }
+export async function decodeArtwork2(box, considerArtist = true) {
 
+    let inf = {type: 'other'}
+
+    inf.totalIssued = box.token.amount
+    inf.isArtwork = true
+    inf.artHash = "dont have"
+    inf.artCode = box.token.artwork.type
+    inf.tokenName = box.token.name
+    inf.tokenDescription = box.token.description
+    inf.artworkUrl = (box.token.artwork.url.slice(0,9) === 'artworks/') ? `http://localhost:3001/${box.token.artwork.url}` : box.token.artwork.url;
+
+
+    if (inf.isArtwork) {
+        try {
+            // || inf.artCode === "0e0430313031"
+            if (inf.artCode === "0101") {
+                inf.isPicture = true
+                inf.type = 'picture'
+            } else if (inf.artCode === '0102') {
+                inf.isAudio = true
+                inf.type = 'audio'
+            } else if (inf.artCode === '0103') {
+                inf.isVideo = true
+                inf.type = 'video'
+            } else {
+                inf.isArtwork = false
+                inf.type = 'other'
+            }
+            if (inf.isAudio) {
+                inf.audioUrl = inf.artworkUrl
+
+            }
+        } catch (e) {
+            inf.isArtwork = false
+        }
+
+    } else {
+        if (inf.tokenName) {
+            inf.tokenName = await decodeStr(inf.tokenName)
+        }
+        if (inf.tokenDescription) {
+            inf.tokenDescription = await decodeStr(inf.tokenDescription)
+        }
+    }
+
+    if (considerArtist) {
+        inf.royalty = box.token.artwork.royalty
+        inf.artist = box.token.artwork.artist.id
+    }
+    if (considerArtist) {
+        inf.NFTID = box.token.id
+        // addNFTInfo(inf).then((d) => console.log(d))
+        //     .catch((e) => console.error(e))
+    }
+
+    return {...box, ...inf}
+}
 export async function decodeArtwork(box, tokenId, considerArtist = true) {
     const res = await getIssuingBox(tokenId)
     if (box === null)
@@ -183,7 +240,52 @@ export async function getArtist(bx) {
     }
     return bx.address
 }
+export async function decodeAuction2(box, block) {
+    if (box.bids.length>0) {
+        box.bids.sort(function(a, b) {
+            if (b.amount !== 0 && a.amount !== 0)
+                return b.amount - a.amount
+            else
+                return b.value - a.value
+        })
+        box.bidder = box.bids[0]["id"]
+        box.currency = box.bids[0].name
+        box.curBid = box.bids[0].value
+    }
+    else {
+        box.bidder = '-'
+        box.currency = 'ERG'
+        box.curBid = box.initialBid
+    }
+    box.step = box.minStep
 
+    box.instantAmount = box.buyNowAmount
+
+    if (box.description.length === 0) box.description = '-'
+
+    box.remTime = Math.max(box.endTime - block.timestamp, 0);
+    box.remTime = moment.duration(box.remTime, 'milliseconds').format("w [weeks], d [days], h [hours], m [minutes]", {
+        largest: 2,
+        trim: true
+    })
+    box.remTimeTimestamp = box.endTime - block.timestamp
+    box.done = ((moment().valueOf() - box.startTime) / (box.endTime - box.startTime)) * 100;
+    box.nextBid = box.curBid + box.step
+    if (box.curBid < box.minBid) box.nextBid = box.minBid
+    if (box.curBid < box.minBid) box.increase = 0
+    else box.increase = (((box.curBid - box.minBid) / box.minBid) * 100).toFixed(1);
+
+    box.loader = false;
+
+    box.isFinished = box.remTime === "0 minutes"
+    if (box.instantAmount !== -1 && box.curBid >= box.instantAmount)
+        box.isFinished = true
+
+
+    box = await decodeArtwork2(box)
+
+    return box
+}
 export async function decodeAuction(box, block) {
     box.seller = Address.fromErgoTree(await decodeString(box.additionalRegisters.R4.serializedValue)).address;
     box.bidder = Address.fromErgoTree(await decodeString(box.additionalRegisters.R5.serializedValue)).address;
@@ -215,8 +317,8 @@ export async function decodeAuction(box, block) {
     box.done = ((moment().valueOf() - box.startTime) / (box.endTime - box.startTime)) * 100;
     box.currency = 'ERG'
     box.curBid = box.value
-    if (box.assets.length > 1) {
-        box.currency = Object.values(supportedCurrencies).find(cur => cur.id === box.assets[1].tokenId).name
+    if (box.numberOfAssets > 1) {
+        box.currency = Object.values(supportedCurrencies).find(cur => cur.id === box.bids[0].tokenId).name
         box.curBid = box.assets[1].amount
     }
     box.nextBid = box.curBid + box.step
@@ -233,7 +335,17 @@ export async function decodeAuction(box, block) {
     box = await decodeArtwork(box, box.assets[0].tokenId)
     return box
 }
+export async function decodeBoxes2(boxes, block) {
 
+    let cur = await Promise.all(boxes.map((box) => decodeAuction2(box, block)))
+    cur = cur.filter(res => res !== undefined)
+    cur.sort((a, b) => a.remTime - b.remTime)
+    const favs = getForKey('fav-artworks').map(fav => fav.id)
+    cur.forEach(bx => {
+        bx.isFav = !!favs.includes(bx.token.id);
+    })
+    return cur
+}
 export async function decodeBoxes(boxes, block) {
     let cur = await Promise.all(boxes.map((box) => decodeAuction(box, block)))
     cur = cur.filter(res => res !== undefined)

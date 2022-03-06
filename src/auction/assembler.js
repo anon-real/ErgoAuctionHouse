@@ -12,8 +12,8 @@ import {
 } from './helpers';
 import {Address} from '@coinbarn/ergo-ts';
 import {additionalData, assmUrl, auctionAddress, remFavNotif, trueAddress, txFee} from "./consts";
-import {boxById, currentBlock, followAuction, txByAddress, txById} from "./explorer";
-import {decodeAuction, getEncodedBoxSer, isP2pkAddr, longToCurrency} from "./serializer";
+import {boxById, currentBlock2, followAuction, txByAddress, txById} from "./explorer";
+import {decodeAuction2, getEncodedBoxSer, isP2pkAddr, longToCurrency} from "./serializer";
 import moment from "moment";
 
 // const assmUrl = 'https://assm.sigmausd.io/';
@@ -57,7 +57,7 @@ function retry(id) {
 
 export async function favArtworks() {
     const favs = getForKey('fav-artworks')
-    const block = await currentBlock()
+    const block = await currentBlock2()
     for (let i = 0; i < favs.length; i++) {
         const newBid = await followAuction(favs[i].boxId)
         let cur = JSON.parse(JSON.stringify(favs[i]))
@@ -65,17 +65,17 @@ export async function favArtworks() {
             if (newBid.address === auctionAddress) {
                 cur.boxId = newBid.boxId
                 updateForKey('fav-artworks', cur)
-                addNotification(`New bid for your favorite auction "${newBid.assets[0].name}"`, getAuctionUrl(newBid.id))
+                addNotification(`New bid for your favorite auction "${newBid.token.name}"`, getAuctionUrl(newBid.id))
             } else {
-                addNotification(`Your favorite auction ${newBid.assets[0].name} has ended`, getAuctionUrl(newBid.id))
+                addNotification(`Your favorite auction ${newBid.token.name} has ended`, getAuctionUrl(newBid.id))
                 removeForKey('fav-artworks', favs[i].id)
             }
         }
         if (newBid.address === auctionAddress && !favs[i].remNotifDone) {
-            const decoded = await decodeAuction(newBid, block)
+            const decoded = await decodeAuction2(newBid, block)
             const rem = moment.duration(decoded.remTimeTimestamp).asHours();
             if (rem <= remFavNotif) {
-                addNotification(`Your favorite auction "${newBid.assets[0].name}" is near the end`, getAuctionUrl(newBid.id))
+                addNotification(`Your favorite auction "${newBid.token.name}" is near the end`, getAuctionUrl(newBid.id))
                 cur.remNotifDone = true
                 updateForKey('fav-artworks', cur)
             }
@@ -240,14 +240,18 @@ export async function assembleFinishedAuctions(boxes) {
     const toWithdraw = boxes.filter((box) => box.remTimeTimestamp <= 0 || (box.curBid >= box.instantAmount && box.instantAmount !== -1))
     for (let i = 0; i < toWithdraw.length; i++) {
         const box = toWithdraw[i]
+        await box.bids.sort(function(a, b) {
+            if (b.amount !== 0 && a.amount !== 0)
+                return b.amount - a.amount
+            else
+                return b.value - a.value
+        })
         let request = {}
         if (box.curBid < box.minBid) {
             let seller = {
                 value: box.value - txFee,
                 address: box.seller,
-                assets: box.assets.map(ass => {
-                    return {tokenId: ass.tokenId, amount: ass.amount}
-                }),
+                assets: (box.numberOfAssets === 1) ? [{tokenId: box.token.id, amount: box.token.amount}] : [{tokenId: box.token.id, amount: box.token.amount},{tokenId: box.bids[0].tokenId, amount: box.bids[0].amount}],
             };
             request = {
                 address: box.seller,
@@ -267,14 +271,14 @@ export async function assembleFinishedAuctions(boxes) {
             const artistFee = Math.floor((box.curBid * box.royalty) / 1000)
             const minimalErg = 400000
 
-            let artBox = await boxById(box.assets[0].tokenId)
+            let artBox = await boxById(box.token.id)
             const boxEncoded = await getEncodedBoxSer(artBox)
             let winner = {
                 value: minimalErg,
                 address: box.bidder,
                 assets: [{
-                    tokenId: box.assets[0].tokenId,
-                    amount: box.assets[0].amount
+                    tokenId: box.token.id,
+                    amount: box.token.amount
                 }],
             };
             let artistAddr = null
@@ -285,7 +289,7 @@ export async function assembleFinishedAuctions(boxes) {
             let realArtistShareBox = {}
             let artistFeeBox = {}
             let sellerErg = box.value - txFee - minimalErg
-            if (box.assets.length === 1) {
+            if (box.numberOfAssets === 1) {
                 seller = {
                     address: box.seller,
                 };
@@ -312,7 +316,7 @@ export async function assembleFinishedAuctions(boxes) {
                     value: minimalErg + txFee,
                     address: artBox.address,
                     assets: [{
-                        tokenId: box.assets[1].tokenId,
+                        tokenId: box.bids[0].tokenId,
                         amount: artistFee
                     }],
                 };
@@ -320,7 +324,7 @@ export async function assembleFinishedAuctions(boxes) {
                     value: minimalErg,
                     address: artistAddr,
                     assets: [{
-                        tokenId: box.assets[1].tokenId,
+                        tokenId: box.bids[0].tokenId,
                         amount: artistFee
                     }]
                 };
@@ -328,15 +332,15 @@ export async function assembleFinishedAuctions(boxes) {
                 seller = {
                     address: box.seller,
                     assets: [{
-                        tokenId: box.assets[1].tokenId,
-                        amount: box.assets[1].amount - auctionFee - artistFee
+                        tokenId: box.bids[0].tokenId,
+                        amount: box.bids[0].amount - auctionFee - artistFee
                     }]
                 };
                 feeBox = {
                     value: minimalErg,
                     address: feeTo,
                     assets: [{
-                        tokenId: box.assets[1].tokenId,
+                        tokenId: box.bids[0].tokenId,
                         amount: auctionFee
                     }],
                     registers: {

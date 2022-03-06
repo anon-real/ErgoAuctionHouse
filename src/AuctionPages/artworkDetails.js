@@ -20,12 +20,12 @@ export default class ArtworkDetails extends React.Component {
                 toggle={this.props.close}
             >
                 <ModalHeader toggle={this.props.close}>
-                    {this.props.box.isArtwork && this.props.box.assets && <span className="fsize-1 text-muted">
+                    {this.props.box.isArtwork && this.props.box.token && <span className="fsize-1 text-muted">
                         Artwork details for NFT {' '}
-                        {friendlyAddress(this.props.box.assets[0].tokenId, 5)}.
+                        {friendlyAddress(this.props.box.token.id, 5)}.
                     </span>}
-                    {!this.props.box.isArtwork && this.props.box.assets && <span className="fsize-1 text-muted">
-                        Details for {' '} {friendlyAddress(this.props.box.assets[0].tokenId, 5)}.
+                    {!this.props.box.isArtwork && this.props.box.token && <span className="fsize-1 text-muted">
+                        Details for {' '} {friendlyAddress(this.props.box.token.id, 5)}.
                     </span>}
                 </ModalHeader>
                 <ModalBody>
@@ -84,10 +84,10 @@ export default class ArtworkDetails extends React.Component {
                             <Col md="9">
                                 <Clipboard
                                     component="b"
-                                    data-clipboard-text={this.props.box.assets[0].tokenId}
+                                    data-clipboard-text={this.props.box.token.id}
                                     onSuccess={() => showMsg('Copied!')}
                                 >
-                                    {friendlyAddress(this.props.box.assets[0].tokenId, 15)}
+                                    {friendlyAddress(this.props.box.token.id, 15)}
                                 </Clipboard>{' '}
                             </Col>
                         </Row>
@@ -110,7 +110,7 @@ export default class ArtworkDetails extends React.Component {
                                 Royalty:
                             </Col>
                             <Col md="9">
-                                <b>{`${(this.props.box.royalty / 10)}%`}</b>
+                                <b>{`${(this.props.box.royalty * 100)}%`}</b>
                             </Col>
                         </Row>}
                         {this.props.box.totalIssued > 1 && <Row>
