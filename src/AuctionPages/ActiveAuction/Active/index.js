@@ -62,7 +62,9 @@ class ActiveAuctions extends React.Component {
             lastEnd: 1
         };
         this.sortAuctions = this.sortAuctions.bind(this);
+        this.sortAuctions2 = this.sortAuctions2.bind(this);
         this.filterAuctions = this.filterAuctions.bind(this);
+        this.filterAuctions2 = this.filterAuctions2.bind(this);
         this.trackScrolling = this.trackScrolling.bind(this);
         this.updateParams = this.updateParams.bind(this);
         this.getToShow = this.getToShow.bind(this);
@@ -107,7 +109,7 @@ class ActiveAuctions extends React.Component {
 
     componentDidMount() {
         let queries = parseQueries(this.props.location.search)
-        this.updateAuctions().then(auctions => {
+        this.updateAuctions(queries.type,queries.searchValue).then(auctions => {
             queries.allAuctions = auctions
             queries.loading = false
             queries.lastUpdated = 0
@@ -138,7 +140,9 @@ class ActiveAuctions extends React.Component {
         }
     }
 
-    async updateAuctions() {
+    async updateAuctions(type=this.state.type,searchValue=this.state.searchValue) {
+        // console.log(this.state.end);
+        console.log(this.sortAuctions2());
         const block = await currentBlock2()
         let boxes
         let auctions
@@ -146,7 +150,7 @@ class ActiveAuctions extends React.Component {
             boxes = [await followAuction2(this.state.boxId)]
             auctions = await decodeBoxes2(boxes, block)
         } else {
-            boxes = await getAllActiveAuctions2(limit,this.state.end)
+            boxes = await getAllActiveAuctions2(limit,this.state.end,`${this.filterAuctions2(type)}&${this.sortAuctions2()}`)
             boxes = boxes.data
             // console.log(await test());
             // console.log(boxes);
@@ -159,29 +163,67 @@ class ActiveAuctions extends React.Component {
         return auctions
     }
 
-    filterAuctions(auctions, forceType = null) {
-        const artist = this.state.artist
-        let type = this.state.type
+    filterAuctions2(type,forceType = null) {
+        // const artist = this.state.artist
+        console.log(forceType);
+        // console.log(type);
         if (forceType) type = forceType
-        if (artist !== undefined) {
-            auctions = auctions.filter(auc => artist.split(',').includes(auc.artist))
-        }
+        console.log(type);
+        // if (artist !== undefined) {
+        //     auctions = auctions.filter(auc => artist.split(',').includes(auc.artist))
+        // }
 
-        let finalValue = this.state.searchValue
-        if (finalValue !== '') {
-            var re = new RegExp(finalValue, 'i');
-            auctions = auctions.filter(data =>
-                data.description.match(re) !== null ||
-                data.tokenName.match(re) !== null ||
-                data.artist.search(finalValue) !== -1 ||
-                data.bidder.search(finalValue) !== -1
-            )
-        }
+        // let finalValue = this.state.searchValue
+        // if (finalValue !== '') {
+        //     var re = new RegExp(finalValue, 'i');
+        //     auctions = auctions.filter(data =>
+        //         data.description.match(re) !== null ||
+        //         data.tokenName.match(re) !== null ||
+        //         data.artist.search(finalValue) !== -1 ||
+        //         data.bidder.search(finalValue) !== -1
+        //     )
+        // }
 
 
-        if (type === 'all') return auctions
-        if (type) auctions = auctions.filter(auc => auc.type === type)
-        return auctions
+        if (type === 'all') return ""
+        else if(type==='picture') return "&type=0101"
+        else if(type==='audio') return "&type=0102"
+        else if(type==='video') return "&type=0103"
+        else if(type==='other') return "&type=0201"
+
+    }
+    sortAuctions2( forceKey = null) {
+        let key = this.state.sortKey.toString()
+        let sort;
+        if (forceKey) key = forceKey
+        if (key === '0')
+            sort = "&sort=lt"
+        else if (key === '1')
+            sort = "&sort=ht"
+        else if (key === '2')
+            sort = "&sort=lb"
+        else if (key === '3')
+            sort = "&sort=hb"
+        else
+            sort = ""
+        // else if (key === '4')
+        //     auctions.sort((a, b) => {
+        //         if (a.curBid < a.minBid) return 1
+        //         if (b.curBid < b.minBid) return -1
+        //         return b.creationHeight - a.creationHeight
+        //     })
+        // else if (key === '5' && isWalletSaved())
+        //     auctions.sort((a, b) => (b.seller === getWalletAddress()) - (a.seller === getWalletAddress()))
+        // else if (key === '6' && isWalletSaved())
+        //     auctions.sort((a, b) => (b.bidder === getWalletAddress()) - (a.bidder === getWalletAddress()))
+        // else if (key === '7')
+        //     auctions.sort((a, b) => (b.isFav - a.isFav))
+        // else if (key === '8')
+        //     auctions.sort((a, b) => (b.currency === 'ERG') - (a.currency === 'ERG'))
+        // else if (key === '9')
+        //     auctions.sort((a, b) => (b.currency !== 'ERG') - (a.currency !== 'ERG'))
+        // console.log('yay', auctions)
+        return sort
     }
 
     sortAuctions(auctions, forceKey = null) {
@@ -242,8 +284,9 @@ class ActiveAuctions extends React.Component {
 
     getToShow() {
         const auctions = this.state.allAuctions;
-        const filtered = this.filterAuctions(auctions);
-        return this.sortAuctions(filtered)
+        // const filtered = this.filterAuctions(auctions);
+        // return this.sortAuctions(filtered)
+        return auctions
     }
 
     getHottest() {
@@ -364,6 +407,7 @@ class ActiveAuctions extends React.Component {
                                         onClick={() => {
                                             // this.sortAuctions([].concat(this.state.auctions), sortKey)
                                             this.updateParams('sortKey', sortKey)
+                                            window.location.reload()
                                         }}>{sortKeyToVal[sortKey]}</DropdownItem>)}
                                 </DropdownMenu>
 
@@ -381,6 +425,7 @@ class ActiveAuctions extends React.Component {
                                         onClick={() => {
                                             // this.sortAuctions([].concat(this.state.auctions), sortKey)
                                             this.updateParams('type', type)
+                                            window.location.reload()
                                         }}>{type}</DropdownItem>)}
                                 </DropdownMenu>
                             </UncontrolledButtonDropdown>
