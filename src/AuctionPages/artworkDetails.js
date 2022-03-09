@@ -110,7 +110,7 @@ export default class ArtworkDetails extends React.Component {
                                 Royalty:
                             </Col>
                             <Col md="9">
-                                <b>{`${(this.props.box.royalty * 100)}%`}</b>
+                                <b>{`${(this.props.box.royalty / 100)}%`}</b>
                             </Col>
                         </Row>}
                         {this.props.box.totalIssued > 1 && <Row>
