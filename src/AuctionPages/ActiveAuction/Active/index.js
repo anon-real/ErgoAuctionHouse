@@ -60,11 +60,11 @@ class ActiveAuctions extends React.Component {
             lastUpdated: 0,
             searchValue: '',
             lastEnd: 1,
-            status: {}
+            status: {},
+            type:"all"
         };
         this.sortAuctions = this.sortAuctions.bind(this);
         this.sortAuctions2 = this.sortAuctions2.bind(this);
-        this.filterAuctions = this.filterAuctions.bind(this);
         this.filterAuctions2 = this.filterAuctions2.bind(this);
         this.trackScrolling = this.trackScrolling.bind(this);
         this.updateParams = this.updateParams.bind(this);
@@ -89,17 +89,14 @@ class ActiveAuctions extends React.Component {
                         type = this.state.type
                     if(this.state.searchValue)
                         searchValue = this.state.searchValue
-                    this.updateAuctions(type,searchValue).then(auctions => {
-                        this.getStatus(type,searchValue).then(status =>{
-                            let queries = parseQueries(this.props.location.search)
-                            queries.allAuctions = this.state.allAuctions.concat(auctions)
-                            queries.loading = false
-                            queries.lastUpdated = 0
-                            queries.status = status
-                            this.setState({lastEnd:this.state.lastEnd+1})
-                            this.setState(queries)
-                            assembleFinishedAuctions(auctions).then(r => {
-                            })
+                    this.updateAuctions(type,searchValue,false).then(auctions => {
+                        let queries = parseQueries(this.props.location.search)
+                        queries.allAuctions = this.state.allAuctions.concat(auctions)
+                        queries.loading = false
+                        queries.lastUpdated = 0
+                        this.setState({lastEnd:this.state.lastEnd+1})
+                        this.setState(queries)
+                        assembleFinishedAuctions(auctions).then(r => {
                         })
                     })
                 }
@@ -123,7 +120,7 @@ class ActiveAuctions extends React.Component {
             queries.type = ""
         if(!queries.searchValue)
             queries.searchValue = ""
-        this.updateAuctions(queries.type,queries.searchValue).then(auctions => {
+        this.updateAuctions(queries.type,queries.searchValue,false).then(auctions => {
             this.getStatus(queries.type,queries.searchValue).then(status =>{
                 console.log(status);
                 queries.allAuctions = auctions
@@ -146,7 +143,7 @@ class ActiveAuctions extends React.Component {
                     type = this.state.type
                 if(this.state.searchValue)
                     searchValue = this.state.searchValue
-                this.updateAuctions(type,searchValue).then(auctions => {
+                this.updateAuctions(type,searchValue,false).then(auctions => {
                     this.getStatus(queries.type,queries.searchValue).then(status =>{
                         this.setState({allAuctions: auctions, lastUpdated: 0, loading: false,status})
                     })
@@ -162,18 +159,21 @@ class ActiveAuctions extends React.Component {
             queries.type = ""
         if(!queries.searchValue)
             queries.searchValue = ""
-        this.updateAuctions(queries.type,queries.searchValue).then(auctions => {
-            this.getStatus(queries.type,queries.searchValue).then(status =>{
-                queries.allAuctions = auctions
-                queries.loading = false
-                queries.lastUpdated = 0
-                queries.status = status
 
-                this.setState(queries)
-                assembleFinishedAuctions(auctions).then(r => {
+        if(queries.searchValue !== this.state.searchValue || queries.type !== this.state.type){
+            this.updateAuctions(queries.type,queries.searchValue,false).then(auctions => {
+                this.getStatus(queries.type,queries.searchValue).then(status =>{
+                    queries.allAuctions = auctions
+                    queries.loading = false
+                    queries.lastUpdated = 0
+                    queries.status = status
+
+                    this.setState(queries)
+                    assembleFinishedAuctions(auctions).then(r => {
+                    })
                 })
-            })
-        });
+            });
+        }
     }
 
     componentWillUnmount() {
@@ -183,9 +183,7 @@ class ActiveAuctions extends React.Component {
         }
     }
 
-    async updateAuctions(type,searchValue) {
-        // console.log(this.state.end);
-        console.log(this.sortAuctions2());
+    async updateAuctions(type,searchValue,statusCheck=true) {
         const block = await currentBlock2()
         let boxes
         let auctions
@@ -205,8 +203,10 @@ class ActiveAuctions extends React.Component {
             // auctions = auctions.data
             // console.log(auctions);
         }
-        const status = await this.getStatus(type,searchValue);
-        this.setState(status)
+        if(statusCheck){
+            const status = await this.getStatus(type,searchValue);
+            this.setState(status)
+        }
         return auctions
     }
 
