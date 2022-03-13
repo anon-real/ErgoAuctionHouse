@@ -184,6 +184,7 @@ class ActiveAuctions extends React.Component {
     }
 
     async updateAuctions(type,searchValue,statusCheck=true) {
+
         const block = await currentBlock2()
         let boxes
         let auctions
@@ -191,8 +192,10 @@ class ActiveAuctions extends React.Component {
             boxes = [await followAuction2(this.state.boxId)]
             auctions = await decodeBoxes2(boxes, block)
         } else {
-            if(searchValue)
-                boxes = await getAllActiveAuctions2(limit,this.state.end,`${this.filterAuctions2(type)}&${this.sortAuctions2()}&search=${searchValue}`)
+            if(searchValue) {
+                console.log(searchValue);
+                boxes = await getAllActiveAuctions2(limit, this.state.end, `${this.filterAuctions2(type)}&${this.sortAuctions2()}&search=${searchValue}`)
+            }
             else
                 boxes = await getAllActiveAuctions2(limit,this.state.end,`${this.filterAuctions2(type)}&${this.sortAuctions2()}`)
             boxes = boxes.data
