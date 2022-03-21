@@ -92,18 +92,15 @@ export async function decodeArtwork2(box, considerArtist = true) {
     if (inf.isArtwork) {
         try {
             // || inf.artCode === "0e0430313031"
-            if (inf.artCode === "0101") {
+            if (inf.artCode === "picture") {
                 inf.isPicture = true
-                inf.type = 'picture'
-            } else if (inf.artCode === '0102') {
+            } else if (inf.artCode === 'audio') {
                 inf.isAudio = true
-                inf.type = 'audio'
-            } else if (inf.artCode === '0103') {
+            } else if (inf.artCode === 'video') {
                 inf.isVideo = true
-                inf.type = 'video'
             } else {
                 inf.isArtwork = false
-                inf.type = 'other'
+                inf.type = 'MtTs'
             }
             if (inf.isAudio) {
                 inf.audioUrl = inf.artworkUrl

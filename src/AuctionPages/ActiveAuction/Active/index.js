@@ -61,7 +61,8 @@ class ActiveAuctions extends React.Component {
             searchValue: '',
             lastEnd: 1,
             status: {},
-            type:"all"
+            type:"all",
+            artist: ''
         };
         this.sortAuctions = this.sortAuctions.bind(this);
         this.sortAuctions2 = this.sortAuctions2.bind(this);
@@ -85,11 +86,15 @@ class ActiveAuctions extends React.Component {
                     this.setState({end: this.state.end + 1})
                     let type="";
                     let searchValue="";
+                    let artist="";
                     if(this.state.type)
                         type = this.state.type
                     if(this.state.searchValue)
                         searchValue = this.state.searchValue
-                    this.updateAuctions(type,searchValue,false).then(auctions => {
+                    if(this.state.artist)
+                        artist = this.state.artist
+
+                    this.updateAuctions(type,searchValue,artist,false).then(auctions => {
                         let queries = parseQueries(this.props.location.search)
                         queries.allAuctions = this.state.allAuctions.concat(auctions)
                         queries.loading = false
@@ -120,8 +125,11 @@ class ActiveAuctions extends React.Component {
             queries.type = ""
         if(!queries.searchValue)
             queries.searchValue = ""
-        this.updateAuctions(queries.type,queries.searchValue,false).then(auctions => {
-            this.getStatus(queries.type,queries.searchValue).then(status =>{
+        if(!queries.artist)
+            queries.artist = ""
+        console.log(queries.artist);
+        this.updateAuctions(queries.type,queries.searchValue,queries.artist,false).then(auctions => {
+            this.getStatus(queries.type,queries.searchValue,queries.artist).then(status =>{
                 console.log(status);
                 queries.allAuctions = auctions
                 queries.loading = false
@@ -139,11 +147,15 @@ class ActiveAuctions extends React.Component {
             if (lastUpdated > updatePeriod) {
                 let type="";
                 let searchValue="";
+                let artist="";
                 if(this.state.type)
                     type = this.state.type
                 if(this.state.searchValue)
                     searchValue = this.state.searchValue
-                this.updateAuctions(type,searchValue,false).then(auctions => {
+                if(this.state.artist)
+                    artist = this.state.artist
+
+                this.updateAuctions(type,searchValue,artist,false).then(auctions => {
                     this.getStatus(queries.type,queries.searchValue).then(status =>{
                         this.setState({allAuctions: auctions, lastUpdated: 0, loading: false,status})
                     })
@@ -159,10 +171,11 @@ class ActiveAuctions extends React.Component {
             queries.type = ""
         if(!queries.searchValue)
             queries.searchValue = ""
-
-        if(queries.searchValue !== this.state.searchValue || queries.type !== this.state.type){
-            this.updateAuctions(queries.type,queries.searchValue,false).then(auctions => {
-                this.getStatus(queries.type,queries.searchValue).then(status =>{
+        if(!queries.artist)
+            queries.artist = ""
+        if(queries.searchValue !== this.state.searchValue || queries.type !== this.state.type || queries.artist !== this.state.artist){
+            this.updateAuctions(queries.type,queries.searchValue,queries.artist,false).then(auctions => {
+                this.getStatus(queries.type,queries.searchValue,queries.artist).then(status =>{
                     queries.allAuctions = auctions
                     queries.loading = false
                     queries.lastUpdated = 0
@@ -183,8 +196,8 @@ class ActiveAuctions extends React.Component {
         }
     }
 
-    async updateAuctions(type,searchValue,statusCheck=true) {
-
+    async updateAuctions(type,searchValue,artist,statusCheck=true) {
+        console.log(artist);
         const block = await currentBlock2()
         let boxes
         let auctions
@@ -193,11 +206,10 @@ class ActiveAuctions extends React.Component {
             auctions = await decodeBoxes2(boxes, block)
         } else {
             if(searchValue) {
-                console.log(searchValue);
-                boxes = await getAllActiveAuctions2(limit, this.state.end, `${this.filterAuctions2(type)}&${this.sortAuctions2()}&search=${searchValue}`)
+                boxes = await getAllActiveAuctions2(limit, this.state.end, `${this.filterAuctions2(type)}&${this.sortAuctions2()}&search=${searchValue}&artist=${artist}`)
             }
             else
-                boxes = await getAllActiveAuctions2(limit,this.state.end,`${this.filterAuctions2(type)}&${this.sortAuctions2()}`)
+                boxes = await getAllActiveAuctions2(limit,this.state.end,`${this.filterAuctions2(type)}&${this.sortAuctions2()}&artist=${artist}`)
             boxes = boxes.data
             // console.log(await test());
             // console.log(boxes);
@@ -236,10 +248,10 @@ class ActiveAuctions extends React.Component {
 
 
         if (type === 'all' || type === "") return ""
-        else if(type==='picture') return "&type=0101"
-        else if(type==='audio') return "&type=0102"
-        else if(type==='video') return "&type=0103"
-        else if(type==='other') return "&type=0201"
+        else if(type==='picture') return "&type=picture"
+        else if(type==='audio') return "&type=audio"
+        else if(type==='video') return "&type=video"
+        else if(type==='other') return "&type=MtTs"
 
     }
     sortAuctions2( forceKey = null) {
@@ -340,8 +352,8 @@ class ActiveAuctions extends React.Component {
             values = status.auctions
         return values
     }
-    async getStatus(type,searchValue) {
-        return await getStatus(`${this.filterAuctions2(type)}&search=${searchValue}`);
+    async getStatus(type,searchValue,artist) {
+        return await getStatus(`${this.filterAuctions2(type)}&search=${searchValue}&artist=${artist}`);
     }
     friendlyArtist() {
         return this.state.artist.split(',').map(artist => friendlyAddress(artist, 3))
