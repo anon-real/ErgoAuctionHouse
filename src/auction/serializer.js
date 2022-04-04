@@ -82,7 +82,7 @@ export async function decodeArtwork2(box, considerArtist = true) {
 
     inf.totalIssued = box.token.amount
     inf.isArtwork = true
-    inf.artHash = "dont have"
+    inf.artHash = box.token.hash
     inf.artCode = box.token.type
     inf.tokenName = box.token.name
     inf.tokenDescription = box.token.description
