@@ -238,9 +238,18 @@ export async function getArtist(bx) {
     return bx.address
 }
 export async function decodeAuction2(box, block) {
+    console.log(box);
     box.boxId = box.id
     box.stableId = box.currentBoxId
     box.stableTxId = box.transactionId
+    box.currency = 'ERG'
+    box.bidder = '-'
+    //should be change to auction value
+    box.curBid = 0
+    if (box.numberOfAssets > 1) {
+        box.currency = box.currencyToken.name
+        box.curBid = box.currencyToken.amount
+    }
     if (box.bids.length>0) {
         box.bids.sort(function(a, b) {
             if (b.amount !== 0 && a.amount !== 0)
@@ -248,23 +257,18 @@ export async function decodeAuction2(box, block) {
             else
                 return b.value - a.value
         })
-        box.bidder = box.bids[0]["id"]
-        box.currency = box.bids[0].name
+        box.bidder = box.bids[0].bidder
         box.curBid = box.bids[0].value
     }
-    else {
-        box.bidder = '-'
-        box.currency = 'ERG'
-        box.curBid = box.initialBid
-    }
+
     box.step = box.minStep
 
     box.instantAmount = box.buyNowAmount
 
     if (box.description.length === 0) box.description = '-'
 
-    box.remTime = Math.max(box.endTime - block.timestamp, 0);
-    box.remTime = moment.duration(box.remTime, 'milliseconds').format("w [weeks], d [days], h [hours], m [minutes]", {
+
+    box.remTime = moment.duration(Math.max(box.endTime - block.timestamp, 0), 'milliseconds').format("w [weeks], d [days], h [hours], m [minutes]", {
         largest: 2,
         trim: true
     })
