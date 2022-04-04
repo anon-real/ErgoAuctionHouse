@@ -1,6 +1,6 @@
 import React, {Fragment} from 'react';
 
-import {currentBlock2, currentHeight, followAuction2,} from '../../../auction/explorer';
+import {currentBlock, currentHeight, followAuction2,} from '../../../auction/explorer';
 import {isWalletSaved, showMsg,} from '../../../auction/helpers';
 import {css} from '@emotion/core';
 import PropagateLoader from 'react-spinners/PropagateLoader';
@@ -79,7 +79,7 @@ export default class SpecificAuctions extends React.Component {
             if (this.state.lastUpdated < 40) return;
         }
         this.setState({lastUpdated: 0});
-        currentBlock2()
+        currentBlock()
             .then((block) => {
                 this.setState({currentHeight: block.height});
                 followAuction2(this.state.boxId)

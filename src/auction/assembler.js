@@ -12,7 +12,7 @@ import {
 } from './helpers';
 import {Address} from '@coinbarn/ergo-ts';
 import {additionalData, assmUrl, auctionAddress, remFavNotif, trueAddress, txFee} from "./consts";
-import {boxById, currentBlock2, followAuction, txByAddress, txById} from "./explorer";
+import {boxById, currentBlock, followAuction, txByAddress, txById} from "./explorer";
 import {decodeAuction2, getEncodedBoxSer, isP2pkAddr, longToCurrency} from "./serializer";
 import moment from "moment";
 
@@ -57,7 +57,7 @@ function retry(id) {
 
 export async function favArtworks() {
     const favs = getForKey('fav-artworks')
-    const block = await currentBlock2()
+    const block = await currentBlock()
     for (let i = 0; i < favs.length; i++) {
         const newBid = await followAuction(favs[i].boxId)
         let cur = JSON.parse(JSON.stringify(favs[i]))

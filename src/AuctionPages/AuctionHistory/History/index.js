@@ -1,7 +1,7 @@
 import React, {Fragment} from 'react';
 
 import PageTitle from '../../../Layout/AppMain/PageTitle';
-import {currentBlock2, getCompleteAuctionHistory,getAuctionHistory2} from '../../../auction/explorer';
+import {currentBlock, getCompleteAuctionHistory,getAuctionHistory2} from '../../../auction/explorer';
 import PropagateLoader from 'react-spinners/PropagateLoader';
 import {css} from '@emotion/core';
 import {showMsg} from '../../../auction/helpers';
@@ -33,7 +33,7 @@ export default class AuctionsHistory extends React.Component {
     }
 
     async loadMore(show = false) {
-        const block = await currentBlock2()
+        const block = await currentBlock()
         if (this.state.still) {
             this.setState({loading: true});
             getAuctionHistory2(pagination, this.state.offset)

@@ -1,6 +1,6 @@
 import React, {Fragment} from 'react';
 
-import {currentBlock2, followAuction2, getAllActiveAuctions,getAllActiveAuctions2,getStatus} from '../../../auction/explorer';
+import {currentBlock, followAuction2, getAllActiveAuctions,getAllActiveAuctions2,getStatus} from '../../../auction/explorer';
 import {
     encodeQueries,
     friendlyAddress,
@@ -197,8 +197,9 @@ class ActiveAuctions extends React.Component {
     }
 
     async updateAuctions(type,searchValue,artist,statusCheck=true) {
-        console.log(artist);
-        const block = await currentBlock2()
+        console.log(this.state.sortKey);
+        const block = await currentBlock()
+        console.log(block);
         let boxes
         let auctions
         if (this.state.specific) {
