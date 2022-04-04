@@ -90,7 +90,7 @@ class BidHistory extends React.Component {
                     backgroundColor: 'rgba(35, 67, 123, 1)',
                     borderWidth: 1,
                     hoverBackgroundColor: 'rgba(53, 102, 187, 1)',
-                    data: this.state.data.bids,
+                    data: this.state.data.bids.sort((a, b) => a.timeStamp - b.timeStamp),
                 },
             ],
         };

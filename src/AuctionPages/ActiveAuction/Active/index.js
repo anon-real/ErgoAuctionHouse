@@ -43,7 +43,7 @@ const sortKeyToVal = {
 
 const types = ['all', 'picture', 'audio', 'video', 'other']
 
-const limit = 9
+const limit = 81
 const updatePeriod = 40
 let searchflagControl = true;
 
@@ -128,6 +128,7 @@ class ActiveAuctions extends React.Component {
         if(!queries.artist)
             queries.artist = ""
         console.log(queries.artist);
+        this.setState(queries)
         this.updateAuctions(queries.type,queries.searchValue,queries.artist,false).then(auctions => {
             this.getStatus(queries.type,queries.searchValue,queries.artist).then(status =>{
                 console.log(status);
@@ -135,7 +136,6 @@ class ActiveAuctions extends React.Component {
                 queries.loading = false
                 queries.lastUpdated = 0
                 queries.status = status
-                console.log(queries.status);
                 this.setState(queries)
                 assembleFinishedAuctions(auctions).then(r => {
                 })
@@ -154,7 +154,7 @@ class ActiveAuctions extends React.Component {
                     searchValue = this.state.searchValue
                 if(this.state.artist)
                     artist = this.state.artist
-
+                this.setState(queries)
                 this.updateAuctions(type,searchValue,artist,false).then(auctions => {
                     this.getStatus(queries.type,queries.searchValue).then(status =>{
                         this.setState({allAuctions: auctions, lastUpdated: 0, loading: false,status})
@@ -174,6 +174,7 @@ class ActiveAuctions extends React.Component {
         if(!queries.artist)
             queries.artist = ""
         if(queries.searchValue !== this.state.searchValue || queries.type !== this.state.type || queries.artist !== this.state.artist){
+            this.setState(queries)
             this.updateAuctions(queries.type,queries.searchValue,queries.artist,false).then(auctions => {
                 this.getStatus(queries.type,queries.searchValue,queries.artist).then(status =>{
                     queries.allAuctions = auctions
@@ -264,9 +265,9 @@ class ActiveAuctions extends React.Component {
         else if (key === '1')
             sort = "&sort=ht"
         else if (key === '2')
-            sort = "&sort=lb"
-        else if (key === '3')
             sort = "&sort=hb"
+        else if (key === '3')
+            sort = "&sort=lb"
         else
             sort = ""
         // else if (key === '4')

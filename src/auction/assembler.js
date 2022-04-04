@@ -251,7 +251,7 @@ export async function assembleFinishedAuctions(boxes) {
             let seller = {
                 value: box.value - txFee,
                 address: box.seller,
-                assets: (box.numberOfAssets === 1) ? [{tokenId: box.token.id, amount: box.token.amount}] : [{tokenId: box.token.id, amount: box.token.amount},{tokenId: box.bids[0].tokenId, amount: box.bids[0].amount}],
+                assets: (box.numberOfAssets === 1) ? [{tokenId: box.token.id, amount: box.token.amount}] : [{tokenId: box.currencyToken.id, amount: box.currencyToken.amount}],
             };
             request = {
                 address: box.seller,
@@ -316,7 +316,7 @@ export async function assembleFinishedAuctions(boxes) {
                     value: minimalErg + txFee,
                     address: artBox.address,
                     assets: [{
-                        tokenId: box.bids[0].tokenId,
+                        tokenId: box.currencyToken.id,
                         amount: artistFee
                     }],
                 };
@@ -324,7 +324,7 @@ export async function assembleFinishedAuctions(boxes) {
                     value: minimalErg,
                     address: artistAddr,
                     assets: [{
-                        tokenId: box.bids[0].tokenId,
+                        tokenId: box.currencyToken.id,
                         amount: artistFee
                     }]
                 };
@@ -332,15 +332,15 @@ export async function assembleFinishedAuctions(boxes) {
                 seller = {
                     address: box.seller,
                     assets: [{
-                        tokenId: box.bids[0].tokenId,
-                        amount: box.bids[0].amount - auctionFee - artistFee
+                        tokenId: box.currencyToken.id,
+                        amount: box.currencyToken.amount - auctionFee - artistFee
                     }]
                 };
                 feeBox = {
                     value: minimalErg,
                     address: feeTo,
                     assets: [{
-                        tokenId: box.bids[0].tokenId,
+                        tokenId: box.currencyToken.id,
                         amount: auctionFee
                     }],
                     registers: {
