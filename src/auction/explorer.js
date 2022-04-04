@@ -5,9 +5,9 @@ import {auctionAddress, auctionAddresses, auctionTrees} from "./consts";
 import {longToCurrency} from "./serializer";
 
 const explorer = Explorer.mainnet;
-export const explorerApi = 'https://api.ergoplatform.com/api/v0'
-export const explorerApiV1 = 'https://api.ergoplatform.com/api/v1'
-export const localApi = 'http://localhost:3001'
+export const explorerApi = process.env.REACT_APP_explorerApi
+export const explorerApiV1 = process.env.REACT_APP_explorerApiV1
+export const localApi = process.env.REACT_APP_localApi
 
 function getRequest(url, api = explorerApi) {
     return get(api + url).then(res => res.json())
