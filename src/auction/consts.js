@@ -55,6 +55,13 @@ export const supportedCurrencies = {
         minSupported: 100,
         initial: 1,
     },
+    ergold: {
+        name: 'Ergold',
+        id: 'e91cbc48016eb390f8f872aa2962772863e2e840708517d1ab85e57451f91bed',
+        decimal: 0,
+        minSupported: 100,
+        initial: 1,
+    },
 }
 export const assmUrl = 'https://assembler.ergoauctions.org/';
 
