@@ -32,6 +32,13 @@ function handleUpdates() {
         setForKey(updates, 'newUpdates')
         addNotification('The only verified Sigma Valley NFTs are from the address ending with ...hDATo8; Please avoid buying fake NFTs by verifying the artist address. Click to see the verified active auctions!', 'https://ergoauctions.org/#/auction/active?type=picture&artist=9gdD4EmYjvKXCzgsQNHVFwcFrQ5vxqCWf6k2i4tFn7zwQhDATo8')
     }
+    if (!updates.map(up => up.key).includes('ergold')) {
+        updates = updates.concat([{
+            key: 'ergold'
+        }])
+        setForKey(updates, 'newUpdates')
+        addNotification(''Ergold is now a supported currency in the ergo auction house.', 'https://explorer.ergoplatform.com/en/token/e91cbc48016eb390f8f872aa2962772863e2e840708517d1ab85e57451f91bed')
+    }
 }
 
 const renderApp = (Component) => {
