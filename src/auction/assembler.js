@@ -292,10 +292,15 @@ export async function assembleFinishedAuctions(boxes) {
                 feeBox = {
                     value: auctionFee + 100000,
                     address: feeTo,
-                    registers: {
-                        R4: boxEncoded
-                    },
                 };
+                if (box.royalty > 0)
+                    feeBox = {
+                        value: auctionFee + 100000,
+                        address: feeTo,
+                        registers: {
+                            R4: boxEncoded
+                        },
+                    };
                 sellerErg -= auctionFee + 100000
 
                 artistFeeBox = {
@@ -339,10 +344,19 @@ export async function assembleFinishedAuctions(boxes) {
                         tokenId: box.assets[1].tokenId,
                         amount: auctionFee
                     }],
-                    registers: {
-                        R4: boxEncoded
-                    },
                 };
+                if (box.royalty > 0)
+                    feeBox = {
+                        value: minimalErg,
+                        address: feeTo,
+                        assets: [{
+                            tokenId: box.assets[1].tokenId,
+                            amount: auctionFee
+                        }],
+                        registers: {
+                            R4: boxEncoded
+                        },
+                    };
                 sellerErg -= minimalErg
             }
 
