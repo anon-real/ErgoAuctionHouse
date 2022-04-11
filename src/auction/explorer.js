@@ -16,6 +16,11 @@ export async function getAllActiveAuctions2(limit=-1,page=1,query="") {
     return getRequest(`/auctions/all/active?limit=${limit}&page=${page}${query}`,localApi)
         .then(res => res)
 }
+
+export async function getAllBidsByAuctionId(AuctionId) {
+    return getRequest(`/bids/all/auction/${AuctionId}?limit=-1`,localApi)
+        .then(res => res.data)
+}
 export async function getStatus(query="") {
     return getRequest(`/auctions/getStatus?${query}`,localApi)
         .then(res => res)

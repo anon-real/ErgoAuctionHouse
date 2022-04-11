@@ -251,12 +251,6 @@ export async function decodeAuction2(box, block) {
         box.curBid = box.currencyToken.amount
     }
     if (box.bids.length>0) {
-        box.bids.sort(function(a, b) {
-            if (b.amount !== 0 && a.amount !== 0)
-                return b.amount - a.amount
-            else
-                return b.value - a.value
-        })
         box.bidder = box.bids[0].bidder
         box.curBid = box.bids[0].value
     }

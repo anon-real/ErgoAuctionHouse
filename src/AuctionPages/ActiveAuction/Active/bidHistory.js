@@ -4,7 +4,7 @@ import {Modal, ModalBody, ModalHeader, Row,} from 'reactstrap';
 import {friendlyToken, getTxUrl, showMsg,} from '../../../auction/helpers';
 import SyncLoader from 'react-spinners/SyncLoader';
 import {css} from '@emotion/core';
-import {boxById, txById} from '../../../auction/explorer';
+import { boxById, getAllBidsByAuctionId, txById } from '../../../auction/explorer';
 import moment from 'moment';
 import {ResponsiveContainer} from 'recharts';
 import ReactTooltip from 'react-tooltip';
@@ -38,14 +38,15 @@ class BidHistory extends React.Component {
         window.open(getTxUrl(txId), '_blank');
     }
 
-    loadBids(box) {
+    async loadBids(box) {
+        const bids = await getAllBidsByAuctionId(box.id);
         console.log(box);
         let data = {
             bids: [],
             labels: [],
             txIds: [],
         }
-        box.bids.map((bid)=>{
+        bids.map((bid)=>{
             let time = moment(bid.timeStamp).format('lll');
             data.bids.push(longToCurrency(this.props.box.numberOfAssets > 1 ? bid.amount : bid.value, -1, this.props.box.currency))
             data.labels.push(time)

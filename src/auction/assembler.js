@@ -240,12 +240,7 @@ export async function assembleFinishedAuctions(boxes) {
     const toWithdraw = boxes.filter((box) => box.remTimeTimestamp <= 0 || (box.curBid >= box.instantAmount && box.instantAmount !== -1))
     for (let i = 0; i < toWithdraw.length; i++) {
         const box = toWithdraw[i]
-        await box.bids.sort(function(a, b) {
-            if (b.amount !== 0 && a.amount !== 0)
-                return b.amount - a.amount
-            else
-                return b.value - a.value
-        })
+
         let request = {}
         if (box.curBid < box.minBid) {
             let seller = {
