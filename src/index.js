@@ -30,7 +30,7 @@ function handleUpdates() {
             key: 'sigmavalley-start'
         }])
         setForKey(updates, 'newUpdates')
-        addNotification('SigmaVally\'s second plot sale is not live! Click to see the verified NFTs.', 'https://ergoauctions.org/#/auction/active?type=picture&artist=9gdD4EmYjvKXCzgsQNHVFwcFrQ5vxqCWf6k2i4tFn7zwQhDATo8')
+        addNotification('SigmaVally\'s second plot sale is now live! Click to see the verified NFTs.', 'https://ergoauctions.org/#/auction/active?type=picture&artist=9gdD4EmYjvKXCzgsQNHVFwcFrQ5vxqCWf6k2i4tFn7zwQhDATo8')
     }
 }
 
