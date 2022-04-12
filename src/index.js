@@ -25,12 +25,12 @@ function handleUpdates() {
         setForKey(updates, 'newUpdates')
         addNotification('We now have an official twitter account. Big things are planned, follow to stay tuned!', 'https://twitter.com/ErgoAuction')
     }
-    if (!updates.map(up => up.key).includes('sigmavalley')) {
+    if (!updates.map(up => up.key).includes('sigmavalley-start')) {
         updates = updates.concat([{
-            key: 'sigmavalley'
+            key: 'sigmavalley-start'
         }])
         setForKey(updates, 'newUpdates')
-        addNotification('The only verified Sigma Valley NFTs are from the address ending with ...hDATo8; Please avoid buying fake NFTs by verifying the artist address. Click to see the verified active auctions!', 'https://ergoauctions.org/#/auction/active?type=picture&artist=9gdD4EmYjvKXCzgsQNHVFwcFrQ5vxqCWf6k2i4tFn7zwQhDATo8')
+        addNotification('SigmaVally\'s second plot sale is not live! Click to see the verified NFTs.', 'https://ergoauctions.org/#/auction/active?type=picture&artist=9gdD4EmYjvKXCzgsQNHVFwcFrQ5vxqCWf6k2i4tFn7zwQhDATo8')
     }
 }
 
