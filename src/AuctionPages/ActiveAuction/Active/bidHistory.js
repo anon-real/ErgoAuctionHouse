@@ -47,7 +47,7 @@ class BidHistory extends React.Component {
             txIds: [],
         }
         bids.map((bid)=>{
-            let time = moment(bid.timeStamp).format('lll');
+            let time = moment(bid.timestamp).format('lll');
             data.bids.push(longToCurrency(this.props.box.numberOfAssets > 1 ? bid.amount : bid.value, -1, this.props.box.currency))
             data.labels.push(time)
             data.txIds.push(bid.transactionId)
