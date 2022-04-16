@@ -102,8 +102,8 @@ export default class ActiveAuction extends React.Component {
                         {(this.props.box.royalty > 0 || this.props.box.totalIssued > 1) &&
                         <Col className="text-truncate">
                             {this.props.box.royalty > 0 &&
-                                <i data-tip={`Includes ${this.props.box.royalty / 100}% royalty on secondary sales`} style={{fontSize: '12px'}}
-                                   className="font-weight-light">{`${this.props.box.royalty / 100}% royalty`}</i>}
+                                <i data-tip={`Includes ${this.props.box.royalty / 10}% royalty on secondary sales`} style={{fontSize: '12px'}}
+                                   className="font-weight-light">{`${this.props.box.royalty / 10}% royalty`}</i>}
                             {this.props.box.totalIssued > 1 &&
                             <i data-tip={`This is a Fungible Token with total issuance of ${this.props.box.totalIssued}`}
                                style={{fontSize: '12px'}}
