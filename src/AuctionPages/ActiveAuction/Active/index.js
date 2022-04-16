@@ -355,6 +355,12 @@ class ActiveAuctions extends React.Component {
         return values
     }
     async getStatus(type,searchValue,artist) {
+        if(artist)
+            artist=""
+        if(type)
+            type=""
+        if(searchValue)
+            searchValue=""
         return await getStatus(`${this.filterAuctions2(type)}&search=${searchValue}&artist=${artist}`);
     }
     friendlyArtist() {
