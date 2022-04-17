@@ -268,6 +268,14 @@ class ActiveAuctions extends React.Component {
             sort = "&sort=hb"
         else if (key === '3')
             sort = "&sort=lb"
+        else if (key === '5')
+            sort = `&sort=MyAuction&address=${getWalletAddress()}`
+        else if (key === '6')
+            sort = `&sort=MyBid&address=${getWalletAddress()}`
+        else if (key === '8')
+            sort = "&sort=erg"
+        else if (key === '9')
+            sort = "&sort=none_erg"
         else
             sort = ""
         // else if (key === '4')
