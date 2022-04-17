@@ -121,7 +121,7 @@ export async function decodeArtwork2(box, considerArtist = true) {
 
     if (considerArtist) {
         inf.royalty = box.token.royalty
-        inf.artist = box.token.artist_id
+        inf.artist = box.token.artistId
     }
     if (considerArtist) {
         inf.NFTID = box.token.id
