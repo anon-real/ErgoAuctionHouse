@@ -96,7 +96,7 @@ export function getAuctionHistory(limit, offset, auctionAddr) {
 }
 export function getAuctionHistory2(limit, page) {
     return getRequest(
-        `/auctions/all/?page=${page}&limit=${limit}&sort=des`, localApi
+        `/auctions/all/past?page=${page}&limit=${limit}&sort=des`, localApi
     )
         .then((res) => res.data);
 }
