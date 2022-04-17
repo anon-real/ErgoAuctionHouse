@@ -9,6 +9,7 @@ import onlyLogo from "../assets/images/only-logo.png";
 import {get} from "./rest";
 
 const explorerUrl = 'https://explorer.ergoplatform.com/en/';
+const thumbnailUrl = process.env.REACT_APP_thumbnailApi
 
 export function friendlyToken(token, quantity = true, length = 13) {
     let res = '';
@@ -19,6 +20,10 @@ export function friendlyToken(token, quantity = true, length = 13) {
         token.id.slice(-length) +
         ' token';
     return res
+}
+
+export function getThumbnailAddress(token){
+    return `${thumbnailUrl}/${token}`
 }
 
 export function friendlyAddress(addr, tot = 13) {
