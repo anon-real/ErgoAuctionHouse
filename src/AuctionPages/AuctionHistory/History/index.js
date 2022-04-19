@@ -38,12 +38,12 @@ export default class AuctionsHistory extends React.Component {
             this.setState({loading: true});
             getAuctionHistory2(pagination, this.state.offset)
                 .then((res) => {
-                    if (res.length < pagination) {
+                    if (!res.has_more) {
                         this.setState({still: false});
                         if (show)
                             showMsg('Complete auction history is loaded.');
                     }
-                    let boxes = res.map(bx => decodeAuction2(bx, block));
+                    let boxes = res.data.map(bx => decodeAuction2(bx, block));
                     Promise.all(boxes).then((res) => {
                         res.forEach((box) => {
                             box.finalTx = box.transactionId;

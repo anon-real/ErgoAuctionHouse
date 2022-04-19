@@ -98,7 +98,7 @@ export function getAuctionHistory2(limit, page) {
     return getRequest(
         `/auctions/all/past?page=${page}&limit=${limit}&sort=des`, localApi
     )
-        .then((res) => res.data);
+        .then((res) => res);
 }
 export async function getCompleteAuctionHistory(limit, offset) {
     let allHistory = auctionAddresses.map(addr => getAuctionHistory(limit, offset, addr))
