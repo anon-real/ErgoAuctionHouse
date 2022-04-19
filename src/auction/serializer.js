@@ -245,14 +245,12 @@ export async function decodeAuction2(box, block) {
     box.currency = 'ERG'
     box.bidder = '-'
     //should be change to auction value
-    box.curBid = 0
+    box.curBid = box.bids[0].value
     if (box.numberOfAssets > 1) {
         box.currency = box.currencyToken.name
-        box.curBid = box.currencyToken.amount
     }
-    if (box.bids.length>0) {
+    if (box.bids[0].value>0) {
         box.bidder = box.bids[0].bidder
-        box.curBid = box.bids[0].value
     }
 
     box.step = box.minStep
