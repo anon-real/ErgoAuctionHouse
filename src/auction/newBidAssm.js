@@ -25,12 +25,14 @@ const template = `{
 }`;
 
 export async function registerBid(bidAmount, box) {
+
+    const auctionBox = JSON.parse(box.bids[0].box);
     const block = await currentBlock()
     let ourAddr;
     if (isYoroi()) ourAddr = getWalletAddress()
     else ourAddr = getWalletAddress()
     let userTree = new Address(ourAddr).ergoTree;
-    const p2s = (await getBidP2s(bidAmount, box, ourAddr)).address
+    const p2s = (await getBidP2s(bidAmount, auctionBox, ourAddr)).address
     let nextEndTime = box.endTime
     if (box.endTime - block.timestamp <= contracts[auctionAddress].extendThreshold) {
         nextEndTime += contracts[auctionAddress].extendNum
@@ -42,26 +44,26 @@ export async function registerBid(bidAmount, box) {
     }
     let auctionAssets = [
         {
-            tokenId: box.assets[0].tokenId,
-            amount: box.assets[0].amount
+            tokenId: box.token.id,
+            amount: box.token.amount
         }
     ]
     let returnBidder = {
-        value: box.value,
+        value: box.bids[0].value,
         address: box.bidder,
     };
-    if (box.assets.length > 1) {
+    if (box.numberOfAssets > 1) {
         start = {}
-        start[box.assets[1].tokenId] = bidAmount
+        start[box.currencyToken.id] = bidAmount
 
-        auctionErg = box.value
+        auctionErg = box.bids[0].value
         auctionAssets = [
             {
-                tokenId: box.assets[0].tokenId,
-                amount: box.assets[0].amount
+                tokenId:box.token.id,
+                amount: box.token.amount
             },
             {
-                tokenId: box.assets[1].tokenId,
+                tokenId: box.currencyToken.id,
                 amount: bidAmount,
             },
         ]
@@ -71,24 +73,24 @@ export async function registerBid(bidAmount, box) {
             address: box.bidder,
             assets: [
                 {
-                    tokenId: box.assets[1].tokenId,
-                    amount: box.assets[1].amount
+                    tokenId: box.currencyToken.id,
+                    amount: box.currencyToken.amount
                 }
             ]
         }
     }
-
+    console.log(auctionBox);
     let newBox = {
         value: auctionErg,
         address: auctionAddress,
         assets: auctionAssets,
         registers: {
-            R4: box.additionalRegisters.R4.serializedValue,
+            R4: auctionBox.additionalRegisters.R4,
             R5: await encodeHex(userTree),
-            R6: box.additionalRegisters.R6.serializedValue,
+            R6: auctionBox.additionalRegisters.R6,
             R7: await encodeNum(nextEndTime.toString()),
-            R8: box.additionalRegisters.R8.serializedValue,
-            R9: box.additionalRegisters.R9.serializedValue,
+            R8: auctionBox.additionalRegisters.R8,
+            R9: auctionBox.additionalRegisters.R9,
         },
     };
     let request = {
@@ -125,7 +127,7 @@ export async function registerBid(bidAmount, box) {
 export async function getBidP2s(bid, box, addr) {
     let id64 = Buffer.from(box.boxId, 'hex').toString('base64');
     let currencyId = ''
-    if (box.assets.length > 1) currencyId = box.assets[1].tokenId
+    if (box.numberOfAssets > 1) currencyId = box.currencyToken.id
     currencyId = Buffer.from(currencyId, 'hex').toString('base64');
 
     let script = template
@@ -140,7 +142,7 @@ export async function getBidP2s(bid, box, addr) {
 
 export async function bidHelper(bid, box, modal, fakeModal, considerFake=true) {
     if (considerFake) {
-        const original = await firstOrig(box.assets[0].tokenId)
+        const original = await firstOrig(box.token.id)
         if (original !== null) {
             fakeModal(bid, box, modal, original)
             return
@@ -149,12 +151,12 @@ export async function bidHelper(bid, box, modal, fakeModal, considerFake=true) {
     const r = await registerBid(bid, box)
     if (r.id === undefined) throw Error("Could not contact the assembler service")
     if (isAssembler()) {
-        modal(r.address, longToCurrency(bid + (box.assets.length === 1 ? txFee : 0), -1, box.currency), false, box.currency)
+        modal(r.address, longToCurrency(bid + (box.numberOfAssets === 1 ? txFee : 0), -1, box.currencyToken ? box.currencyToken.name : "ERG"), false, box.currencyToken ? box.currencyToken.name : "ERG")
     } else if (isYoroi()) {
         let need = {ERG: bid + txFee}
-        if (box.assets.length > 1) {
+        if (box.box.numberOfAssets > 1) {
             need = {ERG: 2000000}
-            need[box.assets[1].tokenId] = bid
+            need[box.currencyToken.id] = bid
         }
         return await yoroiSendFunds(need, r.address, r.block)
     }
