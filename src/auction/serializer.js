@@ -239,19 +239,20 @@ export async function getArtist(bx) {
 }
 export async function decodeAuction2(box, block) {
     console.log(box);
-    box.boxId = box.id
+    const auctionBox = JSON.parse(box.bids[0].box);
+    box.boxId = auctionBox.boxId
     box.stableId = box.currentBoxId
     box.stableTxId = box.transactionId
     box.currency = 'ERG'
-    box.bidder = '-'
+    box.bidder = box.bids[0].bidder
     //should be change to auction value
     box.curBid = box.bids[0].value
     if (box.numberOfAssets > 1) {
         box.currency = box.currencyToken.name
     }
-    if (box.bids[0].value>0) {
-        box.bidder = box.bids[0].bidder
-    }
+    // if (box.bids[0].value>0) {
+    //     box.bidder = box.bids[0].bidder
+    // }
 
     box.step = box.minStep
 
