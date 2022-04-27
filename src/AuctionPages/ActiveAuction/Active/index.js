@@ -198,6 +198,12 @@ class ActiveAuctions extends React.Component {
     }
 
     async updateAuctions(type,searchValue,artist,statusCheck=true) {
+        if(artist === undefined)
+            artist = "";
+        if(searchValue === undefined)
+            searchValue = "";
+        if(type === undefined)
+            type = "";
         console.log(this.state.sortKey);
         const block = await currentBlock()
         console.log(block);
@@ -363,11 +369,11 @@ class ActiveAuctions extends React.Component {
         return values
     }
     async getStatus(type,searchValue,artist) {
-        if(artist)
+        if(artist === undefined)
             artist=""
-        if(type)
+        if(type === undefined)
             type=""
-        if(searchValue)
+        if(searchValue === undefined)
             searchValue=""
         return await getStatus(`${this.filterAuctions2(type)}&search=${searchValue}&artist=${artist}`);
     }
