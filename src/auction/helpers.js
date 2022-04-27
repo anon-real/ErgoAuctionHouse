@@ -10,6 +10,7 @@ import {get} from "./rest";
 
 const explorerUrl = 'https://explorer.ergoplatform.com/en/';
 const thumbnailUrl = process.env.REACT_APP_thumbnailApi
+const artworkUrl = process.env.REACT_APP_artworkApi
 
 export function friendlyToken(token, quantity = true, length = 13) {
     let res = '';
@@ -22,8 +23,11 @@ export function friendlyToken(token, quantity = true, length = 13) {
     return res
 }
 
-export function getThumbnailAddress(token){
-    return `${thumbnailUrl}/${token}`
+export function getThumbnailAddress(token, cover=false,thumbnail=true){
+    if(thumbnail)
+        return cover ? `${thumbnailUrl}/${token}/cover` : `${thumbnailUrl}/${token}`
+    else
+        return cover ? `${artworkUrl}/${token}/cover` : `${artworkUrl}/${token}`
 }
 
 export function friendlyAddress(addr, tot = 13) {

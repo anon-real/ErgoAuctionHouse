@@ -5,7 +5,7 @@ import ReactPlayer from "react-player";
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faStar} from "@fortawesome/free-regular-svg-icons";
 import {faStar as faStarSolid} from "@fortawesome/free-solid-svg-icons";
-import {addForKey, removeForKey} from "../auction/helpers";
+import { addForKey, getThumbnailAddress, removeForKey } from '../auction/helpers';
 import ArtworkDetails from "./artworkDetails";
 import noImg from "../assets/no-image-removebg-preview.jpg";
 
@@ -78,10 +78,9 @@ export default class ArtworkMedia extends React.Component {
                         }}
                         className="auctionImg"
                         src={
-                            box.artworkUrl
-                                ? box.artworkUrl
-                                : noImg
+                            getThumbnailAddress(box.token.id)
                         }
+                        onError={(e)=>{e.target.src=box.token.url}}
                     />
                 </div>}
                 {box.isAudio && <div>
@@ -92,10 +91,9 @@ export default class ArtworkMedia extends React.Component {
                             if (!this.props.avoidDetail) this.setState({artDetail: true})
                         }}
                         src={
-                            box.artworkUrl
-                                ? box.artworkUrl
-                                : noImg
+                            getThumbnailAddress(box.token.id,true)
                         }
+
                     />
                     <AudioPlayer
                         customAdditionalControls={[]}
@@ -107,7 +105,8 @@ export default class ArtworkMedia extends React.Component {
                         preload={"none"}
                         autoPlay={false}
                         className='audioTab'
-                        src={box.audioUrl}
+                        src={getThumbnailAddress(box.token.id)}
+                        onError={(e)=>{e.target.src=box.token.url}}
                     />
                 </div>}
                 {box.isVideo && <div>
@@ -115,7 +114,8 @@ export default class ArtworkMedia extends React.Component {
                         pip={true}
                         light={!this.props.preload}
                         playing={false}
-                        url={[{src: box.artworkUrl}]} // video location
+                        url={[{src: getThumbnailAddress(box.token.id)}]} // video location
+                        onError={(e)=>{e.target.src=box.token.url}}
                         controls  // gives the front end video controls
                         width='100%'
                         height='100%'
