@@ -76,7 +76,7 @@ function resolveIpfs(url, isVideo = false) {
         return url.replace(ipfsPrefix, 'https://cloudflare-ipfs.com/ipfs/')
     }
 }
-export async function decodeArtwork2(box, considerArtist = true) {
+export async function decodeArtwork2(box,tokenId = null, considerArtist = true) {
 
     let inf = {type: 'other'}
 
@@ -133,8 +133,11 @@ export async function decodeArtwork2(box, considerArtist = true) {
 }
 export async function decodeArtwork(box, tokenId, considerArtist = true) {
     const res = await getIssuingBox(tokenId)
-    if (box === null)
+    if (box === null) {
         box = res[0]
+        box.token = {}
+        box.token.id = box.id
+    }
     let inf = await getNFTInfo(tokenId)
     if (inf !== undefined && considerArtist) {
         if (!inf.isArtwork) inf.type = 'other'
@@ -227,6 +230,7 @@ export async function decodeArtwork(box, tokenId, considerArtist = true) {
         addNFTInfo(inf).then((d) => console.log(d))
             .catch((e) => console.error(e))
     }
+    box.token.url = inf.artworkUrl
     return {...box, ...inf}
 }
 
