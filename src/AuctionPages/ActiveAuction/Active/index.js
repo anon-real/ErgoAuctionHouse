@@ -4,10 +4,10 @@ import {currentBlock, followAuction2, getAllActiveAuctions,getAllActiveAuctions2
 import {
     encodeQueries,
     friendlyAddress,
-    getAuctionUrl,
+    getAuctionUrl, getForKey,
     getWalletAddress,
     isWalletSaved,
-    parseQueries,
+    parseQueries
 } from '../../../auction/helpers';
 import {css} from '@emotion/core';
 import PropagateLoader from 'react-spinners/PropagateLoader';
@@ -282,6 +282,10 @@ class ActiveAuctions extends React.Component {
             sort = "&sort=erg"
         else if (key === '9')
             sort = "&sort=none_erg"
+        else if (key === '7'){
+            const favs = getForKey('fav-artworks').map(fav => fav.id)
+            sort = `&sort=MyFav&address=${favs.join("-")}`
+        }
         else
             sort = ""
         // else if (key === '4')
