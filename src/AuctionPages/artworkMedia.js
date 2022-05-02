@@ -13,7 +13,8 @@ export default class ArtworkMedia extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            isFav: props.box.isFav
+            isFav: props.box.isFav,
+            errors: {}
         };
         this.favNFT = this.favNFT.bind(this);
     }
@@ -80,7 +81,18 @@ export default class ArtworkMedia extends React.Component {
                         src={
                             getThumbnailAddress(box.token.id)
                         }
-                        onError={(e)=>{e.target.src=box.token.url}}
+                        onError={(e)=>{
+
+                            if(!(box.token.id in this.state.errors)){
+                                e.target.src=box.token.url;
+                                let error = this.state.errors;
+                                error[box.token.id]=true;
+                                this.setState({error})
+                            }
+                            else
+                                e.target.src="";
+
+                        }}
                     />
                 </div>}
                 {box.isAudio && <div>
@@ -106,7 +118,18 @@ export default class ArtworkMedia extends React.Component {
                         autoPlay={false}
                         className='audioTab'
                         src={getThumbnailAddress(box.token.id)}
-                        onError={(e)=>{e.target.src=box.token.url}}
+                        onError={(e)=>{
+
+                            if(!(box.token.id in this.state.errors)){
+                                e.target.src=box.token.url;
+                                let error = this.state.errors;
+                                error[box.token.id]=true;
+                                this.setState({error})
+                            }
+                            else
+                                e.target.src="";
+
+                        }}
                     />
                 </div>}
                 {box.isVideo && <div>
@@ -115,7 +138,18 @@ export default class ArtworkMedia extends React.Component {
                         light={!this.props.preload}
                         playing={false}
                         url={[{src: getThumbnailAddress(box.token.id)}]} // video location
-                        onError={(e)=>{e.target.src=box.token.url}}
+                        onError={(e)=>{
+
+                            if(!(box.token.id in this.state.errors)){
+                                e.target.src=box.token.url;
+                                let error = this.state.errors;
+                                error[box.token.id]=true;
+                                this.setState({error})
+                            }
+                            else
+                                e.target.src="";
+
+                        }}
                         controls  // gives the front end video controls
                         width='100%'
                         height='100%'
