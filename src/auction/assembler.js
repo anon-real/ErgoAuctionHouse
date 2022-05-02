@@ -12,7 +12,7 @@ import {
 } from './helpers';
 import {Address} from '@coinbarn/ergo-ts';
 import {additionalData, assmUrl, auctionAddress, remFavNotif, trueAddress, txFee} from "./consts";
-import {boxById, currentBlock, followAuction, txByAddress, txById} from "./explorer";
+import {boxById, currentBlock, followAuction, followAuction2, txByAddress, txById} from "./explorer";
 import {decodeAuction2, getEncodedBoxSer, isP2pkAddr, longToCurrency} from "./serializer";
 import moment from "moment";
 
@@ -59,27 +59,34 @@ export async function favArtworks() {
     const favs = getForKey('fav-artworks')
     const block = await currentBlock()
     for (let i = 0; i < favs.length; i++) {
-        const newBid = await followAuction(favs[i].boxId)
-        let cur = JSON.parse(JSON.stringify(favs[i]))
-        if (newBid.id !== favs[i].boxId) {
-            if (newBid.address === auctionAddress) {
-                cur.boxId = newBid.boxId
-                updateForKey('fav-artworks', cur)
-                addNotification(`New bid for your favorite auction "${newBid.token.name}"`, getAuctionUrl(newBid.id))
-            } else {
-                addNotification(`Your favorite auction ${newBid.token.name} has ended`, getAuctionUrl(newBid.id))
-                removeForKey('fav-artworks', favs[i].id)
+        try {
+            const newBid = await followAuction2(favs[i].boxId)
+            let cur = JSON.parse(JSON.stringify(favs[i]))
+
+            if (newBid.id !== favs[i].boxId) {
+                if (newBid.address === auctionAddress) {
+                    cur.boxId = newBid.boxId
+                    updateForKey('fav-artworks', cur)
+                    addNotification(`New bid for your favorite auction "${newBid.token.name}"`, getAuctionUrl(newBid.id))
+                } else {
+                    addNotification(`Your favorite auction ${newBid.token.name} has ended`, getAuctionUrl(newBid.id))
+                    removeForKey('fav-artworks', favs[i].id)
+                }
+            }
+            if (newBid.address === auctionAddress && !favs[i].remNotifDone) {
+                const decoded = await decodeAuction2(newBid, block)
+                const rem = moment.duration(decoded.remTimeTimestamp).asHours();
+                if (rem <= remFavNotif) {
+                    addNotification(`Your favorite auction "${newBid.token.name}" is near the end`, getAuctionUrl(newBid.id))
+                    cur.remNotifDone = true
+                    updateForKey('fav-artworks', cur)
+                }
             }
         }
-        if (newBid.address === auctionAddress && !favs[i].remNotifDone) {
-            const decoded = await decodeAuction2(newBid, block)
-            const rem = moment.duration(decoded.remTimeTimestamp).asHours();
-            if (rem <= remFavNotif) {
-                addNotification(`Your favorite auction "${newBid.token.name}" is near the end`, getAuctionUrl(newBid.id))
-                cur.remNotifDone = true
-                updateForKey('fav-artworks', cur)
-            }
+        catch (e) {
+            console.log(e);
         }
+
     }
 }
 
