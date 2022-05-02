@@ -286,6 +286,9 @@ class ActiveAuctions extends React.Component {
             const favs = getForKey('fav-artworks').map(fav => fav.id)
             sort = `&sort=MyFav&address=${favs.join("-")}`
         }
+        else if (key === '4'){
+            sort = "&sort=Hot"
+        }
         else
             sort = ""
         // else if (key === '4')
