@@ -96,13 +96,31 @@ class ActiveAuctions extends React.Component {
 
                     this.updateAuctions(type,searchValue,artist,false).then(auctions => {
                         let queries = parseQueries(this.props.location.search)
-                        queries.allAuctions = this.state.allAuctions.concat(auctions)
-                        queries.loading = false
-                        queries.lastUpdated = 0
-                        this.setState({lastEnd:this.state.lastEnd+1})
-                        this.setState(queries)
-                        assembleFinishedAuctions(auctions).then(r => {
-                        })
+                        if(auctions.length===limit){
+                            queries.allAuctions = this.state.allAuctions.concat(auctions)
+                            queries.loading = false
+                            queries.lastUpdated = 0
+                            this.setState({lastEnd:this.state.lastEnd+1})
+                            this.setState(queries)
+                            assembleFinishedAuctions(auctions).then(r => {
+                            })
+                        }
+                        else if(auctions.length < limit){
+                            queries.allAuctions = this.state.allAuctions.slice(0,limit*this.state.lastEnd).concat(auctions)
+                            queries.loading = false
+                            queries.lastUpdated = 0
+                            this.setState({end: this.state.end - 1})
+                            this.setState(queries)
+                            assembleFinishedAuctions(auctions).then(r => {
+                            })
+                        }
+                        else{
+                            queries.loading = false
+                            queries.lastUpdated = 0
+                            this.setState({end: this.state.end - 1})
+                            this.setState(queries)
+                        }
+
                     })
                 }
 
@@ -145,6 +163,7 @@ class ActiveAuctions extends React.Component {
             const lastUpdated = this.state.lastUpdated
             let newLastUpdate = lastUpdated + 10
             if (lastUpdated > updatePeriod) {
+                let lim = this.state.allAuctions.length;
                 let type="";
                 let searchValue="";
                 let artist="";
@@ -155,7 +174,7 @@ class ActiveAuctions extends React.Component {
                 if(this.state.artist)
                     artist = this.state.artist
                 this.setState(queries)
-                this.updateAuctions(type,searchValue,artist,false).then(auctions => {
+                this.updateAuctions(type,searchValue,artist,false, lim).then(auctions => {
                     this.getStatus(queries.type,queries.searchValue).then(status =>{
                         this.setState({allAuctions: auctions, lastUpdated: 0, loading: false,status})
                     })
@@ -197,16 +216,25 @@ class ActiveAuctions extends React.Component {
         }
     }
 
-    async updateAuctions(type,searchValue,artist,statusCheck=true) {
+    async updateAuctions(type,searchValue,artist,statusCheck=true, refresh=0) {
+        let localLimit;
+        let end;
         if(artist === undefined)
             artist = "";
         if(searchValue === undefined)
             searchValue = "";
         if(type === undefined)
             type = "";
-        console.log(this.state.sortKey);
+        if(refresh===0){
+            localLimit=limit;
+            end=this.state.end;
+        }
+        else{
+            localLimit=refresh;
+            end=1;
+        }
+
         const block = await currentBlock()
-        console.log(block);
         let boxes
         let auctions
         if (this.state.specific) {
@@ -214,10 +242,10 @@ class ActiveAuctions extends React.Component {
             auctions = await decodeBoxes2(boxes, block)
         } else {
             if(searchValue) {
-                boxes = await getAllActiveAuctions2(limit, this.state.end, `${this.filterAuctions2(type)}&${this.sortAuctions2()}&search=${searchValue}&artist=${artist}`)
+                boxes = await getAllActiveAuctions2(localLimit, end, `${this.filterAuctions2(type)}&${this.sortAuctions2()}&search=${searchValue}&artist=${artist}`)
             }
             else
-                boxes = await getAllActiveAuctions2(limit,this.state.end,`${this.filterAuctions2(type)}&${this.sortAuctions2()}&artist=${artist}`)
+                boxes = await getAllActiveAuctions2(localLimit, end,`${this.filterAuctions2(type)}&${this.sortAuctions2()}&artist=${artist}`)
             boxes = boxes.data
             // console.log(await test());
             // console.log(boxes);
