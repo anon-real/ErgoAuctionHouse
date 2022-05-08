@@ -1,6 +1,6 @@
 import React, {Fragment} from 'react';
 import {Button, Col, Row,} from 'reactstrap';
-import {getWalletAddress, isAssembler, isWalletSaved, isYoroi,} from '../../auction/helpers';
+import {getWalletAddress, isAssembler, isWalletSaved, isDappWallet,} from '../../auction/helpers';
 import {css} from '@emotion/core';
 import 'react-h5-audio-player/lib/styles.css';
 import ArtworkMedia from "../artworkMedia";
@@ -50,7 +50,7 @@ export default class OwnedArtworks extends React.Component {
         this.setState({loading: true})
         let ids = []
         let amounts = {}
-        if (isYoroi()) {
+        if (isDappWallet()) {
             const tokens = await getYoroiTokens()
             ids = Object.keys(tokens)
             ids.forEach(key => amounts[key] = tokens[key].amount)
@@ -102,12 +102,12 @@ export default class OwnedArtworks extends React.Component {
 
                         </Row>
                         <ArtworkMedia avoidFav={true} box={box}/>
-                        {isYoroi() && <button type="button"
-                                              onClick={() => this.setState({
+                        {isDappWallet() && <button type="button"
+                                                   onClick={() => this.setState({
                                                   modalAssembler: true,
                                                   selected: box.assets[0].tokenId
                                               })}
-                                              className="btn btn-sm border-0 btn-link">Auction it
+                                                   className="btn btn-sm border-0 btn-link">Auction it
                         </button>}
                     </div>
                 </Col>

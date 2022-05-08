@@ -70,3 +70,6 @@ export const fakeThreshold = 0.5
 export const fakeURL = 'https://ergolui.com/nft-check/nfthashcompares/'
 
 export const notifCoolOff = 40
+
+export const Yoroi = 0
+export const Nautilus = 1

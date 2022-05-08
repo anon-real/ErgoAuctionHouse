@@ -1,5 +1,5 @@
 import {txFee} from "./consts";
-import {addForKey, addNotification, getTxUrl, getWalletAddress, isYoroi, showMsg} from "./helpers";
+import {addForKey, addNotification, getTxUrl, getWalletAddress, isDappWallet, showMsg} from "./helpers";
 import {colTuple, encodeByteArray, encodeHex, encodeNum, longToCurrency} from "./serializer";
 import {Serializer} from "@coinbarn/ergo-ts/dist/serializer";
 import {follow, p2s} from "./assembler";
@@ -66,7 +66,7 @@ export async function issueArtwork(name, description, quantity, royalty, hash, a
             R4: await encodeNum(royalty * 10, true),
             R5: await encodeHex(new Address(getWalletAddress()).ergoTree),
         }
-        if (isYoroi()) {
+        if (isDappWallet()) {
             const txId = await yoroiSendFunds({ERG: txFee * 2}, address, await currentBlock(), registers, false)
             if (txId !== undefined && txId.length > 0)
                 addNotification(`Your artwork "${name}" is being issued`, getTxUrl(txId))

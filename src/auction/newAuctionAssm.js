@@ -1,4 +1,4 @@
-import {addAssemblerBid, addForKey, getWalletAddress, isAssembler, isYoroi,} from './helpers';
+import {addAssemblerBid, addForKey, getWalletAddress, isAssembler, isDappWallet,} from './helpers';
 import {Address} from '@coinbarn/ergo-ts';
 import {encodeHex, encodeLongTuple, encodeNum, longToCurrency} from './serializer';
 import {follow, p2s} from "./assembler";
@@ -176,7 +176,7 @@ export async function newAuctionHelper(
         if (currency.name === 'ERG')
             toSend += r.startFee
         assemblerModal(r.address, longToCurrency(toSend, -1, currency.name), true, currency.name)
-    } else if (isYoroi()) {
+    } else if (isDappWallet()) {
         let need = {ERG: supportedCurrencies.ERG.initial + r.startFee}
         need[selectedToken.value] = amount
         if (currency.id.length > 0)

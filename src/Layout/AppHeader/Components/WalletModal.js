@@ -4,7 +4,7 @@ import {
     getWalletAddress, getWalletType,
     isAddressValid,
     isAssembler,
-    isWalletSaved, isYoroi,
+    isWalletSaved, isDappWallet,
     showMsg
 } from '../../../auction/helpers';
 
@@ -27,8 +27,9 @@ import classnames from 'classnames';
 import SyncLoader from 'react-spinners/SyncLoader';
 import {css} from '@emotion/core';
 import {Address} from '@coinbarn/ergo-ts';
-import {getYoroiAddress, setupYoroi} from "../../../auction/yoroiUtils";
 import NotificationCenter from './NotificationCenter';
+import {getConnectedAddress, setupWallet} from "../../../auction/walletUtils";
+import {Nautilus} from "../../../auction/consts";
 
 const override = css`
   display: block;
@@ -101,13 +102,15 @@ class WalletModal extends React.Component {
         }
         if (this.state.activeTab === 'yoroi') {
             this.clearWallet(false)
-            let res = setupYoroi(true)
-            let address = await getYoroiAddress()
+            // let res = setupYoroi(true)
+            let res = setupWallet(true)
+            // let address = await getYoroiAddress()
+            let address = await getConnectedAddress(Nautilus)
             if (res && address) {
                 localStorage.setItem(
                     'wallet',
                     JSON.stringify({
-                        type: this.state.activeTab,
+                        type: Nautilus,
                         address: address,
                     })
                 );
@@ -281,7 +284,7 @@ class WalletModal extends React.Component {
                             }
                             onClick={() => this.saveWallet()}
                         >
-                            {this.state.activeTab !== 'yoroi' ? 'Save' : (isYoroi()? 'reconnect' : 'Connect')} {this.state.processing}
+                            {this.state.activeTab !== 'yoroi' ? 'Save' : (isDappWallet()? 'reconnect' : 'Connect')} {this.state.processing}
                         </Button>
                     </ModalFooter>
                 </Modal>

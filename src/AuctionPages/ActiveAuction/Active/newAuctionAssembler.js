@@ -20,7 +20,7 @@ import {
     ModalHeader,
     Row,
 } from 'reactstrap';
-import {friendlyAddress, isYoroi, showMsg,} from '../../../auction/helpers';
+import {friendlyAddress, isDappWallet, showMsg,} from '../../../auction/helpers';
 import SyncLoader from 'react-spinners/SyncLoader';
 import {css} from '@emotion/core';
 import {currencyToLong, isFloat, longToCurrency} from "../../../auction/serializer";
@@ -59,7 +59,7 @@ class NewAuctionAssembler extends React.Component {
         if (this.props.isOpen && !nextProps.isOpen) {
             this.setState({modalLoading: false, assets: {}});
         } else if (!this.props.isOpen && nextProps.isOpen) {
-            if (isYoroi()) {
+            if (isDappWallet()) {
                 this.setState({tokenLoading: true})
                 getYoroiTokens().then(res => {
                     const rendered = Object.keys(res).map(key => {
@@ -93,7 +93,7 @@ class NewAuctionAssembler extends React.Component {
     canStartAuction() {
         return (
             !this.state.modalLoading &&
-            ((this.state.selectedToken !== null && parseInt(this.state.tokenAmount)) > 0 || !isYoroi()) &&
+            ((this.state.selectedToken !== null && parseInt(this.state.tokenAmount)) > 0 || !isDappWallet()) &&
             currencyToLong(this.state.initialBid, this.state.currency.decimal) >= this.state.currency.minSupported &&
             currencyToLong(this.state.auctionStep, this.state.currency.decimal) >= this.state.currency.minSupported
         );
@@ -144,7 +144,7 @@ class NewAuctionAssembler extends React.Component {
                         </Row>
 
                         <Form>
-                            {isYoroi() && <Row>
+                            {isDappWallet() && <Row>
                                 <Col>
                                     <FormGroup>
                                         <Label for="bid">Token to Auction</Label>

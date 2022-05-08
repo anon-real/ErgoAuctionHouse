@@ -1,7 +1,7 @@
 import React from 'react';
 import {Flip, Slide, toast} from 'react-toastify';
 import {Address} from "@coinbarn/ergo-ts";
-import {additionalData, auctionNFT, fakeThreshold, fakeURL, notifCoolOff} from "./consts";
+import {additionalData, auctionNFT, fakeThreshold, fakeURL, Nautilus, notifCoolOff} from "./consts";
 import {getBoxesForAsset} from "./explorer";
 import moment from "moment";
 import ahIcon from "../assets/images/Ergo_auction_house_logo.png";
@@ -94,8 +94,9 @@ export function isAssembler() {
     return isWalletSaved() && getWalletType() === 'assembler';
 }
 
-export function isYoroi() {
-    return isWalletSaved() && getWalletType() === 'yoroi';
+export function isDappWallet() {
+    console.log(getWalletType())
+    return isWalletSaved() && getWalletType() === Nautilus;
 }
 
 export function getWalletAddress() {
@@ -105,7 +106,7 @@ export function getWalletAddress() {
 export function getWalletType() {
     if (localStorage.getItem('wallet') !== null)
         return JSON.parse(localStorage.getItem('wallet')).type
-    return JSON.parse(sessionStorage.getItem('wallet')).type
+    return -1
 }
 
 export function getMyBids() {
