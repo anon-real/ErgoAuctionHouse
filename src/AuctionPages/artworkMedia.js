@@ -84,7 +84,7 @@ export default class ArtworkMedia extends React.Component {
                         onError={(e)=>{
 
                             if(!(box.token.id in this.state.errors)){
-                                e.target.src=box.token.url;
+                                e.target.src="https://gateway.ipfs.io/ipfs/"+box.token.url.split("//")[1];
                                 let error = this.state.errors;
                                 error[box.token.id]=true;
                                 this.setState({error})
@@ -141,7 +141,7 @@ export default class ArtworkMedia extends React.Component {
                         onError={(e)=>{
 
                             if(!(box.token.id in this.state.errors)){
-                                e.target.src=box.token.url;
+                                e.target.src="https://gateway.ipfs.io/ipfs/"+box.token.url.split("//")[1]
                                 let error = this.state.errors;
                                 error[box.token.id]=true;
                                 this.setState({error})
