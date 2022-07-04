@@ -138,18 +138,18 @@ export default class ArtworkMedia extends React.Component {
                         pip={true}
                         light={!this.props.preload}
                         playing={false}
-                        url={[{ src: this.props.avoidDetail ? getThumbnailAddress(box.token.id, false, false) : getThumbnailAddress(box.token.id) }]} // video location
-                        onError={(e) => {
-
-                            if (!(box.token.id in this.state.errors)) {
-                                e.target.url = [{ src: getThumbnailAddress(box.token.id, false, false) }];
-                                let error = this.state.errors;
-                                error[box.token.id] = true;
-                                this.setState({ error });
-                            } else
-                                e.target.url = [{ src: 'https://ipfs.io/ipfs/' + box.token.url.split('//')[1] }];
-
-                        }}
+                        url={[{ src: 'https://ipfs.io/ipfs/' + box.token.url.split('//')[1] }]} // video location
+                        // onError={(e) => {
+                        //
+                        //     if (!(box.token.id in this.state.errors)) {
+                        //         e.target.url = [{ src: getThumbnailAddress(box.token.id, false, false) }];
+                        //         let error = this.state.errors;
+                        //         error[box.token.id] = true;
+                        //         this.setState({ error });
+                        //     } else
+                        //         e.target.url = [{ src: 'https://ipfs.io/ipfs/' + box.token.url.split('//')[1] }];
+                        //
+                        // }}
                         controls  // gives the front end video controls
                         width='100%'
                         height='100%'
