@@ -137,7 +137,7 @@ export default class ArtworkMedia extends React.Component {
                         pip={true}
                         light={!this.props.preload}
                         playing={false}
-                        url={[{src: getThumbnailAddress(box.token.id)}]} // video location
+                        url={[{src: getThumbnailAddress(box.token.id,false,false)}]} // video location
                         onError={(e)=>{
 
                             if(!(box.token.id in this.state.errors)){
