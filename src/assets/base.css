@@ -16913,18 +16913,21 @@ a.badge-alternate:hover, a.badge-alternate:focus {
 /*# sourceMappingURL=base.css.map */
 
 .auctionImg {
-    width: 100%;
-    height: 100%;
+    /* width: 100%; */
+    /* height: 100%; */
+    height: 330px;
+    width: auto;
     object-fit: contain;
 }
 
 
 .imgDiv {
     height: 350px;
+    width: auto;
     border-radius: 8px;
     overflow: scroll;
     box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.08);
-    display: flex;
+    /* display: flex; */
     position: relative;
     background: #f9f9f9;
     justify-content: center;
