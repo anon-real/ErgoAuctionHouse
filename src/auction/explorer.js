@@ -37,7 +37,7 @@ export function getBoxesForAsset(asset) {
 export function getActiveAuctions(addr) {
     return getRequest(`/boxes/unspent/byAddress/${addr}?limit=500`, explorerApiV1)
         .then(res => res.items)
-        .then((boxes) => boxes.filter((box) => box.assets.length > 0));
+        .then((boxes) => boxes.filter((box) => box.assets.length > 0 && box.boxId !== 'faca6d5a6c15f7ab11b29fbb11e798ad37ad910abd12435776eb97085604074b'));
 }
 
 export function getUnconfirmedTxsFor(addr) {
