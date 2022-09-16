@@ -185,6 +185,14 @@ class Header extends React.Component {
                                                 FAQ
                                             </NavLink>
                                         </NavItem>
+                                        <NavItem>
+                                            <NavLink href="https://ido.ergoauctions.org/"
+                                                     target="_blank"
+                                                     active={window.location.href.includes("#/faq")}
+                                            >
+                                                <b>IDO</b>
+                                            </NavLink>
+                                        </NavItem>
                                         {/*<div className="search-container">*/}
                                         <div className="search-box">
                                             <form className="d-flex justify-content-between align-items-center"

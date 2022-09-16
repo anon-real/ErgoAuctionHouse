@@ -19,6 +19,8 @@ import {decodeBoxes, longToCurrency,} from '../../../auction/serializer';
 import ShowAuctions from "./showActives";
 import {withRouter} from 'react-router-dom';
 import ArtworkMedia from "../../artworkMedia";
+import Announcement from "react-announcement";
+import logo from '../../../assets/Auction House LOGO3.svg'
 
 const Coverflow = require('react-coverflow');
 
@@ -238,6 +240,14 @@ class ActiveAuctions extends React.Component {
         let values = this.calcValues(this.filterAuctions(this.state.allAuctions))
         return (
             <Fragment>
+                <Announcement
+                    daysToLive={0}
+                    secondsBeforeBannerShows={1}
+                    title="Auction House Token ($AHT) and IDO"
+                    subtitle="We have our IDO landing page and whitepaper ready. Click to check it out!"
+                    link="https://ido.ergoauctions.org/"
+                    imageSource={logo}
+                />
                 <div className="app-page-title">
                     <div className="page-title-wrapper">
                         <div className="page-title-heading">

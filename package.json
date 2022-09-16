@@ -75,6 +75,8 @@
     "react-addons-shallow-compare": "^15.6.0",
     "react-animated-css": "^1.0.4",
     "react-anime": "^2.2.0",
+    "react-announcement": "^1.1.3",
+    "react-announcement-bar": "^0.0.1",
     "react-bootstrap": "^0.32.4",
     "react-chartjs-2": "^2.7.4",
     "react-clipboard.js": "^2.0.16",
