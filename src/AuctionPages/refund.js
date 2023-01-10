@@ -6,7 +6,7 @@ import InputGroup from "react-bootstrap/lib/InputGroup";
 import {Form} from "react-bootstrap";
 import ModalHeader from "react-bootstrap/lib/ModalHeader";
 import {getReturnAddr, returnFunds} from "../auction/assembler";
-import {getTxUrl, showMsg} from "../auction/helpers";
+import {getTxUrl, getWalletAddress, showMsg} from "../auction/helpers";
 
 export default class Refund extends React.Component {
     constructor(props) {
@@ -22,12 +22,18 @@ export default class Refund extends React.Component {
     async refund() {
         this.setState({loading: true})
         try {
-            const addr = await getReturnAddr(this.state.proxyContract)
+            let addr = await getReturnAddr(this.state.proxyContract)
             if (!addr) throw new Error()
             const txId = await returnFunds(addr, this.state.proxyContract)
             this.setState({txId: txId})
         } catch (e) {
-            showMsg('Error while sending the refund! Make sure your funds are still in the proxy contract.', true)
+            try {
+                const addr = getWalletAddress()
+                const txId = await returnFunds(addr, this.state.proxyContract)
+                this.setState({txId: txId})
+            } catch (e) {
+                showMsg('Error while sending the refund! Make sure your funds are still in the proxy contract.', true)
+            }
         }
         this.setState({loading: false})
     }
