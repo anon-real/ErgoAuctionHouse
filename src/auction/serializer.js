@@ -231,7 +231,11 @@ export async function decodeAuction(box, block) {
     if (box.instantAmount !== -1 && box.curBid >= box.instantAmount)
         box.isFinished = true
 
-    box = await decodeArtwork(box, box.assets[0].tokenId)
+    try {
+        box = await decodeArtwork(box, box.assets[0].tokenId)
+    } catch (e) {
+        return undefined
+    }
     return box
 }
 
