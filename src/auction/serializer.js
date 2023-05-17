@@ -186,61 +186,57 @@ export async function getArtist(bx) {
 }
 
 export async function decodeAuction(box, block) {
+    box.seller = Address.fromErgoTree(await decodeString(box.additionalRegisters.R4.serializedValue)).address;
+    box.bidder = Address.fromErgoTree(await decodeString(box.additionalRegisters.R5.serializedValue)).address;
+    const stepInit = await decodeLongTuple(box.additionalRegisters.R6.serializedValue)
+    box.minBid = stepInit[0]
+    box.initialBid = stepInit[0]
+    box.step = stepInit[1]
+    box.endTime = parseInt(await decodeNum(box.additionalRegisters.R7.serializedValue))
+    box.instantAmount = parseInt(await decodeNum(box.additionalRegisters.R8.serializedValue))
+
+    let info = Serializer.stringFromHex(await decodeString(box.additionalRegisters.R9.serializedValue))
     try {
-        box.seller = Address.fromErgoTree(await decodeString(box.additionalRegisters.R4.serializedValue)).address;
-        box.bidder = Address.fromErgoTree(await decodeString(box.additionalRegisters.R5.serializedValue)).address;
-        const stepInit = await decodeLongTuple(box.additionalRegisters.R6.serializedValue)
-        box.minBid = stepInit[0]
-        box.initialBid = stepInit[0]
-        box.step = stepInit[1]
-        box.endTime = parseInt(await decodeNum(box.additionalRegisters.R7.serializedValue))
-        box.instantAmount = parseInt(await decodeNum(box.additionalRegisters.R8.serializedValue))
+        const infoJs = JSON.parse(info)
+        box.startTime = infoJs.startTime
+        box.description = infoJs.description
 
-        let info = Serializer.stringFromHex(await decodeString(box.additionalRegisters.R9.serializedValue))
-        try {
-            const infoJs = JSON.parse(info)
-            box.startTime = infoJs.startTime
-            box.description = infoJs.description
+    } catch (e) {
+        box.startTime = parseInt(info.split(',')[1])
+        box.description = info.split(',')[2]
+    }
+    if (box.description.length === 0) box.description = '-'
 
-        } catch (e) {
-            box.startTime = parseInt(info.split(',')[1])
-            box.description = info.split(',')[2]
-        }
-        if (box.description.length === 0) box.description = '-'
+    box.remTime = Math.max(box.endTime - block.timestamp, 0);
+    box.remTime = moment.duration(box.remTime, 'milliseconds').format("w [weeks], d [days], h [hours], m [minutes]", {
+        largest: 2,
+        trim: true
+    })
+    box.remTimeTimestamp = box.endTime - block.timestamp
+    box.done = ((moment().valueOf() - box.startTime) / (box.endTime - box.startTime)) * 100;
+    box.currency = 'ERG'
+    box.curBid = box.value
+    if (box.assets.length > 1) {
+        box.currency = Object.values(supportedCurrencies).find(cur => cur.id === box.assets[1].tokenId).name
+        box.curBid = box.assets[1].amount
+    }
+    box.nextBid = box.curBid + box.step
+    if (box.curBid < box.minBid) box.nextBid = box.minBid
+    if (box.curBid < box.minBid) box.increase = 0
+    else box.increase = (((box.curBid - box.minBid) / box.minBid) * 100).toFixed(1);
 
-        box.remTime = Math.max(box.endTime - block.timestamp, 0);
-        box.remTime = moment.duration(box.remTime, 'milliseconds').format("w [weeks], d [days], h [hours], m [minutes]", {
-            largest: 2,
-            trim: true
-        })
-        box.remTimeTimestamp = box.endTime - block.timestamp
-        box.done = ((moment().valueOf() - box.startTime) / (box.endTime - box.startTime)) * 100;
-        box.currency = 'ERG'
-        box.curBid = box.value
-        if (box.assets.length > 1) {
-            box.currency = Object.values(supportedCurrencies).find(cur => cur.id === box.assets[1].tokenId).name
-            box.curBid = box.assets[1].amount
-        }
-        box.nextBid = box.curBid + box.step
-        if (box.curBid < box.minBid) box.nextBid = box.minBid
-        if (box.curBid < box.minBid) box.increase = 0
-        else box.increase = (((box.curBid - box.minBid) / box.minBid) * 100).toFixed(1);
+    box.loader = false;
 
-        box.loader = false;
+    box.isFinished = box.remTime === 0
+    if (box.instantAmount !== -1 && box.curBid >= box.instantAmount)
+        box.isFinished = true
 
-        box.isFinished = box.remTime === 0
-        if (box.instantAmount !== -1 && box.curBid >= box.instantAmount)
-            box.isFinished = true
-
-        try {
-            box = await decodeArtwork(box, box.assets[0].tokenId)
-        } catch (e) {
-            return undefined
-        }
-        return box
+    try {
+        box = await decodeArtwork(box, box.assets[0].tokenId)
     } catch (e) {
         return undefined
     }
+    return box
 }
 
 export async function decodeBoxes(boxes, block) {
