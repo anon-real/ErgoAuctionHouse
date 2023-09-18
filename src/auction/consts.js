@@ -55,6 +55,13 @@ export const supportedCurrencies = {
         minSupported: 100,
         initial: 1,
     },
+    ErgOne: {
+        name: 'ErgOne',
+        id: 'fcfca7654fb0da57ecf9a3f489bcbeb1d43b56dce7e73b352f7bc6f2561d2a1b',
+        decimal: 8,
+        minSupported: 100000000,
+        initial: 1,
+    },
 }
 export const assmUrl = 'https://assembler.ergoauctions.org/';
 
