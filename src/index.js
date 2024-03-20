@@ -32,6 +32,13 @@ function handleUpdates() {
         setForKey(updates, 'newUpdates')
         addNotification('SigmaVally\'s second plot sale is now live! Click to see the verified NFTs.', 'https://ergoauctions.org/#/auction/active?type=picture&artist=9gdD4EmYjvKXCzgsQNHVFwcFrQ5vxqCWf6k2i4tFn7zwQhDATo8')
     }
+    if (!updates.map(up => up.key).includes('ergold')) {
+        updates = updates.concat([{
+            key: 'ergold'
+        }])
+        setForKey(updates, 'newUpdates')
+        addNotification(''Ergold is now a supported currency in the ergo auction house.', 'https://explorer.ergoplatform.com/en/token/e91cbc48016eb390f8f872aa2962772863e2e840708517d1ab85e57451f91bed')
+    }
 }
 
 const renderApp = (Component) => {
